@@ -35,15 +35,16 @@ const sha256 = (s: string) => createHash('sha256').update(s, 'utf8').digest('hex
 
 /**
  * 记录链：把全部公开文章按时间升序串成一条哈希链。
- * 目的是让「时间积累」可核对——发布后任何一篇被改动，链头摘要都会变，
- * 链头随每次构建写进页面；配合 Git 提交与 Pages 部署时间，第三方也能核对。
+ * 摘要 = SHA256(上一条摘要 | 序号 | 文件 id | 日期 | 标题 | 正文全文)。
+ * 正文进哈希，所以发布后改一个字，它之后的摘要与链头都会变（列表用的 summary 不参与哈希）。
  */
 export async function chain() {
   const posts = (await publishedPosts()).slice().sort((a, b) => t(a) - t(b)); // 旧→新
   let hash = `GENESIS:${site.start}`;
   const byId = new Map<string, string>();
   posts.forEach((p, i) => {
-    hash = sha256(`${hash}|${i}|${p.id}|${p.data.date.toISOString()}|${p.data.title}`);
+    const raw = (p as unknown as { body?: string }).body ?? '';
+    hash = sha256(`${hash}|${i}|${p.id}|${p.data.date.toISOString()}|${p.data.title}|${raw}`);
     byId.set(p.id, hash);
   });
   return { head: hash, byId, count: posts.length, ids: posts.map((p) => p.id) };
