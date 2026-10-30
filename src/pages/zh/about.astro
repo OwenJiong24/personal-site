@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/base.astro';
+import { site } from '../../lib/site';
+import { publishedPosts, stats, utcDay } from '../../lib/trust';
+
+const posts = await publishedPosts();
+const s = stats(posts);
+---
+
+<Base title="关于" description={`我是 ${site.name}。这个站是我在 AM 时代留下的公开工作记录。`} path="/about" switchHref="/about">
+  <section class="wrap measure flow">
+    <h1>关于我，和这个站</h1>
+
+    <div class="prose">
+      <p>
+        我是 <strong>{site.name}</strong>，{site.role}。这个站点只有一个用途：把我每天真实在做的事、想清楚的事、想错的事，
+        按时间顺序公开摆在这里。
+      </p>
+
+      <h2>为什么要做这件事</h2>
+      <p>
+        模型能在一夜之间生成一整套看起来很像真的东西：作品集、履历、成功案例。当一切都能被批量生产，
+        能证明「这是一个真实的人，长期在做这件事」的东西就只剩一样——带时间戳的、连续的、可核对的记录。
+      </p>
+      <p>
+        所以这个站不追求好看，追求<strong>不断更</strong>和<strong>能核对</strong>。每天写下的开发日志、每周写下的洞察，
+        积累三五年之后，它比任何自我介绍都硬。
+      </p>
+
+      <h2>我是谁（这三段我自己写）</h2>
+      <div class="card-flat">
+        <p class="meta">下面三处由 Owen 本人填写，助手不代笔。填之前这段保持可见，站点不装作完整。</p>
+        <ul>
+          <li>我在做什么：ZART（跨境电商系统）——从哪一年开始、现在到哪一步、由谁在用。</li>
+          <li>我是怎么走到这里的：技术线、生意线、踩过的最大的两个坑。</li>
+          <li>我擅长什么、明确不做什么。</li>
+        </ul>
+      </div>
+
+      <h2>这个站的规则</h2>
+      <ul>
+        <li>时间一律 UTC。写完不回头修饰；补记标明「补记」。</li>
+        <li>
+          每篇公开记录进入一条哈希链（<a href="/zh/verify">怎么核对</a>）。改动正文，链头摘要会变。
+        </li>
+        <li>
+          公开发布的内容只写「我做了什么、学到什么」，不写密钥、主机地址、客户数据、未发布的商业数字，也不写身份证级隐私。
+          公开身份用姓名拼音与可核验锚点，足够核对，不交出生活细节。
+        </li>
+        <li>静态站点，无追踪脚本，无 Cookie 横幅。源码在 GitHub，构建与托管在 Cloudflare Pages。</li>
+      </ul>
+
+      <h2>可以怎么用这份记录</h2>
+      <ul>
+        <li>想找工程能力：看 <a href="/zh/journal">开发日志</a>，那里有具体的坑与解法。</li>
+        <li>想找判断力：看 <a href="/zh/essays">洞察</a>，看我说错过什么、后来怎么改的。</li>
+        <li>想确认这是真人在长期维护：看 <a href="/zh/timeline">时间线</a> 与 <a href="/zh/verify">记录链</a>。</li>
+        <li>想谈合作：邮件 {site.anchors.email}，标题写清来意。</li>
+      </ul>
+
+      <p class="meta">
+        自 {site.start} 起公开：{s.entries} 条记录 / {s.activeDays} 天有更新 · 最近更新 {s.latest ? utcDay(s.latest) : '—'}
+      </p>
+    </div>
+  </section>
+</Base>

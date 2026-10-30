@@ -1,9 +1,10 @@
-# 板块改名后的 301（2026-10-30：insights→essays，work→projects）
-/insights/*   /essays/:splat    301
-/work/*       /projects/:splat  301
-/en/insights/*   /en/essays/:splat    301
-/en/work/*       /en/projects/:splat  301
-/insights        /essays         301
-/work            /projects       301
-/en/insights     /en/essays      301
-/en/work         /en/projects    301
+# 2026-10-30 语言结构切换：英文进根，中文进 /zh
+/en    /  301
+/en/   /  301
+/en/*  /:splat  301
+
+# 老板块 URL（中文）→ 新板块（中文）
+/insights/*   /zh/essays/:splat    301
+/work/*       /zh/projects/:splat  301
+/insights     /zh/essays           301
+/work         /zh/projects         301

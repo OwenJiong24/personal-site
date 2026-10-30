@@ -6,7 +6,7 @@ import { render } from 'astro:content';
 export async function getStaticPaths() {
   const out: Array<{ params: { zone: string; slug: string }; props: Record<string, unknown> }> = [];
   for (const zone of sections) {
-    const siblings = await publishedIn(zone, 'zh');
+    const siblings = await publishedIn(zone, 'en');
     for (const entry of siblings) {
       out.push({ params: { zone, slug: keyOf(entry) }, props: { entry, zone, siblings } });
     }
@@ -16,6 +16,6 @@ export async function getStaticPaths() {
 const { entry, zone, siblings } = Astro.props;
 const { Content } = await render(entry);
 ---
-<Post entry={entry} zone={zone} lang="zh" siblings={siblings}>
+<Post entry={entry} zone={zone} lang="en" siblings={siblings}>
   <Content />
 </Post>

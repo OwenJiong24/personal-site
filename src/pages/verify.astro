@@ -1,9 +1,9 @@
 ---
 import Base from '../layouts/base.astro';
-import { site } from '../lib/site';
+import { brand, site } from '../lib/site';
 import { publishedPosts, chain, utcDay } from '../lib/trust';
 
-const posts = await publishedPosts();
+const posts = await publishedPosts('en');
 const ch = await chain();
 const recent = posts.slice(0, 10).map((p) => ({
   date: utcDay(p.data.date),
@@ -14,68 +14,63 @@ const recent = posts.slice(0, 10).map((p) => ({
 ---
 
 <Base
-  title="如何核对这份记录"
-  description="这个站为什么值得信：哈希链、构建时间与外部锚点的核对方法。"
-  path="/verify" switchHref="/en/verify">
+  title="How to verify this record"
+  description="Why this site is worth trusting: hash chain, deployment time, and external anchors — plus the limits."
+  path="/en/verify"
+  lang="en"
+  switchHref="/zh/verify">
   <section class="wrap measure flow">
-    <h1>如何核对这份记录</h1>
+    <h1>How to verify this record</h1>
 
     <div class="prose">
       <p>
-        网上放一份「我做过什么」很容易，难的是让人相信用它的人真的在那段时间做这些事。这个站用三条机制把「可核对」做实。
+        Publishing "what I have done" is cheap. What is expensive is letting a reader confirm that the same person really
+        did it, in that order, over that time. Three mechanisms do that here.
       </p>
 
-      <h2>1. 哈希链：正文改没改，链头会说话</h2>
+      <h2>1. Hash chain: the head tells you if the body changed</h2>
       <p>
-        构建时把所有公开记录按时间升序排序，从起点 <span class="mono">{site.start}</span> 开始逐条做 SHA-256 链接：
-        每条的摘要 = SHA256(上一条摘要 | 序号 | 文件 id | 日期 | 标题 | <strong>正文全文</strong>)。
-        改标题、改日期、改正文任何一个字，它之后的全部摘要与链头都会变；列表页用的摘要字段不参与哈希。
+        At build time every published entry is sorted by date and chained: each digest =
+        SHA256(previous digest | index | file id | ISO8601 date | title | <strong>full body</strong>).
+        Change a title, a date, or one character of prose, and every digest after it — including the head — changes.
+        The summary field used in listings is not hashed.
       </p>
       <p>
-        说明白它的边界：这条链能证明「发布之后有没有被改动」，不能证明「我说的是真话」。
-        链头由 Cloudflare Pages 的部署时间盖章，源码在 Git 提交里（页脚写了这份内容由哪个提交号构建），
-        两者对上就构成一条可核对的时间证据。
+        Stated limits: this proves <em>nothing was edited after publication</em>. It cannot prove <em>the writing is true</em>.
+        The head is stamped by a Cloudflare Pages deployment; the source sits in Git (the footer names the commit this
+        content was built from). Together they form checkable time evidence.
       </p>
       <div class="card stack-sm">
-        <p class="meta">当前链头（{ch.count} 条，构建于本次部署）</p>
+        <p class="meta">Current head ({ch.count} entries, built by this deployment)</p>
         <p class="mono" style="word-break: break-all">{ch.head}</p>
         <p class="meta">
-          机器可读全链：<a href="/chain.json" class="mono">/chain.json</a>
+          Machine-readable chain: <a href="/chain.json" class="mono">/chain.json</a>
         </p>
       </div>
 
-      <h2>2. 部署时间：内容由 Cloudflare 盖章</h2>
+      <h2>2. Deployment time: the content is stamped by the platform</h2>
       <p>
-        站点是纯静态构建，部署产物不可在服务器端改写。访客看到的内容与 HTTP 响应头
-        <span class="mono">cf-cache-status</span> / Pages 部署时间一致，
-        可用浏览器开发者工具核对页面文件的最后修改时间。
+        The site is a static build; deployment output cannot be rewritten server-side. What you see matches the files a
+        given deployment uploaded, and the page footer names the commit that produced it.
       </p>
 
-      <h2>3. 外部锚点：同一个人，多个地方</h2>
-      <p>
-        同一个 handle 与同一个邮箱，出现在多个第三方站点上，互相印证：
-      </p>
+      <h2>3. External anchors: one person, several places</h2>
       <ul>
-        <li>GitHub：<a href={`https://github.com/${site.anchors.github}`} rel="me">github.com/{site.anchors.github}</a>（公开提交历史是工程能力最硬的证据）</li>
-        <li>邮箱：<a href={`mailto:${site.anchors.email}`} rel="me">{site.anchors.email}</a>（域名在我手里，可收发验证邮件）</li>
-        <li>RSS：<a href="/rss.xml">/rss.xml</a>（可被第三方聚合器长期抓取，形成外部留档）</li>
+        <li>GitHub: <a href={`https://github.com/${site.anchors.github}`} rel="me">github.com/{site.anchors.github}</a> — public commit history is the hardest engineering evidence.</li>
+        <li>Email: <a href={`mailto:${site.anchors.email}`} rel="me">{site.anchors.email}</a> — the domain is mine and receives mail.</li>
+        <li>RSS: <a href="/en/rss.xml">/en/rss.xml</a> — aggregators can archive it externally.</li>
       </ul>
 
-      <h2>还没做的（说明白，不吹）</h2>
+      <h2>Not done yet (stated plainly)</h2>
       <ul>
-        <li>把链头定期锚定到第三方不可改的地方（公开仓库、RFC3161 时间戳服务），让外部人能独立验证。</li>
-        <li>用私钥对链头签名，页面公布公钥指纹。</li>
+        <li>Periodically anchoring the head somewhere immutable (a public repo, an RFC3161 timestamp authority).</li>
+        <li>Signing the head with a private key and publishing the key fingerprint.</li>
       </ul>
 
-      <h2>最近十条的链上摘要</h2>
+      <h2>Digests of the ten most recent entries</h2>
       <table>
         <thead>
-          <tr>
-            <th>日期（UTC）</th>
-            <th>区块</th>
-            <th>标题</th>
-            <th>摘要</th>
-          </tr>
+          <tr><th>Date (UTC)</th><th>Section</th><th>Title</th><th>Digest</th></tr>
         </thead>
         <tbody>
           {

@@ -11,7 +11,7 @@ interface Props {
 const { lang } = Astro.props;
 const t = ui[lang];
 const path = langPath(lang, '/uses');
-const switchHref = lang === 'zh' ? '/en/uses' : '/uses';
+const switchHref = lang === 'zh' ? '/uses' : '/zh/uses';
 const groups: UseGroup[] = ['work', 'build', 'mind', 'life'];
 const rows = groups.map((g) => ({
   g,

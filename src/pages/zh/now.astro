@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/base.astro';
+import { site } from '../../lib/site';
+import { publishedPosts, utcDay } from '../../lib/trust';
+
+// Now 页：这一刻的快照，随时间替换，不保留历史（历史在 journal 与 timeline）。
+const posts = await publishedPosts();
+const updated = '2026-10-30';
+---
+
+<Base
+  title="现在"
+  description={`我此刻在做什么。更新于 ${updated}（UTC）。`}
+  path="/now" switchHref="/now">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>现在</h1>
+      <p class="meta">更新于 {updated}（UTC）· 这页只写此刻，历史去 <a href="/zh/timeline">时间线</a></p>
+    </header>
+
+    <div class="prose">
+      <h2>正在做</h2>
+      <ul>
+        <li>ZART：跨境电商系统的开发与上线节奏（可公开的部分写在 <a href="/work">项目</a>）。</li>
+        <li>把自己的开发过程接上公开记录：每天写一条，进 <a href="/zh/journal">开发日志</a>。</li>
+        <li>把这个站本身当成产品在做：内容流水线、发布门禁、时间链。</li>
+      </ul>
+
+      <h2>正在想</h2>
+      <ul>
+        <li>AM 时代人的可核验性怎么建：链式记录、GitHub 提交、邮箱与 handle 的一致性。</li>
+        <li>公开的颗粒度：写到什么深度既有信任价值，又不泄露未发布的东西。</li>
+      </ul>
+
+      <h2>暂停中</h2>
+      <ul>
+        <li>社交媒体的日常更新。精力放在写代码与这个记录上。</li>
+      </ul>
+
+      <p class="meta">
+        <a href="/zh/journal">最新一条日志</a>：
+        {posts[0] ? `${posts[0].data.title}（${utcDay(posts[0].data.date)}）` : '暂无'}
+      </p>
+      <p class="meta">联系：{site.anchors.email}</p>
+    </div>
+  </section>
+</Base>

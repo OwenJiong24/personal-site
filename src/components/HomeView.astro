@@ -14,7 +14,7 @@ interface Props {
 const { lang } = Astro.props;
 const t = ui[lang];
 const path = langPath(lang, '/');
-const switchHref = lang === 'zh' ? '/en/' : '/';
+const switchHref = lang === 'zh' ? '/' : '/zh/';
 const zhPosts = await publishedPosts('zh');
 const posts = await publishedPosts(lang);
 const s = stats(zhPosts);

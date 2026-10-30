@@ -138,4 +138,4 @@ export const ui = {
 } as const;
 
 /** 语言前缀：中文在站点根，英文在 /en。 */
-export const langPath = (lang: Lang, path: string) => (lang === 'en' ? `/en${path}` : path);
+export const langPath = (lang: Lang, path: string) => (lang === 'zh' ? `/zh${path}` : path);

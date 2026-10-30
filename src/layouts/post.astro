@@ -22,7 +22,7 @@ const idx = ch.ids.indexOf(entry.id) + 1;
 const twin = await twinOf(entry);
 const zoneBase = langPath(lang, '/' + zone);
 const path = zoneBase + '/' + keyOf(entry);
-const twinPath = twin ? (lang === 'zh' ? '/en/' : '/') + zone + '/' + keyOf(twin) : undefined;
+const twinPath = twin ? (lang === 'zh' ? '/' : '/zh/') + zone + '/' + keyOf(twin) : undefined;
 const me = siblings.findIndex((p) => p.id === entry.id);
 const newer = me > 0 ? siblings[me - 1] : undefined;
 const older = me >= 0 && me < siblings.length - 1 ? siblings[me + 1] : undefined;

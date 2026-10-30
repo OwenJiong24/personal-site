@@ -13,7 +13,7 @@ const { lang, zone } = Astro.props;
 const t = ui[lang];
 const posts = await publishedIn(zone, lang);
 const path = langPath(lang, '/' + zone);
-const switchHref = (lang === 'zh' ? '/en' : '') + '/' + zone;
+const switchHref = (lang === 'zh' ? '' : '/zh') + '/' + zone;
 const info = t.sections[zone as SectionSlug];
 const isNotes = zone === 'notes';
 const rows = posts.map((p) => ({

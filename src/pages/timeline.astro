@@ -1,40 +1,50 @@
 ---
 import Base from '../layouts/base.astro';
-import { site } from '../lib/site';
-import { ui } from '../lib/i18n';
+import { brand, site, sections } from '../lib/site';
 import { publishedPosts, utcDay, keyOf } from '../lib/trust';
+import { ui } from '../lib/i18n';
 
-const posts = await publishedPosts();
+const posts = await publishedPosts('en');
 const byMonth = new Map<string, typeof posts>();
 for (const p of posts) {
   const key = utcDay(p.data.date).slice(0, 7);
   byMonth.set(key, [...(byMonth.get(key) ?? []), p]);
 }
 const months = [...byMonth.keys()].sort().reverse();
-const zoneName = (c: string) => (ui.zh.sections as Record<string, { name: string }>)[c]?.name ?? c;
+const names = ui.en.sections as Record<string, { name: string }>;
+const rows = new Map(months.map((m) => [m, byMonth.get(m)!.map((p) => ({
+  href: '/en/' + p.collection + '/' + keyOf(p),
+  day: utcDay(p.data.date),
+  zoneName: names[p.collection]?.name ?? p.collection,
+  title: p.data.title,
+}))]));
 ---
 
-<Base title="时间线" description={`按时间排列的全部公开记录，自 ${site.start} 起。`} path="/timeline" switchHref="/en/timeline">
+<Base
+  title="Timeline"
+  description={`Every public entry, in order, since ${site.start}.`}
+  path="/en/timeline"
+  lang="en"
+  switchHref="/zh/timeline">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
-      <h1>时间线</h1>
+      <h1>Timeline</h1>
       <p class="meta">
-        全部 {posts.length} 条公开记录，自 {site.start}（UTC）。这一页是信任的形态本身：一条不断往前推的时间线。
+        All {posts.length} public entries in English, since {site.start} (UTC). This page is the shape of trust itself:
+        a line that keeps moving forward.
       </p>
     </header>
 
     {
       months.map((m) => (
-        <section class="flow stack-sm" aria-label={`${m} 的记录`}>
+        <section class="flow stack-sm" aria-label={`entries of ${m}`}>
           <h2>{m}</h2>
           <ul class="post-list">
-            {byMonth.get(m)!.map((p) => (
+            {rows.get(m)!.map((r) => (
               <li>
-                <a href={`/${p.collection}/${keyOf(p)}`}>
-                  <span class="meta">
-                    {utcDay(p.data.date)} · {zoneName(p.collection)}
-                  </span>
-                  <p class="post-title">{p.data.title}</p>
+                <a href={r.href}>
+                  <span class="meta">{r.day} · {r.zoneName}</span>
+                  <p class="post-title">{r.title}</p>
                 </a>
               </li>
             ))}

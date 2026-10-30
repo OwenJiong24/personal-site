@@ -35,7 +35,7 @@ const posts = await publishedPosts('zh'); // 统计按文章键去重：一篇�
 const s = stats(posts);
 const ch = await chain();
 const head8 = ch.head.slice(0, 8);
-const isHome = path === '/' || path === '/en/';
+const isHome = path === '/' || path === '/zh/';
 const pageTitle = isHome ? `${brand.name} — ${lang === 'en' ? brand.slogan : brand.sloganZh}` : `${title} · ${brand.name}`;
 const desc = description ?? (lang === 'en' ? brand.longEn : brand.longZh);
 const ogImage = new URL('/og.png', base).toString();
@@ -57,7 +57,7 @@ const authorLabel = lang === 'en' ? site.author : site.authorZh;
         <>
           <link rel="alternate" hreflang="zh-Hans" href={new URL(zhPath, base)} />
           <link rel="alternate" hreflang="en" href={new URL(enPath, base)} />
-          <link rel="alternate" hreflang="x-default" href={new URL(zhPath, base)} />
+          <link rel="alternate" hreflang="x-default" href={new URL(enPath, base)} />
         </>
       )
     }
@@ -66,7 +66,7 @@ const authorLabel = lang === 'en' ? site.author : site.authorZh;
       rel="alternate"
       type="application/rss+xml"
       title={`${brand.name} — Journal (zh)`}
-      href={new URL('/rss.xml', base)}
+      href={new URL(lang === 'zh' ? '/zh/rss.xml' : '/rss.xml', base)}
     />
     <link
       rel="alternate"
