@@ -20,8 +20,8 @@ $env:WRANGLER_SEND_METRICS = 'false'
 if (-not $env:PUBLIC_SITE_URL) { $env:PUBLIC_SITE_URL = 'https://jiong-bvw.pages.dev' }
 # 把当前提交号烘进产物：线上页面能对上 Git 里的哪一次提交
 if (-not $env:GIT_SHA) {
-  $sha = (git rev-parse --short HEAD 2>$null)
-  if ($sha) { $env:GIT_SHA = $sha.Trim() }
+  $sha = (git rev-parse --short HEAD 2>&1 | Out-String).Trim()
+  if ($sha -and $sha -notmatch 'fatal') { $env:GIT_SHA = $sha }
 }
 
 $project = 'jiong'

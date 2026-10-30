@@ -1,7 +1,6 @@
 ---
 // 全站骨架：头部导航、页脚统计与记录链头、主题切换。值全走 tokens.css。
-declare const GIT_SHA: string; // 构建时由 astro define 注入（deploy.ps1 取 git rev-parse）
-const gitSha = typeof GIT_SHA === 'string' ? GIT_SHA : '';
+import { gitSha } from '../lib/build';
 import '@fontsource-variable/dm-sans/index.css';
 import '../styles/tokens.css';
 import '../styles/global.css';

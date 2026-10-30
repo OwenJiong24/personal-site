@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro';
 import { publishedPosts, chain } from '../lib/trust';
 import { site } from '../lib/site';
-
-declare const GIT_SHA: string; // 构建时由 astro define 注入
+import { gitSha } from '../lib/build';
 
 // 机器可读的记录链：任何人可下载后用同样算法重算，核对链头。
 export const GET: APIRoute = async () => {
@@ -23,7 +22,7 @@ export const GET: APIRoute = async () => {
     head: ch.head,
     count: ch.count,
     built_at: new Date().toISOString(),
-    built_from: typeof GIT_SHA === 'string' ? GIT_SHA : '',
+    built_from: gitSha,
     items,
   };
   return new Response(JSON.stringify(body, null, 2), {
