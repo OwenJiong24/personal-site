@@ -7,3 +7,10 @@ dist/
 !.env.example
 *.log
 .DS_Store
+
+# 本机渲染留档（设计 QA 截图，不进仓库）
+_shot_*.png
+
+# 本机 Cloudflare 部署令牌（永不进仓库）
+.cf-token
+*.zip

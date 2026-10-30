@@ -1,9 +1,11 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// 域名切换只改这一行：pages.dev 预览期用 PAGES_URL，正式域名用 owenjiong.com
+// 站点地址只改这一行（或用 PUBLIC_SITE_URL 覆盖）。
+// 现状：Cloudflare 免费子域名 jiong-bvw.pages.dev（jiong.pages.dev 已被他人注册）。
+// 绑 owenjiong.com 后改成 https://owenjiong.com，canonical / RSS / 站点地图 / robots 会自动跟着走。
 export default defineConfig({
-  site: process.env.PUBLIC_SITE_URL || 'https://owenjiong.com',
+  site: process.env.PUBLIC_SITE_URL || 'https://jiong-bvw.pages.dev',
   trailingSlash: 'ignore',
   integrations: [sitemap()],
   markdown: {

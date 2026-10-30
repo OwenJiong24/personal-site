@@ -41,3 +41,10 @@ pnpm preview     # 预览构建产物
 
 一套 token，A 集（Rylo，暖奶油底 + 暖近黑 + 品牌蓝），暗色是正交轴。
 组件禁止裸 hex；中文正文行高放宽到 1.75（长文阅读需要，属对 A 集英文 UI 行高的有意偏离）。
+
+## 一键发布（本机）
+``powershell
+.\scripts\deploy.ps1   # 构建 → 过红线 → 上传到 Cloudflare Pages（项目 jiong）
+`` 
+
+需要本仓根目录有 `.cf-token`：在 Cloudflare 面板 My Profile → API Tokens → 用模板 **Edit Cloudflare Pages** 建一个（只含 Pages:Edit 权限），粘进文件保存。该文件在 .gitignore 内，不进仓库、不在命令行里传。
