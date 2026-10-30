@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "lint": "node scripts/lint-content.mjs",
-    "build": "node scripts/lint-content.mjs && astro build && node scripts/check-css.mjs",
+    "build": "node scripts/lint-content.mjs && astro build && node scripts/check-css.mjs && node scripts/check-i18n.mjs",
     "preview": "astro preview",
     "check": "astro check"
   },

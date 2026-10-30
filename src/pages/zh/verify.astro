@@ -16,7 +16,7 @@ const recent = posts.slice(0, 10).map((p) => ({
 <Base
   title="如何核对这份记录"
   description="这个站为什么值得信：哈希链、构建时间与外部锚点的核对方法。"
-  path="/verify" switchHref="/verify">
+  path="/zh/verify" switchHref="/verify">
   <section class="wrap measure flow">
     <h1>如何核对这份记录</h1>
 
@@ -57,6 +57,7 @@ const recent = posts.slice(0, 10).map((p) => ({
       </p>
       <ul>
         <li>GitHub：<a href={`https://github.com/${site.anchors.github}`} rel="me">github.com/{site.anchors.github}</a>（公开提交历史是工程能力最硬的证据）</li>
+        <li>本站源码：<a href={`https://github.com/${site.anchors.github}/personal-site`} rel="me">github.com/{site.anchors.github}/personal-site</a>（页脚写了本页构建自哪个提交号。检出那个提交、跑 'pnpm build'，页脚链头应当一致——这是可复现的锚点，不是口头声明）</li>
         <li>邮箱：<a href={`mailto:${site.anchors.email}`} rel="me">{site.anchors.email}</a>（域名在我手里，可收发验证邮件）</li>
         <li>RSS：<a href="/zh/rss.xml">/rss.xml</a>（可被第三方聚合器长期抓取，形成外部留档）</li>
       </ul>

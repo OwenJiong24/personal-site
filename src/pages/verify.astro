@@ -16,7 +16,7 @@ const recent = posts.slice(0, 10).map((p) => ({
 <Base
   title="How to verify this record"
   description="Why this site is worth trusting: hash chain, deployment time, and external anchors — plus the limits."
-  path="/en/verify"
+  path="/verify"
   lang="en"
   switchHref="/zh/verify">
   <section class="wrap measure flow">
@@ -57,8 +57,14 @@ const recent = posts.slice(0, 10).map((p) => ({
       <h2>3. External anchors: one person, several places</h2>
       <ul>
         <li>GitHub: <a href={`https://github.com/${site.anchors.github}`} rel="me">github.com/{site.anchors.github}</a> — public commit history is the hardest engineering evidence.</li>
+        <li>
+          Source of this site:
+          <a href={`https://github.com/${site.anchors.github}/personal-site`} rel="me">github.com/{site.anchors.github}/personal-site</a>
+          — the footer names the commit this page was built from. Check that commit out, run 'pnpm build', and the chain
+          head in the footer should match: a reproducible anchor, not a claim.
+        </li>
         <li>Email: <a href={`mailto:${site.anchors.email}`} rel="me">{site.anchors.email}</a> — the domain is mine and receives mail.</li>
-        <li>RSS: <a href="/en/rss.xml">/en/rss.xml</a> — aggregators can archive it externally.</li>
+        <li>RSS: <a href="/rss.xml">/rss.xml</a> (English feed) — aggregators can archive it externally.</li>
       </ul>
 
       <h2>Not done yet (stated plainly)</h2>
