@@ -30,5 +30,18 @@
 
 ## 与 ZART 主仓的关系
 
-这是独立项目，不进 ZART 工作区目录树，不动 ZART 的 main/integration。
-任务状态记在 ZART 状态中枢：`python _指挥层/状态中枢/hub.py task set T310 ...`（在 ZART 工作区跑）。
+这是独立项目，**不是 ZART 的一部分**：独立 git 仓库（本目录有自己的 `.git`，remote 是私有仓
+`OwenJiong24/personal-site`），不用 ZART 的构建容器、不动 ZART 的 main/integration、不发 ZART 的生产。
+之所以放在 ZART 工作区目录树里，是因为本机 harness 的沙箱只保证子进程能写工作区内（工作区外构建会 Access is denied）。
+任务状态记在 ZART 状态中枢：`python _指挥层/状态中枢/hub.py task set T310 ...`（在 ZART 工作区跑），本仓只写一句结论。
+
+## 本机发布与推送的坑（已验证）
+
+- 发布：`.\scripts\deploy.ps1`（构建 → 内容红线 → `wrangler pages deploy` 直传 Cloudflare Pages 项目 `jiong`）。
+  线上是 **https://jiong-bvw.pages.dev**（`jiong.pages.dev` 已被他人注册，Cloudflare 自动加了 `-bvw` 后缀）。
+  站点地址写在 `astro.config.mjs` 的 `site`（可用 `PUBLIC_SITE_URL` 覆盖），canonical/RSS/站点地图/robots 都跟着它走。
+- `git push` 在这台机器上会**静默失败**（凭据助手要读 Windows 钥匙串，子进程被拦，且没有输出）。
+  可用写法：先 `$env:GH_TOKEN = (gh auth token)`，再
+  `git -c credential.helper='!gh auth git-credential' push origin main`，然后用 `git ls-remote origin refs/heads/main`
+  核对远端确实前进了——**不看这步就宣称推送成功是不可靠的**。
+- 绝不在命令行参数里传令牌（会进进程列表），不把令牌写进任何提交、日志或汇报。
