@@ -19,6 +19,7 @@ export const ui = {
       { path: '/notes', label: '随记' },
       { path: '/projects', label: '项目' },
       { path: '/uses', label: '清单' },
+      { path: '/tools', label: '工具' },
       { path: '/about', label: '关于' },
     ],
     tagline: 'AM 时代的公开工作日志：一个人类工程师的连续记录',
@@ -60,6 +61,10 @@ export const ui = {
       onlyOne: '这是这个抽屉目前唯一的一条记录。',
       utc: '（UTC）',
       stamp: 'OK',
+      voiceAssistant: '本文由 OK 助手观察整理（AI 辅助撰写），引用块内为 OJ 原话',
+      voiceOwner: '本文由 OJ 本人执笔',
+      ownerTitle: 'OJ 审定',
+      ownerPending: '点评待补',
     },
     footer: {
       line: (name: string, start: string, n: number, d: number) =>
@@ -84,6 +89,7 @@ export const ui = {
       { path: '/notes', label: 'Notes' },
       { path: '/projects', label: 'Projects' },
       { path: '/uses', label: 'Uses' },
+      { path: '/tools', label: 'Tools' },
       { path: '/about', label: 'About' },
     ],
     tagline: 'A public engineering log in the model era: one human, recorded continuously',
@@ -125,6 +131,10 @@ export const ui = {
       onlyOne: 'This is currently the only entry in this drawer.',
       utc: '(UTC)',
       stamp: 'OK',
+      voiceAssistant: 'Compiled by the OK assistant from observation (AI-assisted writing); quotes are OJ in his own words',
+      voiceOwner: 'Written by OJ himself',
+      ownerTitle: 'Signed off by OJ',
+      ownerPending: 'Verdict pending',
     },
     footer: {
       line: (name: string, start: string, n: number, d: number) =>

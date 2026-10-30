@@ -8,6 +8,7 @@ summary: 大多数手作卖家把"材料+工时"当成本，于是定价永远�
 summary_en: "Most makers price at material plus hours and stay on the floor. Real cost includes failure rate, platform fees, returns — and why your hours are worth what you claim."
 tags: [指南, 定价, 手工, 商业]
 status: public
+voice: assistant
 faq:
   - q: 我的工时该按多少钱算？
     a: 先按你能稳定接到的最低外包时薪算，再乘 1.5–3 倍——因为你做的是不可替代的活，不是可替代的工。这个数字每次涨价都要能讲清楚理由。
@@ -53,3 +54,4 @@ faq:
 > —— 摘自本人笔记（脱密）
 
 手作的价格从来不是"成本加利润"，是"你赋予了什么"。算清成本是为了知道底线，讲清赋予才是为了拿到上限。
+> 动手算：[手作定价计算器](/zh/tools/pricing-calculator/)（免费、不注册、数据不出浏览器）。

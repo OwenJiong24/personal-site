@@ -1,0 +1,37 @@
+---
+import Base from '../../../layouts/base.astro';
+import { brand, site } from '../../../lib/site';
+
+const tools = [
+  { name: '手作定价计算器', href: '/zh/tools/pricing-calculator', desc: '从材料、失败率、工时、运费与平台抽成算出保本价。浏览器本地运行，可离线。', status: 'live' },
+  { name: '主图拍摄清单', href: '', desc: '一个 listing 需要的五张图，附可打印自查表。', status: 'planned' },
+  { name: '平台费用与运费对比表', href: '', desc: '同一笔成交，在不同平台各自吃掉多少。', status: 'planned' },
+];
+---
+
+<Base title="免费工具" description="为手作卖家做的小工具：不用注册、没有追踪，全部在浏览器本地运行。" path="/zh/tools" lang="zh" switchHref="/tools">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>免费工具</h1>
+      <p class="meta">我们在解决自己的问题时顺手做的小工具。免费、不用注册、不追踪，代码跑在你自己的浏览器里。</p>
+    </header>
+
+    <div class="card-grid">
+      {
+        tools.map((tool) => (
+          <div class="card-flat flow stack-sm">
+            <p class="post-title">
+              {tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}
+            </p>
+            <p>{tool.desc}</p>
+            <p class="meta mono">{tool.status === 'live' ? '● 已上线' : '○ 计划中'}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="meta">
+      想要这里没有的工具？把"你一直在手算的那笔账"发给 <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>。{brand.signatureEn}
+    </p>
+  </section>
+</Base>

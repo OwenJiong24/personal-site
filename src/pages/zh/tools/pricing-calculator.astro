@@ -1,0 +1,169 @@
+---
+import Base from '../../../layouts/base.astro';
+import { brand, site } from '../../../lib/site';
+---
+
+<Base
+  title="手作定价计算器"
+  description="免费的手作卖家定价计算器：从材料、失败率、工时、运费与平台抽成算出真正的保本价，再看溢价能带来什么。纯浏览器运行，不收集任何数据。"
+  path="/zh/tools/pricing-calculator"
+  lang="zh"
+  switchHref="/tools/pricing-calculator">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>手作定价计算器</h1>
+      <p class="meta">免费工具 · 不用注册、没有追踪 · 浏览器本地运行 · 配套文章：<a href="/zh/guides/2026-10-30-pricing-handmade/">手作定价指南</a></p>
+    </header>
+
+    <div class="card-flat flow">
+      <p>
+        多数手作卖家只算"材料 + 工时"，所以定价永远贴着地皮。这个工具把六件常被漏掉的东西算进去：辅料、包装、失败率、
+        平台抽成、运费与退换，并且直接告诉你——你的工时最后每小时值多少钱。
+      </p>
+    </div>
+
+    <form class="card-flat flow" onsubmit="return false" aria-label="定价输入">
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
+        <label class="flow">
+          <span class="meta">货币符号</span>
+          <input class="inp" id="pc-cur" type="text" value="¥" maxlength="3" />
+        </label>
+        <label class="flow">
+          <span class="meta">主料成本</span>
+          <input class="inp" id="pc-mat" type="number" min="0" step="1" value="60" />
+        </label>
+        <label class="flow">
+          <span class="meta">辅料 + 包装</span>
+          <input class="inp" id="pc-extra" type="number" min="0" step="1" value="15" />
+        </label>
+        <label class="flow">
+          <span class="meta">失败率 %</span>
+          <input class="inp" id="pc-fail" type="number" min="0" max="90" step="1" value="20" />
+        </label>
+        <label class="flow">
+          <span class="meta">每件总工时</span>
+          <input class="inp" id="pc-hours" type="number" min="0" step="0.5" value="4" />
+        </label>
+        <label class="flow">
+          <span class="meta">你的时薪</span>
+          <input class="inp" id="pc-rate" type="number" min="0" step="5" value="80" />
+        </label>
+        <label class="flow">
+          <span class="meta">你承担的运费</span>
+          <input class="inp" id="pc-ship" type="number" min="0" step="1" value="20" />
+        </label>
+        <label class="flow">
+          <span class="meta">退换预留</span>
+          <input class="inp" id="pc-returns" type="number" min="0" step="1" value="10" />
+        </label>
+        <label class="flow">
+          <span class="meta">平台 + 支付抽成 %</span>
+          <input class="inp" id="pc-fee" type="number" min="0" max="60" step="1" value="13" />
+        </label>
+      </div>
+
+      <label class="flow">
+        <span class="meta">溢价系数：<strong id="pc-pf-label">2.0×</strong></span>
+        <input id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" />
+      </label>
+    </form>
+
+    <div class="card-flat flow" aria-live="polite">
+      <p class="meta"><strong>结果</strong> <span id="pc-out-cur"></span></p>
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
+        <div class="flow">
+          <span class="meta">保本价（再低就亏）</span>
+          <p class="post-title" id="pc-floor">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">建议售价</span>
+          <p class="post-title" id="pc-price">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">扣抽成后到手</span>
+          <p class="post-title" id="pc-net">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">高于保本价的利润</span>
+          <p class="post-title" id="pc-profit">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">你的工时实际值</span>
+          <p class="post-title" id="pc-hourly">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">月度固定开销需要几件</span>
+          <p class="post-title" id="pc-be">—</p>
+        </div>
+      </div>
+      <p class="meta" id="pc-verdict"></p>
+    </div>
+
+    <div class="prose">
+      <h2>算法一句话</h2>
+      <p>
+        材料与辅料按你的成功率摊销，工时按你声称的时薪计价，再加上运费与退换预留，最后乘溢价系数；平台抽成用<b>除法</b>
+        还原，因为它是对成交价收取的，不是对成本收取的。
+      </p>
+      <pre class="mono">保本价 = ((主料 + 辅料) / (1 - 失败率) + 工时 × 时薪 + 运费 + 退换) / (1 - 抽成)
+售价   = 保本价 × 溢价系数</pre>
+      <h2>怎么读结果</h2>
+      <ul>
+        <li><strong>你的工时实际值</strong>是最诚实的数字：扣掉一切之后，你的劳动每小时还剩多少。低于你填的时薪，说明这件产品撑不起你要的溢价。</li>
+        <li>手作常见的溢价系数是 1.5–3 倍；超过 3 倍，你需要一个买家能替你对别人讲出来的故事。</li>
+        <li>工具不认识你的市场。它只给你一条守得住的底线，上限由你判断。</li>
+      </ul>
+      <p class="meta">
+        由 {brand.name} 制作（<a href="/zh/tools/">全部工具</a>）。免费使用，数据不出你的浏览器。
+        联系：<a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  const el = (id) => document.getElementById(id);
+  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
+  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('zh-CN') : '—');
+
+  function calc() {
+    const cur = el('pc-cur').value || '¥';
+    const mat = num('pc-mat') + num('pc-extra');
+    const fail = Math.min(0.9, Math.max(0, num('pc-fail') / 100));
+    const hours = num('pc-hours');
+    const rate = num('pc-rate');
+    const ship = num('pc-ship') + num('pc-returns');
+    const fee = Math.min(0.6, Math.max(0, num('pc-fee') / 100));
+    const pf = num('pc-pf');
+
+    const direct = mat / (1 - fail) + hours * rate + ship;
+    const floor = fee < 1 ? direct / (1 - fee) : direct;
+    const price = floor * pf;
+    const net = price * (1 - fee);
+    const profit = net - direct;
+    const eff = hours > 0 ? (net - (mat / (1 - fail) + ship)) / hours : 0;
+
+    el('pc-pf-label').textContent = pf.toFixed(1) + '×';
+    el('pc-out-cur').textContent = '（单位 ' + cur + '）';
+    el('pc-floor').textContent = fmt(floor, cur);
+    el('pc-price').textContent = fmt(price, cur);
+    el('pc-net').textContent = fmt(net, cur);
+    el('pc-profit').textContent = fmt(profit, cur);
+    el('pc-hourly').textContent = fmt(eff, cur) + '/小时';
+
+    const fixed = 200;
+    el('pc-be').textContent = profit > 0 ? Math.ceil(fixed / profit) + ' 件（按每月 ' + cur + fixed + ' 固定开销）' : '∞';
+    el('pc-verdict').textContent = eff < rate
+      ? '判断：这个价你的劳动只值 ' + fmt(eff, cur) + '/小时，低于你填的 ' + fmt(rate, cur) + '/小时。要么溢价系数给低了，要么这件产品撑不起这个溢价。'
+      : '判断：这个价付得起你声称的时薪，每件还剩 ' + fmt(profit, cur) + '。';
+  }
+
+  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  calc();
+</script>
+
+<style>
+  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  label span { display: block; }
+</style>

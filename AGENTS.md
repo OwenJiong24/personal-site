@@ -14,12 +14,15 @@
 
 命中即构建失败。绕过它 = 事故，不是效率。
 
-## 写作规矩
+## 写作规矩（双视角，CEO 2026-10-30 定，取代旧的"第一人称=CEO"写法）
 
-- 第一人称是 CEO 本人在说话。助手可以起草，**发布必须 CEO 过目**；不确定就留 `status: draft`。
+- **两个视角必须分得开**：叙述与整理用 `voice: assistant`（OK 助手，AI 辅助，页面文首徽标自动标明）；CEO 本人的观点与判断**只以引用块进文并标出处**，不混进叙述。CEO 亲自执笔时写 `voice: owner`。
+- 每篇公开文章留 **OJ 审定**位：`ownerRating: 0-5` + `ownerNote`（一句话快速点评）。**不得代 CEO 编造评分**；留空则页面显示「点评待补」，构建时会打印待补清单。
+- 助手可以起草，**发布必须 CEO 过目**；不确定就留 `status: draft`。
 - 时间一律 UTC（frontmatter 带 `Z`）。写完不事后修饰；补记标「补记」。
 - 说实话：没做的不写「做了」，没跑过的写「仅计划」，判断错了在下篇写清怎么改的。
 - 连续比精彩重要：短、具体、可核对，胜过修辞。
+- 日期不得晚于构建时刻：晚于构建时间的文章会被内容聚合过滤掉（本轮踩过两次）。
 
 ## 工程规矩
 
@@ -50,8 +53,9 @@
 
 - 每篇文章 frontmatter 必须写 `lang: zh|en` 与 `key: <文章键>`；同一篇文章的中英版用**同一个 key**。
   不要靠文件名推语言：Astro 的 glob loader 会吃掉文件名里的点（实测 `x.en.md` 的 id 是 `xen`）。
-- 中文在站点根（`/essays/<key>/` 等），英文在 `/en/` 前缀下；hreflang 由 `src/lib/base` 自动成对，
-  只有存在译文时才渲染语言切换。中文主订阅 `/rss.xml`，英文 `/en/rss.xml`，两路各自单语。
+- 英文在站点根（`/essays/<key>/` 等），中文在 `/zh/` 前缀下（2026-10-30 英文默认，A702）。
+  hreflang 由 `src/layouts/base.astro` 自动成对，`x-default` 指英文；只有存在译文时才渲染语言切换。
+  英文主订阅 `/rss.xml`，中文 `/zh/rss.xml`，两路各自单语。旧 `/en/*` 与老板块 URL 在 `public/_redirects` 里 301。
 - AIEO 写作要求：第一屏给出一句话结论（能被整段摘走）；术语首次出现给全称+英文原名；
   一页一主题；问答小节用 H2 提问、紧跟一句直答；一句一个事实（带数字/日期）。
 - `/llms.txt`（索引）与 `/llms-full.txt`（全文）由端点自动生成，改内容不用手维护；
@@ -73,4 +77,6 @@
 ## 域名绑定（Cloudflare 面板，wrangler 无此命令）
 
 2026-10-30 已完成：Pages 项目 `jiong` → Custom domains → `orangeknows.com`（Active / SSL enabled），DNS 为 proxied CNAME → `jiong-bvw.pages.dev`。Email Routing 已开通，catch-all 转发到 CEO 的 Gmail（`owen@orangeknows.com` 可收信）。
-www.orangeknows.com 已在 Pages 里加为自定义域名，但 **DNS 的 CNAME 记录尚未创建**（本机 wrangler OAuth 令牌无 dns_records 写权限，API 403）：需在 DNS → Records 手动加 `CNAME www → jiong-bvw.pages.dev`（Proxied），再建议加一条 Redirect Rule 把 www 301 到 apex。
+www.orangeknows.com：已在 Pages 加为自定义域名，且 CEO 已在 DNS 加记录，实测 `https://www.orangeknows.com/` 返回 200（2026-10-30）。
+可选的 SEO 卫生项：加一条 Redirect Rule 把 www 301 到 apex（不做也能跑，只是两个地址并存）。
+DMARC：CEO 已启用，当前 `p=none`（仅监控）。BIMI 需要 `p=quarantine/reject` 才能推进（见 docs/STRATEGY.md §6）。

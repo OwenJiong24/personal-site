@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/base.astro';
+import { brand, site } from '../../lib/site';
+
+const tools = [
+  { name: 'Handmade pricing calculator', href: '/tools/pricing-calculator', desc: 'Floor price from material, failure rate, hours, shipping and platform fees. Runs offline in your browser.', status: 'live' },
+  { name: 'Listing photo checklist', href: '', desc: 'The five shots a listing needs, with a printable check.', status: 'planned' },
+  { name: 'Fee-and-shipping comparison sheet', href: '', desc: 'Compare what the same sale costs across marketplaces.', status: 'planned' },
+];
+const navAria = site.name + ' free tools';
+---
+
+<Base title="Free tools" description="Small free tools built for makers. No account, no tracking, everything runs in your browser." path="/tools" lang="en" switchHref="/zh/tools">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Free tools</h1>
+      <p class="meta">Small tools we built while solving our own problems. Free, no sign-up, no tracking — the code runs in your browser.</p>
+    </header>
+
+    <div class="card-grid">
+      {
+        tools.map((tool) => (
+          <div class="card-flat flow stack-sm">
+            <p class="post-title">
+              {tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}
+            </p>
+            <p>{tool.desc}</p>
+            <p class="meta mono">{tool.status === 'live' ? '● live' : '○ planned'}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="meta" aria-label={navAria}>
+      Want a tool that is not here? Email <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a> with the
+      calculation you keep doing by hand. {brand.signatureEn}
+    </p>
+  </section>
+</Base>

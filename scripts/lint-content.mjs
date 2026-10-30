@@ -36,6 +36,7 @@ function files(dir) {
 }
 
 const errors = [];
+const pending = []; // 缺「OJ 审定」评分/点评的公开文章（不阻塞发布，给 CEO 的工作清单）
 for (const file of files(CONTENT)) {
   const rel = relative(ROOT, file).replace(/\\/g, '/');
   const text = readFileSync(file, 'utf8');
@@ -57,6 +58,7 @@ for (const file of files(CONTENT)) {
   if (isPublic && isSensitive) errors.push(`${rel}: sensitive=true 且 status=public（需 CEO 过目后再发）`);
   if (isPublic && !/^\s*summary:\s*\S/m.test(head)) errors.push(`${rel}: public 文缺 summary（列表页与 SEO 摘要）`);
   if (isPublic && !/^\s*(lang|key):/m.test(head)) errors.push(`${rel}: public 文缺 lang/key 声明（双语与 URL 依赖它）`);
+  if (isPublic && !/^\s*ownerRating:/m.test(head)) pending.push(rel);
 
   for (const [re, why] of BAD) {
     const m = re.exec(text);
@@ -71,3 +73,6 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(`内容红线检查通过（公开文件不含凭据/主机/内部标识；邮箱域名白名单：${brandDomain}）`);
+if (pending.length) {
+  console.log(`作者点评待补 ${pending.length} 篇（不阻塞发布，请 CEO 补 ownerRating / ownerNote）：\n - ` + pending.join('\n - '));
+}

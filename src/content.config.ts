@@ -17,6 +17,12 @@ const article = z.object({
   status: z.enum(['draft', 'public']).default('draft'),
   // 需要 CEO 亲自过目的内容标 true；标了就不能 public（构建脚本会拦）。
   sensitive: z.boolean().default(false),
+  // 双视角（CEO 2026-10-30 定）：assistant = 助手观察整理（AI 辅助，页面标明）；owner = OJ 本人执笔。
+  // OJ 本人的话一律用引用块进文并标出处，不混进叙述。
+  voice: z.enum(['assistant', 'owner']).default('assistant'),
+  // 作者审定：0–5 分 + 一句话快速点评。留空 = 待补（构建时列进待补清单，不阻塞发布）。
+  ownerRating: z.number().int().min(0).max(5).optional(),
+  ownerNote: z.string().default(''),
 });
 
 const col = (dir: string, extra?: z.ZodRawShape) =>

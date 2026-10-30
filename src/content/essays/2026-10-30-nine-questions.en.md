@@ -3,7 +3,9 @@ title: "Nine questions before you build anything"
 lang: en
 key: 2026-10-30-nine-questions
 date: 2026-10-30T07:59:00Z
-summary: "A self-audit I wrote for myself in 2025: nine questions. If you cannot answer one of them, you are not ready to write code yet."
+updated: 2026-10-30T09:15:00Z
+voice: assistant
+summary: "The self-audit OJ wrote for himself in 2025: nine questions. If you cannot answer one of them, you are not ready to write code yet."
 summary_en: "A nine-question self-audit from 2025: any question you cannot answer means you are not ready to build."
 tags: [method, product, self-audit, decisions]
 status: public
@@ -11,33 +13,35 @@ status: public
 
 **Conclusion**: whether a need deserves work is not decided by how plausible it sounds, but by whether you can answer these nine questions line by line. Any unanswerable one means you are not at the coding stage yet.
 
-## The original
+> The text below is OJ's own words from 2025, unedited. The structure and the four-layer reading are the OK assistant's.
 
-> Is the need purely imagined / is the need big enough / are my information sources correct / is my judgement real / can it be simplified so investors and ordinary people understand it / how big is the market / what do the cost and difficulty of the financial model look like / are my guesses about buyer behaviour verified / does the buyer segment need another cut
-> — from my own notes, 2025 (redacted), filed as "CEO self-audit checklist"
+## His words
 
-## Why these nine work
+> Is the need purely imagined / is the need big enough / are my information sources correct / is my judgement real / can it be simplified so an investor and an ordinary person understand / how big is the market / the cost and difficulty in the financial model / buyer behaviour has to be validated / buyers need to be segmented further
+> — OJ's 2025 notes (redacted), original title "CEO self-audit checklist"
 
-They are not nine parallel considerations. They are **four filters from "me" to "market"**:
+## The structure the assistant sees
 
-1. **Self-doubt layer** (1, 4): did I invent this need? Is my judgement contaminated by my own taste?
-2. **Evidence layer** (3, 8): who are my sources? Is buyer behaviour inferred or verified?
-3. **Scale layer** (2, 6, 9): big enough? how to segment? what is left after segmenting?
-4. **Feasibility layer** (5, 7): can it be explained simply? do the cost and difficulty add up?
+The nine are not nine parallel considerations; they are **four filters running from "me" out to "the market"**:
 
-Each layer filters a different failure mode: layer one filters the self-important, layer two the hand-wavers, layer three the linear thinkers, layer four the people who cannot do arithmetic.
+1. **Self-doubt layer** (1, 4): did he invent this need himself? Has his judgement been contaminated by his own preferences?
+2. **Evidence layer** (3, 8): who is the source? Is buyer behaviour assumed, or checked?
+3. **Scale layer** (2, 6, 9): is it big enough, how does the market segment, and what is left after segmentation.
+4. **Landing layer** (5, 7): can it be explained simply, and does the cost arithmetic close.
 
-## Auditing this site with it
+Each layer stops a different kind of person: the first stops the self-assured, the second the impulsive, the third the linear thinkers, the fourth the people who cannot count.
 
-Applying the nine to the site I launched today, questions 3 and 8 are the uncomfortable ones:
+## The assistant uses it on this site
 
-- Who are my information sources? Readers. But I have no reader data yet, so the honest answer is "not verified".
-- Is buyer behaviour inferred or verified? Inferred. Which is why I wrote a 30-day experiment instead of a conclusion.
+Run the nine against this site and questions 3 and 8 sting — and OJ admits he has no data for them:
 
-The rest hold up reasonably. The need ("let someone check whether a person has been doing a thing for a long time") is not large, but it has the shape of a real need: as long as people must judge whether someone is worth working with, the question persists.
+- **Who is the source?** Readers. The site launched on 2026-10-30 and has **no reader data**, so every claim on the site is labelled "unverified".
+- **Is buyer behaviour assumed or validated?** Assumed. Which is why it is written as a 30-day experiment, not a conclusion.
+
+The rest hold: the size of the need ("being able to check whether someone has been at something for a long time") is not huge, but it is shaped like a hard requirement — as long as people must decide whether someone is worth working with, the question stays.
 
 ## How to use it
 
-Do not use it as a scorecard (nine "roughly fine" equals nine failures). **Use it as a veto**: anything you cannot answer means stop and go get evidence first.
+Do not use it as a scoring sheet (nine items that "roughly pass" means none of them passed). **Use it as a veto**: any question you cannot answer, stop and go collect evidence.
 
-That is why it lives on this site: it is the cheapest rule I have ever written.
+Assistant's observation: this is a rule OJ actually applies, not one written for display. On 2026-10-30 he used it to block two drafts he judged as lacking evidence.

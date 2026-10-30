@@ -1,0 +1,171 @@
+---
+import Base from '../../layouts/base.astro';
+import { brand, site } from '../../lib/site';
+---
+
+<Base
+  title="Handmade pricing calculator"
+  description="Free, offline-capable calculator for handmade sellers: work out your real floor price from material, failure rate, hours, shipping and platform fees, then see what the premium is worth."
+  path="/tools/pricing-calculator"
+  lang="en"
+  switchHref="/zh/tools/pricing-calculator">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Handmade pricing calculator</h1>
+      <p class="meta">Free tool · no account, no tracking · runs in your browser · part of the <a href="/guides/2026-10-30-pricing-handmade/">pricing guide</a></p>
+    </header>
+
+    <div class="card-flat flow">
+      <p>
+        Most makers price at material plus hours and stay on the floor. This tool counts the six things that are usually
+        forgotten: small parts, packaging, failure rate, platform fees, shipping and returns — and it shows the effective
+        rate your hours end up earning.
+      </p>
+    </div>
+
+    <form class="card-flat flow" onsubmit="return false" aria-label="pricing inputs">
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
+        <label class="flow">
+          <span class="meta">Currency symbol</span>
+          <input class="inp" id="pc-cur" type="text" value="$" maxlength="3" />
+        </label>
+        <label class="flow">
+          <span class="meta">Main material</span>
+          <input class="inp" id="pc-mat" type="number" min="0" step="1" value="60" />
+        </label>
+        <label class="flow">
+          <span class="meta">Small parts + packaging</span>
+          <input class="inp" id="pc-extra" type="number" min="0" step="1" value="15" />
+        </label>
+        <label class="flow">
+          <span class="meta">Failure rate %</span>
+          <input class="inp" id="pc-fail" type="number" min="0" max="90" step="1" value="20" />
+        </label>
+        <label class="flow">
+          <span class="meta">Total hours per piece</span>
+          <input class="inp" id="pc-hours" type="number" min="0" step="0.5" value="4" />
+        </label>
+        <label class="flow">
+          <span class="meta">Your hourly rate</span>
+          <input class="inp" id="pc-rate" type="number" min="0" step="5" value="80" />
+        </label>
+        <label class="flow">
+          <span class="meta">Shipping you absorb</span>
+          <input class="inp" id="pc-ship" type="number" min="0" step="1" value="20" />
+        </label>
+        <label class="flow">
+          <span class="meta">Returns reserve</span>
+          <input class="inp" id="pc-returns" type="number" min="0" step="1" value="10" />
+        </label>
+        <label class="flow">
+          <span class="meta">Platform + payment fees %</span>
+          <input class="inp" id="pc-fee" type="number" min="0" max="60" step="1" value="13" />
+        </label>
+      </div>
+
+      <label class="flow">
+        <span class="meta">Premium factor: <strong id="pc-pf-label">2.0×</strong></span>
+        <input id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" />
+      </label>
+    </form>
+
+    <div class="card-flat flow" aria-live="polite">
+      <p class="meta"><strong>Results</strong> <span id="pc-out-cur"></span></p>
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
+        <div class="flow">
+          <span class="meta">Floor price (you stop losing here)</span>
+          <p class="post-title" id="pc-floor">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Selling price</span>
+          <p class="post-title" id="pc-price">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">After fees, you keep</span>
+          <p class="post-title" id="pc-net">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Profit above floor</span>
+          <p class="post-title" id="pc-profit">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Your hours earn</span>
+          <p class="post-title" id="pc-hourly">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Break-even pieces/month</span>
+          <p class="post-title" id="pc-be">—</p>
+        </div>
+      </div>
+      <p class="meta" id="pc-verdict"></p>
+    </div>
+
+    <div class="prose">
+      <h2>The method in one line</h2>
+      <p>
+        Material and parts are amortised over your success rate, labour is priced at the rate you claim, shipping, fees and
+        a returns reserve are added, and the premium factor is applied on top of that floor. Platform fees are divided out,
+        not subtracted, because they are charged on the selling price.
+      </p>
+      <pre class="mono">floor = (material + parts) / (1 - failure) + hours x rate + shipping + returns
+price = floor x premium / (1 - platform fee)</pre>
+      <h2>How to read it</h2>
+      <ul>
+        <li><strong>Your hours earn</strong> is the honest number: it is what is left for your labour after everything else is paid. If it is below your claimed rate, the product is not carrying the premium.</li>
+        <li>A premium factor of 1.5–3 is normal for handmade. Above 3 you need a story a buyer can repeat to someone else.</li>
+        <li>The tool does not know your market. It gives you a floor you can defend; the ceiling is your judgement.</li>
+      </ul>
+      <p class="meta">
+        Built by {brand.name} (<a href="/tools/">tools</a>). Free to use, no data leaves your browser.
+        Contact: <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  const el = (id) => document.getElementById(id);
+  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
+  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('en-US') : '—');
+
+  function calc() {
+    const cur = el('pc-cur').value || '$';
+    const mat = num('pc-mat') + num('pc-extra');
+    const fail = Math.min(0.9, Math.max(0, num('pc-fail') / 100));
+    const hours = num('pc-hours');
+    const rate = num('pc-rate');
+    const ship = num('pc-ship') + num('pc-returns');
+    const fee = Math.min(0.6, Math.max(0, num('pc-fee') / 100));
+    const pf = num('pc-pf');
+
+    const direct = mat / (1 - fail) + hours * rate + ship;
+    const floor = fee < 1 ? direct / (1 - fee) : direct;
+    const price = floor * pf;
+    const net = price * (1 - fee);
+    const profit = net - direct;
+    const eff = hours > 0 ? (net - (mat / (1 - fail) + ship)) / hours : 0;
+
+    el('pc-pf-label').textContent = pf.toFixed(1) + '×';
+    el('pc-out-cur').textContent = 'in ' + cur;
+    el('pc-floor').textContent = fmt(floor, cur);
+    el('pc-price').textContent = fmt(price, cur);
+    el('pc-net').textContent = fmt(net, cur);
+    el('pc-profit').textContent = fmt(profit, cur);
+    el('pc-hourly').textContent = fmt(eff, cur) + '/h';
+
+    const fixed = 200;
+    el('pc-be').textContent = profit > 0 ? Math.ceil(fixed / profit) + ' (at ' + cur + fixed + ' of monthly overhead)' : '∞';
+    el('pc-verdict').textContent = eff < rate
+      ? 'Verdict: at this price your labour is worth ' + fmt(eff, cur) + '/h, below the ' + fmt(rate, cur) + '/h you entered. Either the premium factor is too low, or this piece cannot carry it.'
+      : 'Verdict: this price pays your claimed rate with ' + fmt(profit, cur) + ' left over per piece.';
+  }
+
+  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  calc();
+</script>
+
+<style>
+  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  label span { display: block; }
+</style>

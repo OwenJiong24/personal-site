@@ -59,3 +59,4 @@ If you do not dare quote that number, either the hourly rate is too high for you
 > — from my own notes (redacted)
 
 Handmade pricing was never cost plus margin. It is what you endow. Counting cost tells you the floor; saying what you endow is how you reach the ceiling.
+> Try it: [the handmade pricing calculator](/tools/pricing-calculator/) — free, no sign-up, runs in your browser.
