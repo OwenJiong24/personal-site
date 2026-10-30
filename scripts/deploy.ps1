@@ -8,14 +8,21 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
 $tokenFile = Join-Path $root '.cf-token'
-if (-not (Test-Path $tokenFile)) {
-  Write-Host '缺 .cf-token：请在 https://dash.cloudflare.com/profile/api-tokens 用模板「Edit Cloudflare Pages」建一个，写进本仓根目录的 .cf-token 文件'
-  exit 1
+if (Test-Path $tokenFile) {
+  $env:CLOUDFLARE_API_TOKEN = (Get-Content $tokenFile -Raw).Trim()
+  if ($env:CLOUDFLARE_API_TOKEN.Length -lt 20) { Write-Host '.cf-token 内容看起来太短，检查是否粘全'; exit 1 }
+  Write-Host '用 .cf-token 里的 API Token 发布'
+} else {
+  # 没有 .cf-token 就用 wrangler 已登录的 OAuth 配置（wrangler login 过的机器）
+  Write-Host '未找到 .cf-token，使用 wrangler 已登录的账号配置发布'
 }
-$env:CLOUDFLARE_API_TOKEN = (Get-Content $tokenFile -Raw).Trim()
-if ($env:CLOUDFLARE_API_TOKEN.Length -lt 20) { Write-Host '.cf-token 内容看起来太短，检查是否粘全'; exit 1 }
 $env:WRANGLER_SEND_METRICS = 'false'
 if (-not $env:PUBLIC_SITE_URL) { $env:PUBLIC_SITE_URL = 'https://jiong-bvw.pages.dev' }
+# 把当前提交号烘进产物：线上页面能对上 Git 里的哪一次提交
+if (-not $env:GIT_SHA) {
+  $sha = (git rev-parse --short HEAD 2>$null)
+  if ($sha) { $env:GIT_SHA = $sha.Trim() }
+}
 
 $project = 'jiong'
 Write-Host "构建（站点地址 $($env:PUBLIC_SITE_URL)）…"

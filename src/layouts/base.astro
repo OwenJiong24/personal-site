@@ -1,5 +1,7 @@
 ---
 // 全站骨架：头部导航、页脚统计与记录链头、主题切换。值全走 tokens.css。
+declare const GIT_SHA: string; // 构建时由 astro define 注入（deploy.ps1 取 git rev-parse）
+const gitSha = typeof GIT_SHA === 'string' ? GIT_SHA : '';
 import '@fontsource-variable/dm-sans/index.css';
 import '../styles/tokens.css';
 import '../styles/global.css';
@@ -86,6 +88,7 @@ const ch = await chain();
         <p class="meta">
           © 2026 {site.name} · 起点 {site.start} · 共 {s.entries} 条 / 记录 {s.activeDays} 天 ·
           <a href="/verify">记录链头 {ch.head.slice(0, 8)}</a>
+          {gitSha && <span> · 构建自 <span class="mono">{gitSha}</span></span>}
         </p>
         <p class="meta" style="margin-inline-start:auto">
           {site.anchors.github && (

@@ -15,4 +15,6 @@ export default defineConfig({
     },
   },
   build: { inlineStylesheets: 'auto' },
+  // 把 Git 提交号烘进页面：线上内容与某一次提交一一对应（可核对的一环）
+  define: { GIT_SHA: JSON.stringify(process.env.GIT_SHA || '') },
 });
