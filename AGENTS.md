@@ -47,6 +47,8 @@
   可用写法：先 `$env:GH_TOKEN = (gh auth token)`，再
   `git -c credential.helper='!gh auth git-credential' push origin main`，然后用 `git ls-remote origin refs/heads/main`
   核对远端确实前进了——**不看这步就宣称推送成功是不可靠的**。
+  实测（2026-10-30）：`push origin main` 会输出 `Everything up-to-date` 而远端**没有**前进（本地跟踪引用骗了 git）。
+  稳妥写法是显式 refspec：`push -v origin refs/heads/main:refs/heads/main`，再用 `ls-remote` 核对。
 - 绝不在命令行参数里传令牌（会进进程列表），不把令牌写进任何提交、日志或汇报。
 
 ## 双语与 AIEO 规矩（2026-10-30 加）
