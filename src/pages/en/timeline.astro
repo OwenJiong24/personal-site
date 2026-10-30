@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/base.astro';
+import { brand, site, sections } from '../../lib/site';
+import { publishedPosts, utcDay, keyOf } from '../../lib/trust';
+import { ui } from '../../lib/i18n';
+
+const posts = await publishedPosts('en');
+const byMonth = new Map<string, typeof posts>();
+for (const p of posts) {
+  const key = utcDay(p.data.date).slice(0, 7);
+  byMonth.set(key, [...(byMonth.get(key) ?? []), p]);
+}
+const months = [...byMonth.keys()].sort().reverse();
+const names = ui.en.sections as Record<string, { name: string }>;
+const rows = new Map(months.map((m) => [m, byMonth.get(m)!.map((p) => ({
+  href: '/en/' + p.collection + '/' + keyOf(p),
+  day: utcDay(p.data.date),
+  zoneName: names[p.collection]?.name ?? p.collection,
+  title: p.data.title,
+}))]));
+---
+
+<Base
+  title="Timeline"
+  description={`Every public entry, in order, since ${site.start}.`}
+  path="/en/timeline"
+  lang="en"
+  switchHref="/timeline">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Timeline</h1>
+      <p class="meta">
+        All {posts.length} public entries in English, since {site.start} (UTC). This page is the shape of trust itself:
+        a line that keeps moving forward.
+      </p>
+    </header>
+
+    {
+      months.map((m) => (
+        <section class="flow stack-sm" aria-label={`entries of ${m}`}>
+          <h2>{m}</h2>
+          <ul class="post-list">
+            {rows.get(m)!.map((r) => (
+              <li>
+                <a href={r.href}>
+                  <span class="meta">{r.day} · {r.zoneName}</span>
+                  <p class="post-title">{r.title}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </section>
+</Base>

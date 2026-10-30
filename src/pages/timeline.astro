@@ -14,7 +14,7 @@ const months = [...byMonth.keys()].sort().reverse();
 const zoneName = (c: string) => (ui.zh.sections as Record<string, { name: string }>)[c]?.name ?? c;
 ---
 
-<Base title="时间线" description={`按时间排列的全部公开记录，自 ${site.start} 起。`} path="/timeline">
+<Base title="时间线" description={`按时间排列的全部公开记录，自 ${site.start} 起。`} path="/timeline" switchHref="/en/timeline">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
       <h1>时间线</h1>
