@@ -76,7 +76,7 @@ $env:GH_TOKEN = $null
 
 ## 品牌与域名（2026-10-30）
 
-- 品牌 **OrangeKnows（OK）**，中文二级名「橙知道」，作者 Owen Jiong（OJ）。线上目标域名 `orangeknows.com`。
+- 品牌 **OrangeKnows（OK）**，中文二级名「橙知道」，作者 Owen Jiong（OJ）。**线上：https://orangeknows.com**（2026-10-30 绑定完成，HTTP/2 证书有效）。
 - 视觉：`src/styles/tokens.css`（C 集，同步自 `ui-toolkit/tokens.css`）；
   语法/符号/slogan 见 `ui-toolkit/modes/c-orangeknows.md`。字体自托管：Space Grotesk（标题）/ Source Serif 4（正文）/ JetBrains Mono（数据）。
 - 五抽屉：`/journal` 日志、`/essays` 洞察、`/notes` 随记、`/projects` 项目、`/uses` 清单（中英各一套，英文在 `/en` 下）。

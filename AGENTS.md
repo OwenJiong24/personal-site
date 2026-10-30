@@ -38,7 +38,7 @@
 ## 本机发布与推送的坑（已验证）
 
 - 发布：`.\scripts\deploy.ps1`（构建 → 内容红线 → `wrangler pages deploy` 直传 Cloudflare Pages 项目 `jiong`）。
-  线上是 **https://jiong-bvw.pages.dev**（`jiong.pages.dev` 已被他人注册，Cloudflare 自动加了 `-bvw` 后缀）。
+  线上是 **https://orangeknows.com**（2026-10-30 已绑 Pages 自定义域名；备用地址 `jiong-bvw.pages.dev`，`jiong.pages.dev` 已被他人注册所以带 `-bvw` 后缀）。
   站点地址写在 `astro.config.mjs` 的 `site`（可用 `PUBLIC_SITE_URL` 覆盖），canonical/RSS/站点地图/robots 都跟着它走。
 - `git push` 在这台机器上会**静默失败**（凭据助手要读 Windows 钥匙串，子进程被拦，且没有输出）。
   可用写法：先 `$env:GH_TOKEN = (gh auth token)`，再
@@ -72,5 +72,5 @@
 
 ## 域名绑定（Cloudflare 面板，wrangler 无此命令）
 
-Pages 项目 `jiong` → Custom domains → 添加 `orangeknows.com`（apex），可选把 `www` 重定向到 apex。
-DNS 由 Cloudflare 自动写（域名已在本账号内）。绑定完成后 canonical/OG/RSS/站点地图自动指向正式域名，无需改代码。
+2026-10-30 已完成：Pages 项目 `jiong` → Custom domains → `orangeknows.com`（Active / SSL enabled），DNS 为 proxied CNAME → `jiong-bvw.pages.dev`。Email Routing 已开通，catch-all 转发到 CEO 的 Gmail（`owen@orangeknows.com` 可收信）。
+www.orangeknows.com 已在 Pages 里加为自定义域名，但 **DNS 的 CNAME 记录尚未创建**（本机 wrangler OAuth 令牌无 dns_records 写权限，API 403）：需在 DNS → Records 手动加 `CNAME www → jiong-bvw.pages.dev`（Proxied），再建议加一条 Redirect Rule 把 www 301 到 apex。
