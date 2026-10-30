@@ -29,6 +29,8 @@ MAP = {
         "Journal day 001: addendum on the unpaid domain and the live URL; README states real state and push quirks",
     "记录链纳入正文全文（实测：改一字链头变、还原可复现），文案与实现对齐":
         "Hash the full body into the record chain (verified: one character changes the head, revert restores it)",
+    "线上内容对得上 Git 提交：页脚与 chain.json 烘入构建提交号":
+        "Tie live content to git commits: stamp the build commit into the footer and chain.json",
     "中英双语上线 + AIEO 基建：hreflang 成对、BlogPosting/Person JSON-LD、llms.txt/llms-full.txt、robots 放行 AI 爬虫、单语双 RSS":
         "Ship bilingual i18n and AIEO base: hreflang pairs, JSON-LD, llms.txt/llms-full.txt, AI crawlers in robots, per-language RSS",
     "品牌落地 OrangeKnows（OK）：C 集定稿 + 几何 monogram + 五抽屉结构 + 正式域名":
