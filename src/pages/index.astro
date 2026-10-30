@@ -1,0 +1,95 @@
+---
+import Base from '../layouts/base.astro';
+import { site, zones } from '../lib/site';
+import { publishedPosts, stats, chain, utcDay } from '../lib/trust';
+
+const posts = await publishedPosts();
+const s = stats(posts);
+const ch = await chain();
+const latest = posts.slice(0, 6);
+const zoneName = (c: string) => zones.find((z) => z.slug === c)?.name ?? c;
+const newest = posts[0];
+---
+
+<Base title={site.name} description={site.intro} path="/">
+  <section class="wrap flow" style="--flow-gap: 1.5rem">
+    <header class="flow measure" style="--flow-gap: 0.75rem">
+      <h1>{site.name}</h1>
+      <p style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+        <span class="pill pill-accent">{site.role}</span>
+        <span class="pill">自 {site.start} 起公开记录</span>
+      </p>
+      <p class="lead" style="font-size: 1.125rem; color: var(--text-2)">{site.tagline}。</p>
+      <p style="color: var(--text-2)">{site.intro}</p>
+    </header>
+
+    <div class="card">
+      <div class="stat-row">
+        <span class="stat"><b>{s.elapsedDays}</b><small>公开天数</small></span>
+        <span class="stat"><b>{s.entries}</b><small>条记录</small></span>
+        <span class="stat"><b>{s.streak}</b><small>连续天数</small></span>
+        <span class="stat">
+          <b>{s.latest ? utcDay(s.latest) : '—'}</b>
+          <small>最近更新（UTC）</small>
+        </span>
+        <span class="stat">
+          <b><a href="/verify" class="mono" style="text-decoration: none">{ch.head.slice(0, 8)}</a></b>
+          <small>记录链头</small>
+        </span>
+      </div>
+    </div>
+
+    <p style="display: flex; gap: 0.625rem; flex-wrap: wrap">
+      {newest && <a class="btn" href={`/${newest.collection}/${newest.id}`}>读最新一条</a>}
+      <a class="btn btn-ghost" href="/about">这个站在干什么</a>
+      <a class="btn btn-ghost" href="/journal">开发日志</a>
+    </p>
+  </section>
+
+  <section class="wrap flow">
+    <h2>最近记录</h2>
+    {
+      latest.length === 0 ? (
+        <p class="meta">还没有公开发布的记录。</p>
+      ) : (
+        <ul class="post-list measure">
+          {latest.map((p) => (
+            <li>
+              <a href={`/${p.collection}/${p.id}`}>
+                <span class="meta">
+                  {utcDay(p.data.date)} · {zoneName(p.collection)}
+                </span>
+                <p class="post-title">{p.data.title}</p>
+                {p.data.summary && <p class="post-excerpt">{p.data.summary}</p>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
+  <section class="wrap flow">
+    <h2>三个区块</h2>
+    <div class="grid">
+      {
+        zones.map((z) => (
+          <a class="card flow" href={z.href} style="--flow-gap: 0.5rem; text-decoration: none; color: inherit">
+            <h3>{z.name}</h3>
+            <p class="meta">{z.desc}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="wrap flow">
+    <h2>这份记录的规则</h2>
+    <ul class="measure" style="padding-inline-start: 1.2rem; color: var(--text-2)">
+      <li>时间一律 UTC，写完不事后修饰；补记会标明「补记」。</li>
+      <li>每篇公开记录进入一条哈希链，链头写在页脚；正文被改动，链头会变。</li>
+      <li>不写密钥、主机地址、客户数据、未发布的商业数字，也不写身份证级隐私。</li>
+      <li>静态站，无追踪脚本；源码在 GitHub，构建在 Cloudflare Pages。</li>
+    </ul>
+  </section>
+</Base>

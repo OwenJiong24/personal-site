@@ -1,0 +1,5 @@
+# 仓库内统一 LF（本机 Windows 默认 CRLF，云端构建在 Linux）
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary

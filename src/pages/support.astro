@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/base.astro';
+import { site } from '../lib/site';
+
+const open = Object.entries(site.support).filter(([, v]) => v);
+---
+
+<Base title="支持与合作" description="支持这个记录继续写下去的方式，以及合作联系方式。" path="/support">
+  <section class="wrap measure flow">
+    <h1>支持与合作</h1>
+    <div class="prose">
+      <p>
+        这个站不卖东西、不放广告、不接软文。它唯一的收益是「让人能核对我在长期做什么」。
+        如果你希望它一直写下去，可以直接找我谈合作，或者用下面的方式支持。
+      </p>
+
+      {
+        open.length === 0 ? (
+          <div class="card-flat">
+            <p class="meta">
+              支持入口（Co-fi / Buy Me a Coffee 这类）暂未开通。开通后会出现在这里；现在请直接
+              <a href={`mailto:${site.anchors.email}`}>邮件联系</a>。
+            </p>
+          </div>
+        ) : (
+          <ul>
+            {open.map(([k, v]) => (
+              <li>
+                <a href={v} rel="noopener">{k}</a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <h2>谈合作</h2>
+      <ul>
+        <li>工程外包 / 技术咨询：先读 <a href="/journal">开发日志</a>，判断力比简历准。</li>
+        <li>产品与增长：读 <a href="/insights">洞察</a> 与 <a href="/work">项目</a>。</li>
+        <li>邮件 {site.anchors.email}，标题写「合作 · 你的公司 · 想聊什么」。</li>
+      </ul>
+    </div>
+  </section>
+</Base>

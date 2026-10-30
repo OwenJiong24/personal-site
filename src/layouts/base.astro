@@ -1,0 +1,124 @@
+---
+// 全站骨架：头部导航、页脚统计与记录链头、主题切换。值全走 tokens.css。
+import '@fontsource-variable/dm-sans/index.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { site } from '../lib/site';
+import { publishedPosts, stats, chain, utcDay } from '../lib/trust';
+
+interface Props {
+  title: string;
+  description?: string;
+  path?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+}
+
+const { title, description = site.intro, path = '/', ogType = 'website', noindex = false } = Astro.props;
+const base = Astro.site ?? new URL('https://owenjiong.com');
+const canonical = new URL(path, base);
+const posts = await publishedPosts();
+const s = stats(posts);
+const ch = await chain();
+---
+
+<!doctype html>
+<html lang={site.lang} data-style="a" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title === site.name ? `${site.name} — ${site.role}` : `${title} · ${site.name}`}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${site.name} 的记录`}
+      href={new URL('/rss.xml', base)}
+    />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="light dark" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={site.locale} />
+    <meta name="twitter:card" content="summary" />
+    <script is:inline>
+      (() => {
+        const key = 'owen-site-theme';
+        const saved = localStorage.getItem(key);
+        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/">{site.name}<span class="dot">.</span></a>
+        <nav class="nav" aria-label="主导航">
+          {
+            site.nav.map((item) => (
+              <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+          <a href="/rss.xml">RSS</a>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换明暗主题">
+            <span class="theme-label">亮色</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p class="meta">
+          © 2026 {site.name} · 起点 {site.start} · 共 {s.entries} 条 / 记录 {s.activeDays} 天 ·
+          <a href="/verify">记录链头 {ch.head.slice(0, 8)}</a>
+        </p>
+        <p class="meta" style="margin-inline-start:auto">
+          {site.anchors.github && (
+            <a href={`https://github.com/${site.anchors.github}`} rel="me noopener">
+              GitHub
+            </a>
+          )}
+          {site.anchors.github && site.anchors.email && <span> · </span>}
+          {site.anchors.email && <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>}
+          <span> · </span>
+          <span>静态站，无追踪脚本</span>
+        </p>
+      </div>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        const label = btn.querySelector('.theme-label');
+        const paint = () => {
+          const dark = document.documentElement.dataset.theme === 'dark';
+          label.textContent = dark ? '暗色' : '亮色';
+          btn.setAttribute('aria-pressed', String(dark));
+        };
+        paint();
+        btn.addEventListener('click', () => {
+          const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+          document.documentElement.dataset.theme = next;
+          localStorage.setItem('owen-site-theme', next);
+          paint();
+        });
+      })();
+    </script>
+  </body>
+</html>

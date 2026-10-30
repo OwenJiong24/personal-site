@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/base.astro';
+---
+
+<Base title="页面不存在" description="这个地址没有内容。" path="/404" noindex>
+  <section class="wrap measure flow">
+    <h1>404 · 这里没有东西</h1>
+    <p style="color: var(--text-2)">
+      地址可能写错了，或者这一条被改名了。全站记录都在 <a href="/timeline">时间线</a> 里。
+    </p>
+    <p style="display: flex; gap: 0.625rem; flex-wrap: wrap">
+      <a class="btn" href="/">回首页</a>
+      <a class="btn btn-ghost" href="/timeline">时间线</a>
+    </p>
+  </section>
+</Base>

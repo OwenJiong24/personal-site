@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/base.astro';
+import { site, zones } from '../lib/site';
+import { publishedPosts, utcDay } from '../lib/trust';
+
+const posts = await publishedPosts();
+const byMonth = new Map<string, typeof posts>();
+for (const p of posts) {
+  const key = utcDay(p.data.date).slice(0, 7);
+  byMonth.set(key, [...(byMonth.get(key) ?? []), p]);
+}
+const months = [...byMonth.keys()].sort().reverse();
+const zoneName = (c: string) => zones.find((z) => z.slug === c)?.name ?? c;
+---
+
+<Base title="时间线" description={`按时间排列的全部公开记录，自 ${site.start} 起。`} path="/timeline">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>时间线</h1>
+      <p class="meta">
+        全部 {posts.length} 条公开记录，自 {site.start}（UTC）。这一页是信任的形态本身：一条不断往前推的时间线。
+      </p>
+    </header>
+
+    {
+      months.map((m) => (
+        <section class="flow stack-sm" aria-label={`${m} 的记录`}>
+          <h2>{m}</h2>
+          <ul class="post-list">
+            {byMonth.get(m)!.map((p) => (
+              <li>
+                <a href={`/${p.collection}/${p.id}`}>
+                  <span class="meta">
+                    {utcDay(p.data.date)} · {zoneName(p.collection)}
+                  </span>
+                  <p class="post-title">{p.data.title}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </section>
+</Base>

@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/base.astro';
+import { site } from '../lib/site';
+import { publishedPosts, chain, utcDay } from '../lib/trust';
+
+const posts = await publishedPosts();
+const ch = await chain();
+const recent = posts.slice(0, 10).map((p) => ({
+  date: utcDay(p.data.date),
+  title: p.data.title,
+  zone: p.collection,
+  hash: ch.byId.get(p.id) ?? '',
+}));
+---
+
+<Base
+  title="如何核对这份记录"
+  description="这个站为什么值得信：哈希链、构建时间与外部锚点的核对方法。"
+  path="/verify">
+  <section class="wrap measure flow">
+    <h1>如何核对这份记录</h1>
+
+    <div class="prose">
+      <p>
+        网上放一份「我做过什么」很容易，难的是让人相信用它的人真的在那段时间做这些事。这个站用三条机制把「可核对」做实。
+      </p>
+
+      <h2>1. 哈希链：正文改没改，链头会说话</h2>
+      <p>
+        构建时把所有公开记录按时间升序排序，从起点 <span class="mono">{site.start}</span> 开始逐条做 SHA-256 链接：
+        每条的摘要 = SHA256(上一条摘要 | 序号 | 文件 id | 日期 | 标题)。任何一条正文的标题或日期被改动，
+        它之后的全部摘要与链头都会变。
+      </p>
+      <div class="card stack-sm">
+        <p class="meta">当前链头（{ch.count} 条，构建于本次部署）</p>
+        <p class="mono" style="word-break: break-all">{ch.head}</p>
+        <p class="meta">
+          机器可读全链：<a href="/chain.json" class="mono">/chain.json</a>
+        </p>
+      </div>
+
+      <h2>2. 部署时间：内容由 Cloudflare 盖章</h2>
+      <p>
+        站点是纯静态构建，部署产物不可在服务器端改写。访客看到的内容与 HTTP 响应头
+        <span class="mono">cf-cache-status</span> / Pages 部署时间一致，
+        可用浏览器开发者工具核对页面文件的最后修改时间。
+      </p>
+
+      <h2>3. 外部锚点：同一个人，多个地方</h2>
+      <p>
+        同一个 handle 与同一个邮箱，出现在多个第三方站点上，互相印证：
+      </p>
+      <ul>
+        <li>GitHub：<a href={`https://github.com/${site.anchors.github}`} rel="me">github.com/{site.anchors.github}</a>（公开提交历史是工程能力最硬的证据）</li>
+        <li>邮箱：<a href={`mailto:${site.anchors.email}`} rel="me">{site.anchors.email}</a>（域名在我手里，可收发验证邮件）</li>
+        <li>RSS：<a href="/rss.xml">/rss.xml</a>（可被第三方聚合器长期抓取，形成外部留档）</li>
+      </ul>
+
+      <h2>还没做的（说明白，不吹）</h2>
+      <ul>
+        <li>把链头定期锚定到第三方不可改的地方（公开仓库、RFC3161 时间戳服务），让外部人能独立验证。</li>
+        <li>用私钥对链头签名，页面公布公钥指纹。</li>
+      </ul>
+
+      <h2>最近十条的链上摘要</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>日期（UTC）</th>
+            <th>区块</th>
+            <th>标题</th>
+            <th>摘要</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            recent.map((r) => (
+              <tr>
+                <td>{r.date}</td>
+                <td>{r.zone}</td>
+                <td>{r.title}</td>
+                <td class="mono">{r.hash.slice(0, 12)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</Base>

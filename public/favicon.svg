@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 独立站点图标：值取自 ui-toolkit tokens.css A 集（--text / --bg），SVG 内不支持 CSS 变量故写死 -->
+  <rect width="64" height="64" rx="16" fill="#191412" />
+  <text x="32" y="34" text-anchor="middle" dominant-baseline="central"
+        font-family="system-ui, 'Segoe UI', sans-serif" font-size="26" font-weight="600"
+        letter-spacing="-0.5" fill="#faf5f2">OJ</text>
+</svg>

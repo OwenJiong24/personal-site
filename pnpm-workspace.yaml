@@ -1,0 +1,5 @@
+# pnpm 设置（pnpm 11：允许执行构建脚本的依赖）
+# esbuild：Vite/Astro 构建链依赖；sharp：astro:assets 图片优化
+allowBuilds:
+  esbuild: true
+  sharp: true
