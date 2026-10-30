@@ -4,7 +4,7 @@ lang: en
 key: 2026-10-30-orangeknows-site
 date: 2026-10-30T21:50:00Z
 stage: live
-summary: The site itself as a product: a bilingual static record with a publish gate, a hash chain and no trackers. Built 2026-10-30, public source.
+summary: "The site itself as a product: a bilingual static record with a publish gate, a hash chain and no trackers. Built 2026-10-30, public source."
 summary_en: "The site itself: bilingual static record, publish gate, hash chain, no trackers."
 tags: [astro, static, trust]
 status: public
