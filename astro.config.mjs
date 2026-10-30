@@ -15,6 +15,5 @@ export default defineConfig({
     },
   },
   build: { inlineStylesheets: 'auto' },
-  // 把 Git 提交号烘进页面：线上内容与某一次提交一一对应（可核对的一环）
-  define: { GIT_SHA: JSON.stringify(process.env.GIT_SHA || '') },
+  // 构建提交号由 src/lib/build.ts 从环境变量 GIT_SHA 读取（Astro 没有顶层 define 这个键）
 });
