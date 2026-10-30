@@ -19,6 +19,19 @@ const body = (entry as unknown as { body?: string }).body ?? '';
 const words = body.split(/\s+/).filter(Boolean).length;
 const minutes = Math.max(1, Math.round(words / (lang === 'en' ? 200 : 350)));
 
+const faq = (((entry.data as { faq?: Array<{ q: string; a: string }> }).faq) ?? []) as Array<{ q: string; a: string }>;
+const faqPage = faq.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    }
+  : null;
+
 const data = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -29,8 +42,9 @@ const data = {
   dateModified: (entry.data.updated ?? entry.data.date).toISOString(),
   timeRequired: `PT${minutes}M`,
   wordCount: words,
-  author: { '@type': 'Person', name: site.name, url: url(langPath(lang, '/about')) },
-  publisher: { '@type': 'Person', name: site.name, url: url('/') },
+  author: { '@type': 'Person', name: site.author, url: url(langPath(lang, '/about')) },
+  publisher: { '@type': 'Person', name: site.author, url: url('/') },
+  ...(faq.length ? { audience: { '@type': 'Audience', audienceType: (entry.data as { audience?: string }).audience ?? 'makers' } } : {}),
   mainEntityOfPage: { '@type': 'WebPage', '@id': url(path) },
   url: url(path),
   isPartOf: { '@type': 'WebSite', url: url('/') },
@@ -41,3 +55,4 @@ const data = {
 ---
 
 <script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />
+{faqPage && <script type="application/ld+json" is:inline set:html={JSON.stringify(faqPage)} />}

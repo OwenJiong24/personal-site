@@ -48,6 +48,6 @@ export const site = {
 } as const;
 
 // 板块（Q5 数字花园/实验室形态）：slug 同时是 collection 名与 URL 段
-export type SectionSlug = 'journal' | 'essays' | 'notes' | 'projects';
+export type SectionSlug = 'journal' | 'essays' | 'guides' | 'notes' | 'projects';
 
-export const sections: SectionSlug[] = ['journal', 'essays', 'notes', 'projects'];
+export const sections: SectionSlug[] = ['journal', 'essays', 'guides', 'notes', 'projects'];

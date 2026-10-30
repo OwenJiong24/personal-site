@@ -43,7 +43,7 @@ for (const file of files(CONTENT)) {
   const head = fm ? fm[1] : '';
 
   for (const line of head.split('\n')) {
-    const m = /^([A-Za-z_][\w-]*):\s+(.*)$/.exec(line);
+    const m = /^\s*(?:-\s*)?([A-Za-z_][\w-]*):\s+(.*)$/.exec(line);
     if (!m) continue;
     const val = m[2];
     const quoted = /^["'].*["']$/.test(val) || /^\[.*\]$/.test(val);

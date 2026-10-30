@@ -28,6 +28,11 @@ const col = (dir: string, extra?: z.ZodRawShape) =>
 export const collections = {
   journal: col('journal'),
   essays: col('essays'),
+  // guides：写给手作卖家的实操指南（SEO/AIEO 主战场，带 FAQ）
+  guides: col('guides', {
+    audience: z.string().default('手工/手作卖家'),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+  }),
   notes: col('notes', {
     // 随记：一句话结论 + 线索类型
     kind: z.enum(['观察', '线索', '结论', '提问', 'observation', 'lead', 'conclusion', 'question']).default('观察'),

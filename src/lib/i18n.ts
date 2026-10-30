@@ -15,6 +15,7 @@ export const ui = {
     nav: [
       { path: '/journal', label: '日志' },
       { path: '/essays', label: '洞察' },
+      { path: '/guides', label: '指南' },
       { path: '/notes', label: '随记' },
       { path: '/projects', label: '项目' },
       { path: '/uses', label: '清单' },
@@ -29,6 +30,7 @@ export const ui = {
     sections: {
       journal: { name: '日志', desc: '每天在做什么：写下的代码、踩到的坑、做出的决定。按日期累积，不可事后修饰。' },
       essays: { name: '洞察', desc: '结论先行的长文：对 AM 时代、产品、工程与协作的判断。会过时，所以每篇带日期。' },
+      guides: { name: '指南', desc: '写给手作/手工卖家的实操：用最少的钱把域名、网站、邮箱、AI 用起来。都能照做，也能核对。' },
       notes: { name: '随记', desc: '碎片层：看到的现象、一句话结论、值得追的线索。短，但不删。' },
       projects: { name: '项目', desc: '我在建什么、进展到哪一步。只写可以公开的部分。' },
     } as Record<SectionSlug, { name: string; desc: string }>,
@@ -78,6 +80,7 @@ export const ui = {
     nav: [
       { path: '/journal', label: 'Journal' },
       { path: '/essays', label: 'Essays' },
+      { path: '/guides', label: 'Guides' },
       { path: '/notes', label: 'Notes' },
       { path: '/projects', label: 'Projects' },
       { path: '/uses', label: 'Uses' },
@@ -92,6 +95,7 @@ export const ui = {
     sections: {
       journal: { name: 'Journal', desc: 'What I work on each day: the code, the traps, the decisions. Accumulated by date, never edited after the fact.' },
       essays: { name: 'Essays', desc: 'Conclusion-first long form: judgements about the model era, product, engineering, collaboration. They age, so each carries a date.' },
+      guides: { name: 'Guides', desc: 'Practical playbooks for makers: own your domain, site, email and AI workflow for as little money as possible. Followable, checkable.' },
       notes: { name: 'Notes', desc: 'The fragment layer: things I noticed, one-line conclusions, leads worth chasing. Short, and never deleted.' },
       projects: { name: 'Projects', desc: 'What I am building and how far along it is. Only the part that can be public.' },
     } as Record<SectionSlug, { name: string; desc: string }>,
