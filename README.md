@@ -1,84 +1,145 @@
-# 个人站（owenjiong.com）
+# OrangeKnows — the public record of Owen Jiong (OJ)
 
-AM 时代的公开工作记录：名片 + 博客 + 每日开发日志。Astro 5 静态站，GitHub 源码，Cloudflare Pages 托管。
+**Live site: <https://orangeknows.com>** · Chinese version: <https://orangeknows.com/zh/>
 
-## 本地跑起来
+A static personal site built to accumulate trust over time: a daily engineering journal, essays,
+practical guides for handmade / craft sellers, notes, projects, and free tools. Every entry is
+timestamped in UTC and hashed into a SHA-256 record chain, so the record cannot be quietly rewritten
+after the fact.
+
+The premise: in an era when models generate convincing artefacts in bulk, the scarce proof is a
+continuous, checkable human record.
+
+> 中文摘要见文末「中文说明」。
+
+## Stack
+
+| Layer | Choice | Why |
+|---|---|---|
+| Site | [Astro 5](https://astro.build), static output | No runtime framework, no trackers; it must still build in ten years |
+| Content | Markdown + content collections | Content is data, so the publish gate can check it |
+| Hosting | Cloudflare Pages (project `jiong`) | Free tier, custom domain, edge delivery |
+| Styles | Design tokens in `src/styles/tokens.css` | One brand source of truth; components use tokens, never raw hex |
+| i18n | English at `/`, Chinese at `/zh/` | English is the default (global reach), Chinese serves the domestic market |
+
+No JavaScript framework ships to the browser. The only inline script is the pricing calculator.
+
+## Repository layout
+
+```
+src/content/        journal · essays · guides · notes · projects   (Markdown, bilingual)
+src/pages/          English routes at root, Chinese under pages/zh/
+src/pages/tools/    free static tools (no tracking, runs in the browser)
+src/layouts/        base.astro (chrome, hreflang, footer chain head) · post.astro (article)
+src/components/     Brand (logo monogram) · views · JSON-LD
+src/lib/            site.ts (identity, the single config entry) · i18n.ts · trust.ts · build.ts
+src/styles/         tokens.css (brand values) · global.css (brand grammar)
+scripts/            lint-content.mjs (publish gate) · check-css.mjs (build self-check) · deploy.ps1
+docs/STRATEGY.md    audience, positioning, BIMI plan, dual-voice writing rules
+public/             _headers · _redirects · favicon · og.png
+```
+
+## Run it locally
 
 ```bash
-pnpm install     # 首次
-pnpm dev         # http://localhost:4321
-pnpm build       # 构建前先过内容门禁，产物在 dist/
-pnpm preview     # 预览构建产物
+pnpm install
+pnpm dev        # http://localhost:4321
+pnpm build      # content red-line gate → CSS self-check → dist/
 ```
 
-## 写作与发布流程（唯一路径）
+`pnpm build` fails on purpose when public content contains credentials, host addresses, internal
+identifiers, a non-brand email domain, `sensitive: true` together with `status: public`, a missing
+summary, or a missing `lang` / `key` declaration. Do not work around the gate.
 
-1. 新建 `src/content/<分区>/<UTC日期>-<短标题>.md`（分区：`journal` 开发日志 / `insights` 洞察 / `work` 项目）。
-2. frontmatter 必填 `title / date / summary`，`status` 先写 `draft`。
-3. 本地 `pnpm dev` 看效果。**公开前由 CEO 过目**（内容以第一人称写，助手代笔的段落要本人认可）。
-4. `status: public` → 先 `git commit` 再发布：`.\scripts\deploy.ps1`
-   （脚本依次做：构建（含内容红线检查 + CSS 自检）→ 把当前提交号 `GIT_SHA` 烘进页脚与 `/chain.json` → `wrangler pages deploy` 直传 Cloudflare Pages）。
-5. 线上地址：**https://jiong-bvw.pages.dev**（Cloudflare 免费子域名；`jiong.pages.dev` 已被他人注册，所以带 `-bvw` 后缀）。
+## Content model
 
-`date` 一律写 UTC，带 `Z` 后缀。补记在正文首行写「补记」。
-线上页脚写的「构建自 xxxxxxx」就是产生这份内容的提交号：先提交再发布，两者才对得上。
+Each article is one Markdown file per language. The two languages are paired by an explicit `key`,
+never by file name: Astro's glob loader strips dots, so `x.en.md` becomes the id `xen` (measured, not
+folklore).
 
-## 线上与域名现状
-
-- 托管：Cloudflare Pages 项目 `jiong`，**直传部署**（本机构建 → 上传 `dist`），不是 Git 自动构建。
-- 站点地址在 `astro.config.mjs` 的 `site`（可用环境变量 `PUBLIC_SITE_URL` 覆盖）。
-  canonical、RSS、站点地图、robots 都跟着它走。
-- 部署凭据：优先读本仓根目录的 `.cf-token`（只给 Cloudflare Pages:Edit 权限的 API Token，已在 .gitignore 内）；
-  文件不存在时用本机 `wrangler login` 的登录态。
-- 以后绑 `owenjiong.com`：在 Pages 项目的 Custom domains 添加域名，Cloudflare 自动配 DNS 与证书；
-  然后把 `astro.config.mjs` 的 `site` 改成 `https://owenjiong.com` 再发一次。
-- 想要「push 即上线」：在 Pages 面板把项目改成 Git 集成（Build command `pnpm run build`、输出目录 `dist`、
-  环境变量 `NODE_VERSION=22`），并给 `pnpm-workspace.yaml` 里已声明的 esbuild/sharp 构建脚本留好许可。
-
-## 本机推送的坑（这台机器实测）
-
-`git push` 会**静默失败**（凭据助手要读 Windows 钥匙串，子进程被拦，没有报错输出）。可用写法：
-
-```powershell
-$env:GH_TOKEN = (gh auth token)
-git -c credential.helper='!gh auth git-credential' push origin main
-git ls-remote origin refs/heads/main   # 必须核对远端确实前进，别只看退出码
-$env:GH_TOKEN = $null
+```yaml
+title: 需求自查九问
+lang: zh            # zh | en
+key: 2026-10-30-nine-questions   # identical across the two languages
+date: 2026-10-30T07:58:00Z       # UTC, and not in the future (later dates get filtered out)
+voice: assistant    # assistant (AI-assisted, disclosed on the page) | owner (written by OJ)
+ownerRating: 4      # OJ's verdict 0-5; blank renders "Verdict pending"
+ownerNote: 'Nine questions, four veto layers — this is the one I keep using.'
+summary: '...'      # required for public entries
+status: public      # draft stays out of the public build
 ```
 
-## 目录约定
+### Dual voice (the house rule)
 
-- `src/content/` 全部文字内容（唯一需要日常改动的地方）
-- `src/lib/site.ts` 署名、锚点、区块定义（改身份/联系方式只改这里）
-- `src/styles/tokens.css` 从本机 `ui-toolkit/tokens.css` 同步的 A 集值（真源改了按此同步，不在站点里发明新值）
-- `scripts/lint-content.mjs` 发布红线检查 · `scripts/check-css.mjs` 构建后 CSS 自检 · `scripts/deploy.ps1` 一键发布
-- `src/pages/chain.json.ts` 机器可读记录链（外部核对入口）
+Narration and compilation are attributed to **the OK assistant** (AI-assisted) and labelled on every
+article page. **OJ's own views enter only as blockquotes with a source line**, never blended into the
+narration. Each article carries a **signed-off verdict**: a 0–5 rating plus a one-line quick comment
+by OJ. Ratings are never invented on his behalf — a missing one renders as `Verdict pending` and the
+build prints it as work to do.
 
-## 设计
+The split is deliberate: a reader, and an AI engine, can tell which layer is human judgement and
+which layer is compiled assistance.
 
-一套 token，A 集（Rylo，暖奶油底 + 暖近黑 + 品牌蓝），暗色是正交轴。
-组件禁止裸 hex；中文正文行高放宽到 1.75（长文阅读需要，属对 A 集英文 UI 行高的有意偏离）。
+## Trust machinery
 
-## 一键发布（本机）
-``powershell
-.\scripts\deploy.ps1   # 构建 → 过红线 → 上传到 Cloudflare Pages（项目 jiong）
-`` 
+- **Record chain**: SHA-256 over `prev | index | id | ISO date | title | body`; the newest head sits in
+  the footer and the full chain is at [`/chain.json`](https://orangeknows.com/chain.json). Changing one
+  character of a published body changes the head.
+- **Build stamp**: footers and `/chain.json` carry `built_from`, the git commit the build came from.
+- **Verification page**: [`/verify`](https://orangeknows.com/verify) states what the chain proves and
+  what it does not prove (it is not a third-party timestamp; that is a known gap).
 
-需要本仓根目录有 `.cf-token`：在 Cloudflare 面板 My Profile → API Tokens → 用模板 **Edit Cloudflare Pages** 建一个（只含 Pages:Edit 权限），粘进文件保存。该文件在 .gitignore 内，不进仓库、不在命令行里传。
+## AIEO / SEO
 
-## 双语与 AIEO（2026-10-30）
+`hreflang` pairs with `x-default` on English; JSON-LD (`Person`, `WebSite`, `BlogPosting` with
+`workTranslation`, `FAQPage` on guides); `/llms.txt` and `/llms-full.txt`; a sitemap with language
+alternates; per-language RSS (`/rss.xml` English, `/zh/rss.xml` Chinese); and a `robots.txt` that
+allow-lists search and AI crawlers by name. Measured effect: **unverified** — the site says so plainly
+instead of asserting it.
 
-- 中文主语言在站点根，英文在 `/en/`；文案表在 `src/lib/i18n.ts`，加新页面用 `ui[lang]` 取词。
-- 文章双语：frontmatter `lang` + `key`（同 key = 同一篇文章），文件如 `2026-10-30-aieo-checklist.zh.md` / `.en.md`。
-- 机器可读：`/llms.txt` 索引、`/llms-full.txt` 全文、`/chain.json` 记录链、`/rss.xml`(zh) 与 `/en/rss.xml`(en)。
-- 结构化数据：首页 Person + WebSite，文章页 BlogPosting（含 `datePublished`、`dateModified`、`workTranslation`、链上摘要）。
-- `robots.txt` 逐条放行主流 AI 爬虫（清单在 `src/pages/robots.txt.ts`）。
+## Publishing flow
 
-## 品牌与域名（2026-10-30）
+1. Draft in Markdown with `status: draft`.
+2. `pnpm dev`, read both languages.
+3. OJ reviews and signs off (`ownerRating` / `ownerNote`).
+4. Set `status: public`, commit, then `.\scripts\deploy.ps1` (build → gate → `wrangler pages deploy`).
+5. Verify: the page returns 200, the `/chain.json` head moved, and `built_from` equals the pushed commit.
 
-- 品牌 **OrangeKnows（OK）**，中文二级名「橙知道」，作者 Owen Jiong（OJ）。**线上：https://orangeknows.com**（2026-10-30 绑定完成，HTTP/2 证书有效）。
-- 视觉：`src/styles/tokens.css`（C 集，同步自 `ui-toolkit/tokens.css`）；
-  语法/符号/slogan 见 `ui-toolkit/modes/c-orangeknows.md`。字体自托管：Space Grotesk（标题）/ Source Serif 4（正文）/ JetBrains Mono（数据）。
-- 五抽屉：`/journal` 日志、`/essays` 洞察、`/notes` 随记、`/projects` 项目、`/uses` 清单（中英各一套，英文在 `/en` 下）。
-- 旧板块 URL 已 301：`/insights/* → /essays/*`、`/work/* → /projects/*`（`public/_redirects`）。
-- 分享图 `public/og.png`（1200×630）：改品牌文案后按同样版式重出（Playwright 截 1200×630 HTML，字体用 node_modules 里的 woff2）。
+## Brand
+
+`OrangeKnows` (`OK`), Chinese secondary name 橙知道, author `Owen Jiong` (OJ). Slogan:
+*Ideas you can check.* / 「洞察，可核对。」 The monogram is a true circle `O` plus a 45° folded `K`
+(`src/components/Brand.astro`). Token values come from one brand source of truth (the `ui-toolkit/`
+C-set); this repository only mirrors them.
+
+## Status and known gaps
+
+Stated as facts, not marketing: DMARC is published at `p=none` (monitoring only), so BIMI is not
+active; no VMC certificate has been purchased; the record chain has no third-party anchor yet; the
+guides library is new and its search performance has not been measured.
+
+## License
+
+Source code here is published for transparency. Site content (text, brand, logo) is © Owen Jiong.
+A formal code licence will be added; until then, ask before reusing the code.
+
+---
+
+## 中文说明
+
+**线上地址：<https://orangeknows.com>**（中文站在 <https://orangeknows.com/zh/>）
+
+纯静态个人站（Astro 5，Cloudflare Pages 托管），做**长期可核对的公开记录**：每日开发日志、洞察长文、
+给手作卖家的实操指南、随记、项目与免费工具。每篇文章带 UTC 时间戳，正文全文进入 SHA-256 记录链——
+发布后改一个字，页脚链头就会变，记录不能被事后悄悄改掉。
+
+- **双视角写作**：叙述与整理署名「OK 助手」（AI 辅助，页面自动标注）；OJ 本人的观点**只以引用块进文并标出处**；
+  文末固定「OJ 审定」位：0–5 分 + 一句话快速点评。助手不得代他编造评分，未打分就显示「点评待补」。
+- **发布门禁**：`pnpm build` 前拦凭据、主机与入口信息、内部标识、非本站邮箱、`sensitive` 与 `public` 并存、
+  缺 summary、缺 `lang`/`key`。命中即构建失败，不要绕过。
+- **双语结构**：英文在根，中文在 `/zh/`；`hreflang` 成对、`x-default` 指英文；RSS 各自单语。
+- **AIEO**：`/llms.txt`、`/llms-full.txt`、结构化数据（Person / WebSite / BlogPosting / FAQPage）、
+  robots 逐条放行 AI 抓取。**效果目前未验证**，站上也这么写。
+- **已知缺口**：DMARC 现为 `p=none`（仅监控，BIMI 未生效）、未购 VMC 证书、链头还没有第三方锚定。
+
+品牌：OrangeKnows（OK）／中文「橙知道」／作者 Owen Jiong（OJ）；slogan：*Ideas you can check.*（洞察，可核对。）

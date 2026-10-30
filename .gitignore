@@ -14,3 +14,7 @@ _shot_*.png
 # 本机 Cloudflare 部署令牌（永不进仓库）
 .cf-token
 *.zip
+
+# 未公开的内部草稿（含 sensitive，永不进公开树）
+/local/
+
