@@ -1,0 +1,9 @@
+# 板块改名后的 301（2026-10-30：insights→essays，work→projects）
+/insights/*   /essays/:splat    301
+/work/*       /projects/:splat  301
+/en/insights/*   /en/essays/:splat    301
+/en/work/*       /en/projects/:splat  301
+/insights        /essays         301
+/work            /projects       301
+/en/insights     /en/essays      301
+/en/work         /en/projects    301

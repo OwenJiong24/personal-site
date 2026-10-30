@@ -1,11 +1,12 @@
 ---
-// 首页视图（中英共用；文案来自 i18n）
-// 注意：链接全部在 frontmatter 里算好，模板属性里不嵌套模板字符串。
+// 首页（数字花园版式：品牌区 → 数据条 → 抽屉索引 → 最新流 → 规则）
+// 文案来自 i18n；链接全部在 frontmatter 算好（模板属性里不嵌套模板字符串）。
 import Base from '../layouts/base.astro';
+import Brand from '../components/Brand.astro';
 import SiteJsonLd from '../components/SiteJsonLd.astro';
-import { site } from '../lib/site';
+import { brand, site, sections, type SectionSlug } from '../lib/site';
 import { ui, langPath, type Lang } from '../lib/i18n';
-import { publishedPosts, stats, chain, utcDay, keyOf, type Zone } from '../lib/trust';
+import { publishedPosts, stats, chain, utcDay, keyOf } from '../lib/trust';
 
 interface Props {
   lang: Lang;
@@ -16,55 +17,67 @@ const path = langPath(lang, '/');
 const switchHref = lang === 'zh' ? '/en/' : '/';
 const zhPosts = await publishedPosts('zh');
 const posts = await publishedPosts(lang);
-const s = stats(zhPosts); // 统计按文章键去重：一篇双语算一篇
+const s = stats(zhPosts);
 const ch = await chain();
+
+const counts = {} as Record<SectionSlug, number>;
+for (const slug of sections) {
+  counts[slug] = posts.filter((p) => p.collection === slug).length;
+}
+
+const drawers = sections.map((slug) => ({
+  href: langPath(lang, '/' + slug),
+  name: t.sections[slug].name,
+  desc: t.sections[slug].desc,
+  count: counts[slug],
+}));
+drawers.push({ href: langPath(lang, '/uses'), name: t.uses.name, desc: t.uses.desc, count: 0 });
 
 const rows = posts.slice(0, 6).map((p) => ({
   href: langPath(lang, '/' + p.collection) + '/' + keyOf(p),
   day: utcDay(p.data.date),
-  zoneName: t.zones[p.collection as Zone].name,
+  zoneName: t.sections[p.collection as SectionSlug].name,
   title: p.data.title,
   summary: p.data.summary,
 }));
 const newest = rows[0];
 
-const zoneCards = (['journal', 'insights', 'work'] as Zone[]).map((slug) => ({
-  href: langPath(lang, '/' + slug),
-  name: t.zones[slug].name,
-  desc: t.zones[slug].desc,
-}));
-
 const pillsStyle = 'display: flex; gap: 0.5rem; flex-wrap: wrap';
 const buttonsStyle = 'display: flex; gap: 0.625rem; flex-wrap: wrap';
 const listStyle = 'padding-inline-start: 1.2rem; color: var(--text-2)';
-const cardLinkStyle = '--flow-gap: 0.5rem; text-decoration: none; color: inherit';
+const cardLinkStyle = '--flow-gap: 0.4rem; text-decoration: none; color: inherit';
 const chainLinkStyle = 'text-decoration: none';
 const verifyHref = langPath(lang, '/verify');
 const aboutHref = langPath(lang, '/about');
 const journalHref = langPath(lang, '/journal');
 const head8 = ch.head.slice(0, 8);
 const latestDay = s.latest ? utcDay(s.latest) : '—';
-const startPill = lang === 'en' ? 'Public record since ' + site.start : '自 ' + site.start + ' 起公开记录';
-const hero = {
-  heroSection: '--flow-gap: 1.5rem',
-  headerSection: '--flow-gap: 0.75rem',
-  taglineStyle: 'font-size: 1.125rem; color: var(--text-2)',
-  introStyle: 'color: var(--text-2)',
-};
+const roleLabel = lang === 'en' ? site.role : site.roleZh;
+const startPill = lang === 'en' ? `Public record since ${site.start}` : `自 ${site.start} 起公开记录`;
+const authorPill = lang === 'en' ? `by ${site.author}` : site.authorZh;
+const heroSectionStyle = '--flow-gap: 1.75rem';
+const headerSectionStyle = '--flow-gap: 0.85rem';
+const sloganStyle =
+  'font-family: var(--font-display); font-weight: var(--fw-bold); font-size: clamp(1.25rem, 1rem + 1vw, 1.6rem); letter-spacing: -0.01em; color: var(--brand-deep)';
+const introStyle = 'color: var(--text-2); max-width: 46rem';
+const countStyle = 'font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-2)';
+const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
 ---
 
-<Base title={site.name} description={t.intro} path={path} lang={lang} switchHref={switchHref}>
+<Base title={brand.name} path={path} lang={lang} switchHref={switchHref}>
   <SiteJsonLd lang={lang} />
 
-  <section class="wrap flow" style={hero.heroSection}>
-    <header class="flow measure" style={hero.headerSection}>
-      <h1>{site.name}</h1>
+  <section class="wrap flow" style={heroSectionStyle}>
+    <header class="flow measure" style={headerSectionStyle}>
       <p style={pillsStyle}>
-        <span class="pill pill-accent">{t.role}</span>
+        <span class="stamp" lang="en">{brand.abbr}</span>
+        <span class="pill" lang="en">{roleLabel}</span>
         <span class="pill">{startPill}</span>
+        <span class="pill">{authorPill}</span>
       </p>
-      <p style={hero.taglineStyle}>{t.tagline}。</p>
-      <p style={hero.introStyle}>{t.intro}</p>
+      <h1 lang="en">{brand.name}</h1>
+      <p style={sloganStyle}>{t.slogan}</p>
+      <p style={introStyle}>{t.intro}</p>
     </header>
 
     <div class="card">
@@ -82,13 +95,28 @@ const hero = {
 
     <p style={buttonsStyle}>
       {newest && <a class="btn" href={newest.href}>{t.buttons.latest}</a>}
+      <a class="btn btn-ghost" href={verifyHref}>{t.buttons.verify}</a>
       <a class="btn btn-ghost" href={aboutHref}>{t.buttons.about}</a>
-      <a class="btn btn-ghost" href={journalHref}>{t.buttons.journal}</a>
     </p>
   </section>
 
   <section class="wrap flow">
-    <h2>{t.sections.recent}</h2>
+    <h2>{t.home.zones}</h2>
+    <div class="grid grid-3">
+      {
+        drawers.map((d) => (
+          <a class="card flow" href={d.href} style={cardLinkStyle}>
+            <h3>{d.name}</h3>
+            <p class="meta">{d.desc}</p>
+            {d.count > 0 && <p style={countStyle}>{t.count(d.count)}</p>}
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="wrap flow">
+    <h2>{t.home.recent}</h2>
     {
       rows.length === 0 ? (
         <p class="meta">{t.zone.empty}</p>
@@ -106,26 +134,19 @@ const hero = {
         </ul>
       )
     }
+    <p><a class="btn btn-ghost" href={journalHref}>{t.buttons.journal}</a></p>
   </section>
 
   <section class="wrap flow">
-    <h2>{t.sections.zones}</h2>
-    <div class="grid">
-      {
-        zoneCards.map((z) => (
-          <a class="card flow" href={z.href} style={cardLinkStyle}>
-            <h3>{z.name}</h3>
-            <p class="meta">{z.desc}</p>
-          </a>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="wrap flow">
-    <h2>{t.sections.rules}</h2>
+    <h2>{t.home.rules}</h2>
     <ul class="measure" style={listStyle}>
       {t.rules.map((r) => <li>{r}</li>)}
     </ul>
+    <p class="meta" style={pillsStyle}>
+      <Brand variant="stamp" label={`${brand.abbr} — ${signature}`} />
+      <span>{signature}</span>
+      <span>·</span>
+      <a href={verifyHref}>{t.post.verifyLink}</a>
+    </p>
   </section>
 </Base>

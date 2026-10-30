@@ -2,10 +2,10 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // 站点地址只改这一行（或用 PUBLIC_SITE_URL 覆盖）。
-// 现状：Cloudflare 免费子域名 jiong-bvw.pages.dev（jiong.pages.dev 已被他人注册）。
+// 现状：已购正式域名 orangeknows.com（在 CEO 的 Cloudflare 账号内，待绑到 Pages 项目）。
 // 绑 owenjiong.com 后改成 https://owenjiong.com，canonical / RSS / 站点地图 / robots 会自动跟着走。
 export default defineConfig({
-  site: process.env.PUBLIC_SITE_URL || 'https://jiong-bvw.pages.dev',
+  site: process.env.PUBLIC_SITE_URL || 'https://orangeknows.com',
   trailingSlash: 'ignore',
   integrations: [
     sitemap({

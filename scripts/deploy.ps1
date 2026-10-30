@@ -17,7 +17,7 @@ if (Test-Path $tokenFile) {
   Write-Host '未找到 .cf-token，使用 wrangler 已登录的账号配置发布'
 }
 $env:WRANGLER_SEND_METRICS = 'false'
-if (-not $env:PUBLIC_SITE_URL) { $env:PUBLIC_SITE_URL = 'https://jiong-bvw.pages.dev' }
+if (-not $env:PUBLIC_SITE_URL) { $env:PUBLIC_SITE_URL = 'https://orangeknows.com' }
 # 把当前提交号烘进产物：线上页面能对上 Git 里的哪一次提交
 if (-not $env:GIT_SHA) {
   $sha = (git rev-parse --short HEAD 2>&1 | Out-String).Trim()

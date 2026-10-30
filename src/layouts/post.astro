@@ -29,7 +29,7 @@ const older = me >= 0 && me < siblings.length - 1 ? siblings[me + 1] : undefined
 const olderHref = older ? zoneBase + '/' + keyOf(older) : '';
 const newerHref = newer ? zoneBase + '/' + keyOf(newer) : '';
 const shortHash = hash.slice(0, 8);
-const zoneLabel = t.zones[zone].name;
+const zoneLabel = t.sections[zone].name;
 const desc = d.summary || d.title;
 const navAria = lang === 'en' ? 'Previous and next in this section' : '同分区上下篇';
 const pillStyle = 'color: inherit; text-decoration: none';

@@ -1,0 +1,60 @@
+---
+// OrangeKnows 品牌符号（几何 monogram：正圆 O + 45° 折角 K）
+// 构成规则见 ui-toolkit/modes/c-orangeknows.md 第 6 节；改形制要 CEO 点头。
+// 用法：
+//   variant="lockup" 图标 + 字标（站点头部）
+//   variant="mark"   纯图标（页脚、卡片、小尺寸）
+//   variant="stamp"  [OK] 印章（记录链盖章标记）
+//   inverse          深底反白
+interface Props {
+  variant?: 'lockup' | 'mark' | 'stamp';
+  inverse?: boolean;
+  size?: number; // 图标高度（px）
+  href?: string;
+  label?: string;
+}
+const { variant = 'lockup', inverse = false, size = 28, href = '/', label } = Astro.props;
+
+const ink = inverse ? 'var(--surface)' : 'currentColor';
+const wordmark = label ?? (variant === 'lockup' ? null : null);
+---
+
+{
+  variant === 'stamp' ? (
+    <span class={`stamp ${inverse ? 'stamp-inverse' : ''}`} lang="en" aria-label="OrangeKnows 盖章标记">
+      OK
+    </span>
+  ) : (
+    <a class="brand-lock" href={href} aria-label={label ?? 'OrangeKnows 首页'}>
+      <svg
+        class="mark"
+        width={size * (64 / 56)}
+        height={size}
+        viewBox="0 0 64 56"
+        fill="none"
+        role="img"
+        aria-hidden="true"
+        style={`color: ${ink}`}>
+        {/* O：阳光橙正圆 */}
+        <circle cx="20" cy="28" r="16" stroke="var(--accent)" stroke-width="4" />
+        {/* K：深墨折角，45°，顶点与圆心同高，竖笔与圆外切 */}
+        <path d="M40 8 V48 M40 28 L58 8 M40 28 L58 48" stroke="currentColor" stroke-width="4" stroke-linecap="square" />
+      </svg>
+      {
+        variant === 'lockup' && (
+          <span class="wordmark" lang="en">
+            Orange<em>Knows</em>
+          </span>
+        )
+      }
+    </a>
+  )
+}
+
+<style>
+  .mark { display: block; flex: none; }
+  .stamp-inverse {
+    border-color: var(--surface);
+    color: var(--surface);
+  }
+</style>

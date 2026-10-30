@@ -1,5 +1,7 @@
-// 双语界面文案。中文是主语言（URL 无前缀），英文在 /en/ 前缀下。
-// 规则：页面里所有面向人的固定文案都从这里取，不散落在模板里写死。
+// 双语界面文案。中文是主语言之一（URL 无前缀），英文在 /en/ 前缀下。
+// 品牌语气规则见 ui-toolkit/modes/c-orangeknows.md 第 7 节：先结论后依据、状态如实标、不喊营销口号。
+import type { SectionSlug } from './site';
+
 export type Lang = 'zh' | 'en';
 
 export const ui = {
@@ -9,43 +11,53 @@ export const ui = {
     switchTo: 'EN',
     switchAria: '切换到英文版',
     skip: '跳到正文',
-    theme: { light: '亮色', dark: '暗色', aria: '切换明暗主题' },
+    theme: { light: '亮', dark: '暗', aria: '切换明暗主题' },
     nav: [
-      { path: '/journal', label: '开发日志' },
-      { path: '/insights', label: '洞察' },
-      { path: '/work', label: '项目' },
-      { path: '/now', label: '现在' },
-      { path: '/timeline', label: '时间线' },
+      { path: '/journal', label: '日志' },
+      { path: '/essays', label: '洞察' },
+      { path: '/notes', label: '随记' },
+      { path: '/projects', label: '项目' },
+      { path: '/uses', label: '清单' },
       { path: '/about', label: '关于' },
     ],
     tagline: 'AM 时代的公开工作日志：一个人类工程师的连续记录',
     role: '独立开发者 · ZART 创始人',
-    zones: {
-      journal: { name: '开发日志', desc: '每天在做什么：写下的代码、踩到的坑、做出的决定。按日期累积，不可事后修饰。' },
-      insights: { name: '洞察', desc: '对 AM 时代、产品、工程与协作的观察。结论会过时，所以每篇都带日期。' },
-      work: { name: '项目', desc: '我在建什么、进展到哪一步。只写可以公开的部分。' },
-    },
+    slogan: '洞察，可核对。',
+    signature: '先给结论，再给依据。',
     intro:
       '我在这里公开记录我每天在做什么、学到什么、判断错了什么。目的是在模型能批量生成一切的时代，留下一份可被核对、随时间累积的人类记录。',
+    sections: {
+      journal: { name: '日志', desc: '每天在做什么：写下的代码、踩到的坑、做出的决定。按日期累积，不可事后修饰。' },
+      essays: { name: '洞察', desc: '结论先行的长文：对 AM 时代、产品、工程与协作的判断。会过时，所以每篇带日期。' },
+      notes: { name: '随记', desc: '碎片层：看到的现象、一句话结论、值得追的线索。短，但不删。' },
+      projects: { name: '项目', desc: '我在建什么、进展到哪一步。只写可以公开的部分。' },
+    } as Record<SectionSlug, { name: string; desc: string }>,
+    uses: {
+      name: '清单',
+      desc: '我在用的工具与设备：为什么选它、用在哪。不是推荐位，是实况。',
+      groups: { work: '工作环境', build: '开发栈', mind: '信息源与习惯', life: '生活' },
+    },
     stats: { days: '公开天数', entries: '条记录', streak: '连续天数', latest: '最近更新（UTC）', chain: '记录链头' },
-    buttons: { latest: '读最新一条', about: '这个站在干什么', journal: '开发日志' },
-    sections: { recent: '最近记录', zones: '三个区块', rules: '这份记录的规则' },
+    buttons: { latest: '读最新一条', about: '这是什么站', journal: '最新日志', verify: '怎么核对' },
+    home: { data: '数据条', recent: '最新记录', zones: '五个抽屉', rules: '这份记录的规则', lab: '实验室在做什么' },
     rules: [
       '时间一律 UTC，写完不事后修饰；补记会标明「补记」。',
       '每篇公开记录进入一条哈希链（正文全文参与哈希），链头写在页脚：改一个字链头就变。',
       '不写密钥、主机地址、客户数据、未发布的商业数字，也不写身份证级隐私。',
-      '静态站，无追踪脚本；正文中文为主，重要篇章配英文版。',
+      '第一屏先给结论；状态如实标：已做 / 首次尝试 / 未验证。',
+      '静态站，无追踪脚本；中文为主，重要篇章配英文版。',
     ],
-    zone: { meta: (n: number) => `${n} 条记录 · 按时间倒序`, empty: '这个区块还是空的。第一批内容写完后会出现在这里。' },
+    count: (n: number) => `${n} 条`,
+    zone: { meta: (n: number) => `${n} 条记录 · 按时间倒序`, empty: '这个抽屉还是空的。第一批内容写完后会出现在这里。' },
     post: {
       recorded: '记录于',
       updated: '更新于',
       chainLine: (i: number) => `链上第 ${i} 条`,
       builtNote: '本页由构建时生成；正文全文参与记录链哈希，发布后改一个字链头就会变，见',
       verifyLink: '如何核对这份记录',
-      onlyOne: '这是本分区目前唯一的一条记录。',
+      onlyOne: '这是这个抽屉目前唯一的一条记录。',
       utc: '（UTC）',
-      alsoIn: '英文版',
+      stamp: 'OK',
     },
     footer: {
       line: (name: string, start: string, n: number, d: number) =>
@@ -53,6 +65,7 @@ export const ui = {
       chain: '记录链头',
       built: '构建自',
       noTracker: '静态站，无追踪脚本',
+      author: '作者',
     },
   },
   en: {
@@ -64,40 +77,50 @@ export const ui = {
     theme: { light: 'Light', dark: 'Dark', aria: 'Toggle colour theme' },
     nav: [
       { path: '/journal', label: 'Journal' },
-      { path: '/insights', label: 'Insights' },
-      { path: '/work', label: 'Projects' },
-      { path: '/now', label: 'Now' },
-      { path: '/timeline', label: 'Timeline' },
+      { path: '/essays', label: 'Essays' },
+      { path: '/notes', label: 'Notes' },
+      { path: '/projects', label: 'Projects' },
+      { path: '/uses', label: 'Uses' },
       { path: '/about', label: 'About' },
     ],
     tagline: 'A public engineering log in the model era: one human, recorded continuously',
     role: 'Independent developer · Founder of ZART',
-    zones: {
-      journal: { name: 'Journal', desc: 'What I work on each day: the code, the traps, the decisions. Accumulated by date, never edited after the fact.' },
-      insights: { name: 'Insights', desc: 'Observations on the model era, product, engineering and collaboration. Conclusions age, so every piece carries a date.' },
-      work: { name: 'Projects', desc: 'What I am building and how far along it is. Only the part that can be public.' },
-    },
+    slogan: 'Ideas you can check.',
+    signature: 'OK — dated, checkable.',
     intro:
-      'Here I publish what I work on each day, what I learn, and where my judgement was wrong. The point: in an age when models generate convincing artefacts in bulk, the only scarce proof is a continuous, checkable human record.',
+      'I publish what I work on each day, what I learn, and where my judgement was wrong. In an age when models generate convincing artefacts in bulk, the scarce proof is a continuous, checkable human record.',
+    sections: {
+      journal: { name: 'Journal', desc: 'What I work on each day: the code, the traps, the decisions. Accumulated by date, never edited after the fact.' },
+      essays: { name: 'Essays', desc: 'Conclusion-first long form: judgements about the model era, product, engineering, collaboration. They age, so each carries a date.' },
+      notes: { name: 'Notes', desc: 'The fragment layer: things I noticed, one-line conclusions, leads worth chasing. Short, and never deleted.' },
+      projects: { name: 'Projects', desc: 'What I am building and how far along it is. Only the part that can be public.' },
+    } as Record<SectionSlug, { name: string; desc: string }>,
+    uses: {
+      name: 'Uses',
+      desc: 'Tools and gear I actually run: why I chose it, where it is used. Not a recommendation slot — a status report.',
+      groups: { work: 'Work environment', build: 'Build stack', mind: 'Inputs and habits', life: 'Life' },
+    },
     stats: { days: 'Days public', entries: 'Entries', streak: 'Day streak', latest: 'Last update (UTC)', chain: 'Chain head' },
-    buttons: { latest: 'Read the latest', about: 'What this site is', journal: 'Journal' },
-    sections: { recent: 'Recent entries', zones: 'Three sections', rules: 'Rules of this record' },
+    buttons: { latest: 'Read the latest', about: 'What this site is', journal: 'Latest journal', verify: 'How to verify' },
+    home: { data: 'Record stats', recent: 'Latest entries', zones: 'Five drawers', rules: 'Rules of this record', lab: 'What the lab is doing' },
     rules: [
       'All timestamps are UTC. Nothing is edited after the fact; late additions are marked "addendum".',
       'Every published entry joins a hash chain (the full body is hashed). Change one character and the chain head changes.',
       'No credentials, no host addresses, no client data, no unreleased business numbers, no identity-grade private details.',
-      'Static site, no trackers. Articles are Chinese-first, with English versions for the important ones.',
+      'First screen states the conclusion; status is honest: done / first attempt / not verified.',
+      'Static site, no trackers. Chinese-first, English twin for the important pieces.',
     ],
-    zone: { meta: (n: number) => `${n} entries · newest first`, empty: 'This section is still empty. The first entries will show up here.' },
+    count: (n: number) => `${n} ${n === 1 ? 'entry' : 'entries'}`,
+    zone: { meta: (n: number) => `${n} entries · newest first`, empty: 'This drawer is still empty. The first entries will show up here.' },
     post: {
       recorded: 'Recorded',
       updated: 'Updated',
       chainLine: (i: number) => `chain #${i}`,
       builtNote: 'This page is generated at build time; the full body is hashed into the record chain, so any post-publication edit changes the chain head. See',
       verifyLink: 'how to verify this record',
-      onlyOne: 'This is currently the only entry in this section.',
+      onlyOne: 'This is currently the only entry in this drawer.',
       utc: '(UTC)',
-      alsoIn: '中文原文',
+      stamp: 'OK',
     },
     footer: {
       line: (name: string, start: string, n: number, d: number) =>
@@ -105,6 +128,7 @@ export const ui = {
       chain: 'Chain head',
       built: 'built from',
       noTracker: 'Static site, no trackers',
+      author: 'by',
     },
   },
 } as const;

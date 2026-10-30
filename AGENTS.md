@@ -10,7 +10,7 @@
 - 主机与入口：IP（含内网段）、面板/后台地址、SSH 入口、供应商控制台
 - ZART 与客户的机密：客户名单、未发布的商业数字（营收/GMV/融资/合同）、内部架构细节、排期承诺
 - 身份证级隐私：生日、住址、证件号、家属信息；公开署名用姓名拼音 + 角色 + 可核验锚点即可
-- 非本站域名的邮箱（公开锚点只用 `@owenjiong.com`）
+- 非本站域名的邮箱（公开锚点只用 `@orangeknows.com`，白名单在 scripts/lint-content.mjs 里从 site.ts 读）
 
 命中即构建失败。绕过它 = 事故，不是效率。
 
@@ -50,7 +50,7 @@
 
 - 每篇文章 frontmatter 必须写 `lang: zh|en` 与 `key: <文章键>`；同一篇文章的中英版用**同一个 key**。
   不要靠文件名推语言：Astro 的 glob loader 会吃掉文件名里的点（实测 `x.en.md` 的 id 是 `xen`）。
-- 中文在站点根（`/insights/<key>/`），英文在 `/en/` 前缀下；hreflang 由 `src/lib/base` 自动成对，
+- 中文在站点根（`/essays/<key>/` 等），英文在 `/en/` 前缀下；hreflang 由 `src/lib/base` 自动成对，
   只有存在译文时才渲染语言切换。中文主订阅 `/rss.xml`，英文 `/en/rss.xml`，两路各自单语。
 - AIEO 写作要求：第一屏给出一句话结论（能被整段摘走）；术语首次出现给全称+英文原名；
   一页一主题；问答小节用 H2 提问、紧跟一句直答；一句一个事实（带数字/日期）。
@@ -58,3 +58,19 @@
   `robots.txt` 逐条放行 AI 抓取。**没跑过的效果一律写「未验证」**，不许声称「会被 AI 引用」。
 - 身份锚点只用 GitHub handle + 本站邮箱。**LinkedIn 等真人职业档案暂不接**（CEO 定：一步一步试探），
   要接得由 CEO 明确点头。
+
+## 品牌（2026-10-30 定稿）
+
+- 品牌：**OrangeKnows（OK）**，中文二级名「橙知道」，个人内核 OJ（Owen Jiong = 作者）。
+- 域名：`orangeknows.com`（CEO 已购、在 Cloudflare 账号内）。站点地址写在 `astro.config.mjs` 的 `site`。
+- VI 真源：`ui-toolkit/tokens.css` 的 **C 集** + `ui-toolkit/modes/c-orangeknows.md`（语法/符号/slogan 规则）。
+  站点只同步值，不在本仓发明新色；组件禁裸 hex；**橙底必须配墨字**（白字压阳光橙对比不足）。
+- 板块（数字花园五抽屉）：Journal 日志 / Essays 洞察 / Notes 随记 / Projects 项目 / Uses 清单。
+  改板块名要同步 UI 文案（`src/lib/i18n.ts`）与 `public/_redirects`（旧 URL 301）。
+- Logo 见 `src/components/Brand.astro`（几何 monogram：正圆 O + 45° 折角 K）+ `public/favicon.svg` + `public/og.png`（分享图 1200×630）。
+- 品牌占位紫（#7c3aed）作废；C 集不再是"风格化玩具"，而是 CEO 个人品牌资产。
+
+## 域名绑定（Cloudflare 面板，wrangler 无此命令）
+
+Pages 项目 `jiong` → Custom domains → 添加 `orangeknows.com`（apex），可选把 `www` 重定向到 apex。
+DNS 由 Cloudflare 自动写（域名已在本账号内）。绑定完成后 canonical/OG/RSS/站点地图自动指向正式域名，无需改代码。

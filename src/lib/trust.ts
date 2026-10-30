@@ -1,14 +1,15 @@
 import { createHash } from 'node:crypto';
 import { getCollection } from 'astro:content';
-import { site } from './site';
+import { site, type SectionSlug } from './site';
 import type { Lang } from './i18n';
 
-export type Zone = 'journal' | 'insights' | 'work';
+export type Zone = SectionSlug;
 
 export type Post =
   | Awaited<ReturnType<typeof getCollection<'journal'>>>[number]
-  | Awaited<ReturnType<typeof getCollection<'insights'>>>[number]
-  | Awaited<ReturnType<typeof getCollection<'work'>>>[number];
+  | Awaited<ReturnType<typeof getCollection<'essays'>>>[number]
+  | Awaited<ReturnType<typeof getCollection<'notes'>>>[number]
+  | Awaited<ReturnType<typeof getCollection<'projects'>>>[number];
 
 const t = (p: Post) => p.data.date.getTime();
 
@@ -26,12 +27,13 @@ export const keyOf = (p: Post) =>
 
 /** 全部可公开条目（草稿与未来日期不进构建），中文与英文都包含。新→旧。 */
 async function allPublic(): Promise<Post[]> {
-  const [journal, insights, work] = await Promise.all([
+  const [journal, essays, notes, projects] = await Promise.all([
     getCollection('journal'),
-    getCollection('insights'),
-    getCollection('work'),
+    getCollection('essays'),
+    getCollection('notes'),
+    getCollection('projects'),
   ]);
-  return [...journal, ...insights, ...work]
+  return [...journal, ...essays, ...notes, ...projects]
     .filter((p) => (p.data as { status: string }).status === 'public')
     .filter((p) => t(p) <= Date.now())
     .sort((a, b) => t(b) - t(a)) as Post[];

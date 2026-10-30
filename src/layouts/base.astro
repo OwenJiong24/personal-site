@@ -1,10 +1,16 @@
 ---
-// 全站骨架（双语）：导航、语言切换、页脚统计与记录链头、主题切换、hreflang。值全走 tokens.css。
+// 全站骨架（双语 + 品牌）：品牌锁定、导航、语言切换、页脚数据与记录链头、主题切换、hreflang、OG 图。
+// 值全走 tokens.css（C 集 = OrangeKnows）；品牌符号规则见 ui-toolkit/modes/c-orangeknows.md。
 import { gitSha } from '../lib/build';
-import '@fontsource-variable/dm-sans/index.css';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource/source-serif-4/400.css';
+import '@fontsource/source-serif-4/600.css';
+import '@fontsource/source-serif-4/400-italic.css';
+import '@fontsource-variable/jetbrains-mono';
 import '../styles/tokens.css';
 import '../styles/global.css';
-import { site } from '../lib/site';
+import Brand from '../components/Brand.astro';
+import { brand, site } from '../lib/site';
 import { publishedPosts, stats, chain } from '../lib/trust';
 import { ui, langPath, type Lang } from '../lib/i18n';
 
@@ -13,44 +19,40 @@ interface Props {
   description?: string;
   path?: string;
   lang?: Lang;
-  /** 同页另一语言的站内路径（有译文才传，语言切换按钮只在这时出现） */
+  /** 同页另一语言的完整站内路径（有译文才传，语言切换只在这时出现） */
   switchHref?: string;
   ogType?: 'website' | 'article';
   noindex?: boolean;
 }
 
-const {
-  title,
-  description,
-  path = '/',
-  lang = 'zh',
-  switchHref,
-  ogType = 'website',
-  noindex = false,
-} = Astro.props;
+const { title, description, path = '/', lang = 'zh', switchHref, ogType = 'website', noindex = false } = Astro.props;
 const t = ui[lang];
-const base = Astro.site ?? new URL('https://jiong-bvw.pages.dev');
+const base = Astro.site ?? new URL('https://orangeknows.com');
 const canonical = new URL(path, base);
-// switchHref = 对方语言的完整站内路径（zh 页传 /en/…，en 页传 /…）
 const zhPath = lang === 'zh' ? path : switchHref;
-const enPath = lang === 'en' ? path : switchHref;const posts = await publishedPosts('zh'); // 统计按文章键去重：一篇双语算一篇
+const enPath = lang === 'en' ? path : switchHref;
+const posts = await publishedPosts('zh'); // 统计按文章键去重：一篇双语算一篇
 const s = stats(posts);
 const ch = await chain();
-const role = lang === 'en' ? t.role : site.role;
-const pageTitle =
-  path === '/' || path === '/en/' ? `${site.name} — ${role}` : `${title} · ${site.name}`;
+const head8 = ch.head.slice(0, 8);
+const isHome = path === '/' || path === '/en/';
+const pageTitle = isHome ? `${brand.name} — ${lang === 'en' ? brand.slogan : brand.sloganZh}` : `${title} · ${brand.name}`;
+const desc = description ?? (lang === 'en' ? brand.longEn : brand.longZh);
+const ogImage = new URL('/og.png', base).toString();
+const verifyHref = langPath(lang, '/verify');
+const aboutHref = langPath(lang, '/about');
+const authorLabel = lang === 'en' ? site.author : site.authorZh;
 ---
 
 <!doctype html>
-<html lang={t.htmlLang} data-style="a" data-theme="light">
+<html lang={t.htmlLang} data-style="c" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
-    <meta name="description" content={description ?? t.intro} />
+    <meta name="description" content={desc} />
     <link rel="canonical" href={canonical} />
     {
-      /* hreflang：只在两版都存在时成对声明 */
       zhPath && enPath && (
         <>
           <link rel="alternate" hreflang="zh-Hans" href={new URL(zhPath, base)} />
@@ -60,21 +62,38 @@ const pageTitle =
       )
     }
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title={`${site.name} — journal (zh)`} href={new URL('/rss.xml', base)} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${brand.name} — Journal (zh)`}
+      href={new URL('/rss.xml', base)}
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${brand.name} — Journal (en)`}
+      href={new URL('/en/rss.xml', base)}
+    />
     <meta name="generator" content={Astro.generator} />
     <meta name="color-scheme" content="light dark" />
+    <meta name="author" content={site.author} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta property="og:site_name" content={site.name} />
+    <meta property="og:site_name" content={brand.name} />
     <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description ?? t.intro} />
+    <meta property="og:description" content={desc} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={t.ogLocale} />
     {zhPath && enPath && <meta property="og:locale:alternate" content={lang === 'en' ? 'zh_CN' : 'en_US'} />}
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${brand.name} — ${brand.slogan}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
     <script is:inline>
       (() => {
-        const key = 'owen-site-theme';
+        const key = 'ok-site-theme';
         const saved = localStorage.getItem(key);
         const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
@@ -85,7 +104,7 @@ const pageTitle =
     <a class="skip-link" href="#main">{t.skip}</a>
     <header class="site-header">
       <div class="wrap">
-        <a class="brand" href={langPath(lang, '/')}>{site.name}<span class="dot">.</span></a>
+        <Brand variant="lockup" href={langPath(lang, '/')} size={26} label={`${brand.name} — ${t.slogan}`} />
         <nav class="nav" aria-label={lang === 'en' ? 'Main navigation' : '主导航'}>
           {
             t.nav.map((item) => {
@@ -97,7 +116,9 @@ const pageTitle =
               );
             })
           }
-          <a href="/rss.xml">RSS</a>
+          <a href={langPath(lang, '/timeline')}>
+            {lang === 'en' ? 'Timeline' : '时间线'}
+          </a>
           {
             switchHref && (
               <a class="lang-switch" href={switchHref} hreflang={lang === 'en' ? 'zh-Hans' : 'en'} aria-label={t.switchAria}>
@@ -105,6 +126,7 @@ const pageTitle =
               </a>
             )
           }
+          <a href="/rss.xml">RSS</a>
           <button class="theme-toggle" id="theme-toggle" type="button" aria-label={t.theme.aria}>
             <span class="theme-label" data-light={t.theme.light} data-dark={t.theme.dark}>{t.theme.light}</span>
           </button>
@@ -118,21 +140,32 @@ const pageTitle =
 
     <footer class="site-footer">
       <div class="wrap">
+        <Brand variant="stamp" label={`${brand.abbr} — ${t.signature}`} />
         <p class="meta">
-          {t.footer.line(site.name, site.start, s.entries, s.activeDays)}{' '}
-          <a href={langPath(lang, '/verify')}>
-            {t.footer.chain} {ch.head.slice(0, 8)}
-          </a>
+          {t.footer.line(brand.name, site.start, s.entries, s.activeDays)}{' '}
+          <a href={verifyHref}>{t.footer.chain} <span class="mono">{head8}</span></a>
           {gitSha && <span> · {t.footer.built} <span class="mono">{gitSha}</span></span>}
         </p>
         <p class="meta" style="margin-inline-start:auto">
-          {site.anchors.github && (
-            <a href={`https://github.com/${site.anchors.github}`} rel="me noopener">GitHub</a>
-          )}
-          {site.anchors.github && site.anchors.email && <span> · </span>}
-          {site.anchors.email && <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>}
-          <span> · </span>
-          <span>{t.footer.noTracker}</span>
+          <span>
+            {t.footer.author} {authorLabel}
+            {site.anchors.github && (
+              <>
+                {' · '}
+                <a href={`https://github.com/${site.anchors.github}`} rel="me noopener">GitHub</a>
+              </>
+            )}
+            {site.anchors.email && (
+              <>
+                {' · '}
+                <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+              </>
+            )}
+            {' · '}
+            <a href={aboutHref}>{lang === 'en' ? 'About' : '关于'}</a>
+            {' · '}
+            {t.footer.noTracker}
+          </span>
         </p>
       </div>
     </footer>
@@ -142,8 +175,8 @@ const pageTitle =
         const btn = document.getElementById('theme-toggle');
         if (!btn) return;
         const label = btn.querySelector('.theme-label');
-        const darkText = label?.dataset.dark ?? '暗色';
-        const lightText = label?.dataset.light ?? '亮色';
+        const darkText = label?.dataset.dark ?? '暗';
+        const lightText = label?.dataset.light ?? '亮';
         const paint = () => {
           const dark = document.documentElement.dataset.theme === 'dark';
           if (label) label.textContent = dark ? darkText : lightText;
@@ -153,7 +186,7 @@ const pageTitle =
         btn.addEventListener('click', () => {
           const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
           document.documentElement.dataset.theme = next;
-          localStorage.setItem('owen-site-theme', next);
+          localStorage.setItem('ok-site-theme', next);
           paint();
         });
       })();

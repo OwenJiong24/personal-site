@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/base.astro';
-import { site, zones } from '../lib/site';
+import { site } from '../lib/site';
+import { ui } from '../lib/i18n';
 import { publishedPosts, utcDay, keyOf } from '../lib/trust';
 
 const posts = await publishedPosts();
@@ -10,7 +11,7 @@ for (const p of posts) {
   byMonth.set(key, [...(byMonth.get(key) ?? []), p]);
 }
 const months = [...byMonth.keys()].sort().reverse();
-const zoneName = (c: string) => zones.find((z) => z.slug === c)?.name ?? c;
+const zoneName = (c: string) => (ui.zh.sections as Record<string, { name: string }>)[c]?.name ?? c;
 ---
 
 <Base title="时间线" description={`按时间排列的全部公开记录，自 ${site.start} 起。`} path="/timeline">

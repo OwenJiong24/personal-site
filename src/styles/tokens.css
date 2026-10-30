@@ -1,51 +1,76 @@
 /* ============================================================
    站点 token —— 从设计真源同步，不要在此发明新值
-   真源：C:\Users\OwenJiong\Desktop\Qwen3.8-27b\ui-toolkit\tokens.css
-   风格集：A 日常护眼 = Rylo（GUIDE 判定：长时间盯屏、博客阅读 → 默认 A）
+   真源：C:\Users\OwenJiong\Desktop\Qwen3.8-27b\ui-toolkit\tokens.css（C 集 = OrangeKnows）
+   语法层（网格/字阶/组件/动效/符号规则）：ui-toolkit/modes/c-orangeknows.md
+   同步日期：2026-10-30（品牌定稿当日；上一版是 A 集 Rylo，已按 CEO 定稿切到 C 集）
    暗色是正交轴：data-theme="dark"
-   同步日期：2026-10-30（本仓独立构建，值一次性抄入；改真源后按此文件同步）
-   约定：组件只用下面这些变量，禁止裸 hex。
+   约定：组件只用下面这些变量，禁止裸 hex；橙底必须配 --text 墨字（白字压橙对比不足）
    ============================================================ */
 
 :root,
-[data-style="a"] {
-  --bg:            oklch(0.973 0.010 78);      /* #faf5f2 暖奶油 */
+[data-style="c"] {
+  --bg:            oklch(0.975 0.014 82);   /* 亚麻纸白 */
   --surface:       oklch(1 0 0);
-  --surface-2:     oklch(0.955 0.013 78);      /* #f4ede8 */
-  --surface-3:     oklch(0.926 0.016 75);      /* #ebe0d8 */
-  --text:          oklch(0.190 0.014 55);      /* #191412 暖近黑 */
-  --text-2:        oklch(0.280 0.015 55);      /* #312623 次级文字（元信息用它，--muted 不用于正文/小字） */
-  --muted:         oklch(0.7755 0.0062 59.62); /* 仅装饰性分隔线，不承载文字 */
-  --border:        oklch(0.9262 0.0026 48.72);
-  --accent:        oklch(0.5493 0.2488 263.97);/* Rylo 品牌蓝 */
-  --accent-strong: oklch(0.4500 0.2350 262);
-  --accent-soft:   oklch(0.7800 0.0350 245);
-  --success:       oklch(0.6200 0.1300 155);
-  --danger:        oklch(0.5539 0.1899 25.99);
-  --radius:        16px;
-  --radius-sm:     12px;
-  --radius-pill:   40px;
-  --row-h:         36px;
-  --pad:           14px;
-  --shadow:        0 8px 24px oklch(0.2 0.01 60 / 0.15);
-  --font:          "PP Mori", "DM Sans Variable", "DM Sans", system-ui, -apple-system, "Segoe UI", "Microsoft YaHei UI", "PingFang SC", sans-serif;
-  --font-mono:       ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --surface-2:     oklch(0.955 0.016 80);   /* 浅沙 */
+  --surface-3:     oklch(0.925 0.020 78);   /* 深沙 */
+  --text:          oklch(0.230 0.014 62);   /* 深炭灰 ink */
+  --text-2:        oklch(0.330 0.016 60);
+  --muted:         oklch(0.660 0.020 70);   /* 仅装饰，不承载文字 */
+  --border:        oklch(0.880 0.014 78);   /* 发丝线 */
+  --border-strong: oklch(0.780 0.020 74);   /* 外露网格线 */
+  --accent:        oklch(0.700 0.185 52);   /* 加州阳光橙：识别 / 焦点 / 印章 */
+  --accent-strong: oklch(0.580 0.170 48);
+  --brand-deep:    oklch(0.520 0.115 44);   /* 赤陶暖橙：正文链接、深度强调 */
+  --accent-soft:   oklch(0.905 0.055 60);   /* 橙沙底块 */
+  --success:       oklch(0.600 0.130 150);
+  --success-strong:oklch(0.500 0.120 152);
+  --success-text:  oklch(0.450 0.110 152);
+  --success-bg:    oklch(0.955 0.030 152);
+  --warning:       oklch(0.720 0.140 85);
+  --warning-bg:    oklch(0.945 0.050 90);
+  --danger:        oklch(0.550 0.190 27);
+  --danger-strong: oklch(0.470 0.180 26);
+  --danger-bg:     oklch(0.945 0.030 25);
+  --danger-text:   oklch(0.470 0.180 26);
+  --radius:        6px;
+  --radius-sm:     4px;
+  --radius-pill:   999px;
+  --row-h:         40px;
+  --pad:           16px;
+  --shadow:        0 12px 32px -18px oklch(0.23 0.02 62 / 0.20);
+  --font:          "Source Serif 4", Georgia, "Microsoft YaHei", "PingFang SC", serif;
+  --font-display:  "Space Grotesk Variable", "Space Grotesk", system-ui, "Microsoft YaHei UI", sans-serif;
+  --font-mono:     "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, Consolas, monospace;
   --fw-normal:     400;
+  --fw-medium:     500;
   --fw-bold:       600;
+  --wide:          1240px;
+  --measure:       42rem;
 }
 
 [data-theme="dark"] {
-  --bg:            oklch(0.150 0.010 55);      /* #191412 */
-  --surface:       oklch(0.245 0.012 55);      /* #312623 Rylo dark card */
-  --surface-2:     oklch(0.285 0.013 55);
-  --surface-3:     oklch(0.330 0.014 55);
-  --text:          oklch(0.972 0.010 78);
-  --text-2:        oklch(0.860 0.012 75);
-  --muted:         oklch(0.700 0.014 70);
-  --border:        oklch(0.350 0.014 55);
-  --accent:        oklch(0.680 0.140 245);
-  --accent-strong: oklch(0.760 0.110 245);
-  --accent-soft:   oklch(0.550 0.050 245);
-  --success:       oklch(0.750 0.120 150);
-  --danger:        oklch(0.700 0.170 28);
+  --bg:            oklch(0.190 0.014 62);   /* 暖曜石 */
+  --surface:       oklch(0.235 0.014 62);
+  --surface-2:     oklch(0.275 0.014 62);
+  --surface-3:     oklch(0.330 0.016 62);
+  --text:          oklch(0.960 0.014 82);
+  --text-2:        oklch(0.860 0.016 78);
+  --muted:         oklch(0.640 0.020 72);
+  --border:        oklch(0.330 0.016 62);
+  --border-strong: oklch(0.420 0.018 62);
+  --accent:        oklch(0.760 0.155 55);   /* 琥珀橙 */
+  --accent-strong: oklch(0.820 0.130 55);
+  --brand-deep:    oklch(0.700 0.110 50);
+  --accent-soft:   oklch(0.300 0.050 55);
+  --success:       oklch(0.770 0.130 152);
+  --success-strong:oklch(0.820 0.120 152);
+  --success-text:  oklch(0.850 0.110 152);
+  --success-bg:    oklch(0.270 0.045 152);
+  --warning:       oklch(0.820 0.140 88);
+  --warning-bg:    oklch(0.300 0.050 90);
+  --danger:        oklch(0.720 0.170 26);
+  --danger-strong: oklch(0.790 0.140 26);
+  --danger-bg:     oklch(0.280 0.050 25);
+  --danger-text:   oklch(0.800 0.130 25);
+  --shadow:        0 12px 32px -18px oklch(0 0 0 / 0.45);
 }

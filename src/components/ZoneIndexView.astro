@@ -1,8 +1,9 @@
 ---
-// 分区索引视图（中英共用；链接在 frontmatter 算好）
+// 抽屉索引（中英共用）：journal/essays/projects 用列表流；notes 用卡片流（短条目）
 import Base from '../layouts/base.astro';
 import { ui, langPath, type Lang } from '../lib/i18n';
 import { publishedIn, utcDay, keyOf, type Zone } from '../lib/trust';
+import type { SectionSlug } from '../lib/site';
 
 interface Props {
   lang: Lang;
@@ -13,15 +14,20 @@ const t = ui[lang];
 const posts = await publishedIn(zone, lang);
 const path = langPath(lang, '/' + zone);
 const switchHref = (lang === 'zh' ? '/en' : '') + '/' + zone;
-const info = t.zones[zone];
+const info = t.sections[zone as SectionSlug];
+const isNotes = zone === 'notes';
 const rows = posts.map((p) => ({
   href: path + '/' + keyOf(p),
   day: utcDay(p.data.date),
   title: p.data.title,
   summary: p.data.summary,
+  kind: (p.data as { kind?: string }).kind ?? '',
+  tags: p.data.tags,
 }));
 const metaLine = t.zone.meta(posts.length);
 const descStyle = 'color: var(--text-2)';
+const tagsStyle = 'display: flex; gap: 0.35rem; flex-wrap: wrap';
+const cardStyle = '--flow-gap: 0.4rem; text-decoration: none; color: inherit';
 ---
 
 <Base title={info.name} description={info.desc} path={path} lang={lang} switchHref={switchHref}>
@@ -35,6 +41,25 @@ const descStyle = 'color: var(--text-2)';
     {
       rows.length === 0 ? (
         <p class="meta">{t.zone.empty}</p>
+      ) : isNotes ? (
+        <div class="grid grid-3">
+          {rows.map((r) => (
+            <a class="card-flat flow" href={r.href} style={cardStyle}>
+              <p class="meta">{r.day} {t.post.utc}{r.kind ? ` · ${r.kind}` : ''}</p>
+              <p class="post-title">{r.title}</p>
+              {r.summary && <p class="post-excerpt">{r.summary}</p>}
+              {
+                r.tags.length > 0 && (
+                  <p style={tagsStyle}>
+                    {r.tags.map((x) => (
+                      <span class="pill">{x}</span>
+                    ))}
+                  </p>
+                )
+              }
+            </a>
+          ))}
+        </div>
       ) : (
         <ul class="post-list">
           {rows.map((r) => (

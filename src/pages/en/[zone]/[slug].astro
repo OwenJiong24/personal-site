@@ -1,10 +1,11 @@
 ---
 import Post from '../../../layouts/post.astro';
-import { publishedIn, keyOf, type Zone } from '../../../lib/trust';
+import { publishedIn, keyOf } from '../../../lib/trust';
+import { sections } from '../../../lib/site';
 import { render } from 'astro:content';
 export async function getStaticPaths() {
   const out: Array<{ params: { zone: string; slug: string }; props: Record<string, unknown> }> = [];
-  for (const zone of ['journal', 'insights', 'work'] as Zone[]) {
+  for (const zone of sections) {
     const siblings = await publishedIn(zone, 'en');
     for (const entry of siblings) {
       out.push({ params: { zone, slug: keyOf(entry) }, props: { entry, zone, siblings } });

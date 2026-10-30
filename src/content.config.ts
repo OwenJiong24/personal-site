@@ -1,11 +1,11 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// 三个分区各自成集合（分区块做 SEO）。字段一致，新增字段一处加即三处生效。
+// 板块集合（数字花园五抽屉中的四个内容抽屉）。字段一致，新增字段一处加即全部生效。
 const article = z.object({
   title: z.string(),
   // 双语：lang 声明语言，key 是「同一篇文章」的键（两种语言用同一个 key）。
-  // 不从文件名猜——Astro 的 glob loader 会吃掉文件名里的点。
+  // 不从文件名猜——Astro 的 glob loader 会吃掉文件名里的点（实测 x.en.md 的 id 是 xen）。
   lang: z.enum(['zh', 'en']).default('zh'),
   key: z.string().optional(),
   date: z.coerce.date(),
@@ -27,6 +27,10 @@ const col = (dir: string, extra?: z.ZodRawShape) =>
 
 export const collections = {
   journal: col('journal'),
-  insights: col('insights'),
-  work: col('work', { stage: z.string().default('进行中') }),
+  essays: col('essays'),
+  notes: col('notes', {
+    // 随记：一句话结论 + 线索类型
+    kind: z.enum(['观察', '线索', '结论', '提问', 'observation', 'lead', 'conclusion', 'question']).default('观察'),
+  }),
+  projects: col('projects', { stage: z.string().default('进行中') }),
 };

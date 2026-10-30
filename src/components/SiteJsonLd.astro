@@ -13,7 +13,7 @@ const url = (p: string) => new URL(p, base).toString();
 const data = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: site.name,
+  name: site.author,
   url: url(langPath(lang, '/about')),
   jobTitle: lang === 'en' ? 'Independent developer' : '独立开发者',
   description: lang === 'en'

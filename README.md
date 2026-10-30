@@ -73,3 +73,12 @@ $env:GH_TOKEN = $null
 - 机器可读：`/llms.txt` 索引、`/llms-full.txt` 全文、`/chain.json` 记录链、`/rss.xml`(zh) 与 `/en/rss.xml`(en)。
 - 结构化数据：首页 Person + WebSite，文章页 BlogPosting（含 `datePublished`、`dateModified`、`workTranslation`、链上摘要）。
 - `robots.txt` 逐条放行主流 AI 爬虫（清单在 `src/pages/robots.txt.ts`）。
+
+## 品牌与域名（2026-10-30）
+
+- 品牌 **OrangeKnows（OK）**，中文二级名「橙知道」，作者 Owen Jiong（OJ）。线上目标域名 `orangeknows.com`。
+- 视觉：`src/styles/tokens.css`（C 集，同步自 `ui-toolkit/tokens.css`）；
+  语法/符号/slogan 见 `ui-toolkit/modes/c-orangeknows.md`。字体自托管：Space Grotesk（标题）/ Source Serif 4（正文）/ JetBrains Mono（数据）。
+- 五抽屉：`/journal` 日志、`/essays` 洞察、`/notes` 随记、`/projects` 项目、`/uses` 清单（中英各一套，英文在 `/en` 下）。
+- 旧板块 URL 已 301：`/insights/* → /essays/*`、`/work/* → /projects/*`（`public/_redirects`）。
+- 分享图 `public/og.png`（1200×630）：改品牌文案后按同样版式重出（Playwright 截 1200×630 HTML，字体用 node_modules 里的 woff2）。

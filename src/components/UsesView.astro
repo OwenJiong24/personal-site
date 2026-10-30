@@ -1,0 +1,63 @@
+---
+// Uses 清单视图（中英共用，数据在 src/data/uses.ts）
+import Base from '../layouts/base.astro';
+import { ui, langPath, type Lang } from '../lib/i18n';
+import { brand, site } from '../lib/site';
+import { uses, type UseGroup } from '../data/uses';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const path = langPath(lang, '/uses');
+const switchHref = lang === 'zh' ? '/en/uses' : '/uses';
+const groups: UseGroup[] = ['work', 'build', 'mind', 'life'];
+const rows = groups.map((g) => ({
+  g,
+  title: t.uses.groups[g],
+  items: uses.filter((u) => u.group === g),
+}));
+const statusLabel = (s?: string) =>
+  s === 'daily' ? (lang === 'en' ? 'daily' : '每天用') : s === 'trial' ? (lang === 'en' ? 'trial' : '试用中') : lang === 'en' ? 'to fill' : '待我填';
+const cardStyle = '--flow-gap: 0.4rem';
+const chipsStyle = 'display: flex; gap: 0.4rem; flex-wrap: wrap';
+const metaStyle = 'color: var(--text-2)';
+const updated = lang === 'en' ? 'Updated 2026-10-30 (UTC)' : '更新于 2026-10-30（UTC）';
+const rule = lang === 'en'
+  ? 'Rule: no accounts, no host addresses, no supplier consoles, no client data. Only what the tooling is and where it is used.'
+  : '规矩：不写账号、主机地址、供应商入口、客户数据。只写工具是什么、用在哪。';
+---
+
+<Base title={t.uses.name} description={t.uses.desc} path={path} lang={lang} switchHref={switchHref}>
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>{t.uses.name}</h1>
+      <p style={metaStyle}>{t.uses.desc}</p>
+      <p class="meta">{updated} · {brand.name} · {site.author}</p>
+    </header>
+
+    {
+      rows.map((r) => (
+        <section class="flow stack-sm" aria-label={r.title} style="padding-block: 1.25rem">
+          <h2>{r.title}</h2>
+          <ul class="post-list">
+            {r.items.map((u) => (
+              <li>
+                <div class="flow" style={cardStyle}>
+                  <p class="post-title">{u.name}</p>
+                  <p class="post-excerpt">{u.why}</p>
+                  <p style={chipsStyle}>
+                    <span class="pill">{statusLabel(u.status)}</span>
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <p class="meta">{rule}</p>
+  </section>
+</Base>
