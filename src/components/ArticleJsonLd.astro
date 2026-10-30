@@ -1,0 +1,43 @@
+---
+// 单篇的结构化数据：BlogPosting（AEO/AIEO 要求：作者、发布与更新时间、语言、正文摘要、规范链接）。
+import { site } from '../lib/site';
+import type { Post } from '../lib/trust';
+import { langPath } from '../lib/i18n';
+
+interface Props {
+  entry: Post;
+  lang: 'zh' | 'en';
+  path: string;
+  twinPath?: string;
+  chainHash: string;
+}
+
+const { entry, lang, path, twinPath, chainHash } = Astro.props;
+const base = Astro.site ?? new URL('https://jiong-bvw.pages.dev');
+const url = (p: string) => new URL(p, base).toString();
+const body = (entry as unknown as { body?: string }).body ?? '';
+const words = body.split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / (lang === 'en' ? 200 : 350)));
+
+const data = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: entry.data.title,
+  description: entry.data.summary || entry.data.title,
+  inLanguage: lang === 'en' ? 'en' : 'zh-CN',
+  datePublished: entry.data.date.toISOString(),
+  dateModified: (entry.data.updated ?? entry.data.date).toISOString(),
+  timeRequired: `PT${minutes}M`,
+  wordCount: words,
+  author: { '@type': 'Person', name: site.name, url: url(langPath(lang, '/about')) },
+  publisher: { '@type': 'Person', name: site.name, url: url('/') },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': url(path) },
+  url: url(path),
+  isPartOf: { '@type': 'WebSite', url: url('/') },
+  workTranslation: twinPath ? { '@type': 'CreativeWork', url: url(twinPath), inLanguage: lang === 'en' ? 'zh-CN' : 'en' } : undefined,
+  // 本文进入记录链：链上摘要可核对内容未被事后改动
+  signers: [{ '@type': 'PropertyValue', name: 'sha256-record-chain', value: chainHash }],
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />

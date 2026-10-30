@@ -1,41 +1,8 @@
 ---
-import Base from '../../layouts/base.astro';
-import { zones } from '../../lib/site';
-import { publishedIn, utcDay } from '../../lib/trust';
-
+import ZoneIndexView from '../../components/ZoneIndexView.astro';
 export async function getStaticPaths() {
-  return zones.map((z) => ({ params: { zone: z.slug }, props: { zone: z } }));
+  return (['journal', 'insights', 'work'] as const).map((zone) => ({ params: { zone }, props: { zone } }));
 }
-
 const { zone } = Astro.props;
-const posts = await publishedIn(zone.slug);
-const path = `/${zone.slug}`;
 ---
-
-<Base title={zone.name} description={zone.desc} path={path}>
-  <section class="wrap measure flow">
-    <header class="flow stack-sm">
-      <h1>{zone.name}</h1>
-      <p style="color: var(--text-2)">{zone.desc}</p>
-      <p class="meta">{posts.length} 条记录 · 按时间倒序</p>
-    </header>
-
-    {
-      posts.length === 0 ? (
-        <p class="meta">这个区块还是空的。第一批内容写完后会出现在这里。</p>
-      ) : (
-        <ul class="post-list">
-          {posts.map((p) => (
-            <li>
-              <a href={`/${zone.slug}/${p.id}`}>
-                <span class="meta">{utcDay(p.data.date)}（UTC）</span>
-                <p class="post-title">{p.data.title}</p>
-                {p.data.summary && <p class="post-excerpt">{p.data.summary}</p>}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
-  </section>
-</Base>
+<ZoneIndexView lang="zh" zone={zone} />

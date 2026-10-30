@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
 import { getCollection } from 'astro:content';
 import { site } from './site';
+import type { Lang } from './i18n';
+
+export type Zone = 'journal' | 'insights' | 'work';
 
 export type Post =
   | Awaited<ReturnType<typeof getCollection<'journal'>>>[number]
@@ -9,8 +12,20 @@ export type Post =
 
 const t = (p: Post) => p.data.date.getTime();
 
-/** 上线可见的文章（草稿与未来日期不进构建）。新→旧。 */
-export async function publishedPosts(): Promise<Post[]> {
+/** 语言与文章键都来自 frontmatter（Astro 的 glob loader 会吃掉文件名里的点，不能靠文件名）。 */
+export const langOf = (p: Post): Lang => (p.data as { lang?: Lang }).lang ?? 'zh';
+
+const stripLangSuffix = (id: string, lang: Lang) => {
+  if (id.endsWith('.' + lang)) return id.slice(0, -(lang.length + 1));
+  if (id.endsWith(lang)) return id.slice(0, -lang.length);
+  return id;
+};
+
+export const keyOf = (p: Post) =>
+  (p.data as { key?: string }).key ?? stripLangSuffix(p.id, langOf(p));
+
+/** 全部可公开条目（草稿与未来日期不进构建），中文与英文都包含。新→旧。 */
+async function allPublic(): Promise<Post[]> {
   const [journal, insights, work] = await Promise.all([
     getCollection('journal'),
     getCollection('insights'),
@@ -22,24 +37,32 @@ export async function publishedPosts(): Promise<Post[]> {
     .sort((a, b) => t(b) - t(a)) as Post[];
 }
 
-/** 某分区文章，新→旧。 */
-export async function publishedIn(zone: 'journal' | 'insights' | 'work'): Promise<Post[]> {
-  const all = await getCollection(zone);
-  return all
-    .filter((p) => (p.data as { status: string }).status === 'public')
-    .filter((p) => t(p) <= Date.now())
-    .sort((a, b) => t(b) - t(a)) as Post[];
+/** 某语言的可公开条目，新→旧。 */
+export async function publishedPosts(lang: Lang = 'zh'): Promise<Post[]> {
+  return (await allPublic()).filter((p) => langOf(p) === lang);
+}
+
+/** 某分区 + 某语言，新→旧。 */
+export async function publishedIn(zone: Zone, lang: Lang = 'zh'): Promise<Post[]> {
+  return (await publishedPosts(lang)).filter((p) => p.collection === zone);
+}
+
+/** 同一篇文章的另一种语言版本（没有则 undefined）。 */
+export async function twinOf(p: Post): Promise<Post | undefined> {
+  const key = keyOf(p);
+  const want: Lang = langOf(p) === 'zh' ? 'en' : 'zh';
+  return (await allPublic()).find((x) => keyOf(x) === key && langOf(x) === want);
 }
 
 const sha256 = (s: string) => createHash('sha256').update(s, 'utf8').digest('hex');
 
 /**
- * 记录链：把全部公开文章按时间升序串成一条哈希链。
+ * 记录链：全部公开条目（含英文译文）按时间升序串成一条哈希链。
  * 摘要 = SHA256(上一条摘要 | 序号 | 文件 id | 日期 | 标题 | 正文全文)。
- * 正文进哈希，所以发布后改一个字，它之后的摘要与链头都会变（列表用的 summary 不参与哈希）。
+ * 正文与译文都在哈希范围内；列表用的 summary 不参与。
  */
 export async function chain() {
-  const posts = (await publishedPosts()).slice().sort((a, b) => t(a) - t(b)); // 旧→新
+  const posts = (await allPublic()).slice().sort((a, b) => t(a) - t(b)); // 旧→新
   let hash = `GENESIS:${site.start}`;
   const byId = new Map<string, string>();
   posts.forEach((p, i) => {
@@ -67,7 +90,10 @@ export function streakDays(posts: Post[]): number {
   return n;
 }
 
-/** 首页统计：已持续天数、记录总数、连续天数。 */
+/**
+ * 首页统计。entries 按「文章键」去重（一篇双语算一篇），
+ * 记录链的条数在 /chain.json 里按文件计，两个口径都写清，不混用。
+ */
 export function stats(posts: Post[]) {
   const days = new Set(posts.map((p) => utcDay(p.data.date)));
   const startMs = Date.parse(`${site.start}T00:00:00Z`);

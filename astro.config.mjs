@@ -7,7 +7,15 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL || 'https://jiong-bvw.pages.dev',
   trailingSlash: 'ignore',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // 双语成对：sitemap 里给每篇带上两种语言的 alternates（AEO/AIEO 检索友好）
+      i18n: {
+        defaultLocale: 'zh',
+        locales: { zh: 'zh-Hans', en: 'en' },
+      },
+    }),
+  ],
   markdown: {
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark-dimmed' },

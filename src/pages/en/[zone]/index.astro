@@ -1,0 +1,8 @@
+---
+import ZoneIndexView from '../../../components/ZoneIndexView.astro';
+export async function getStaticPaths() {
+  return (['journal', 'insights', 'work'] as const).map((zone) => ({ params: { zone }, props: { zone } }));
+}
+const { zone } = Astro.props;
+---
+<ZoneIndexView lang="en" zone={zone} />

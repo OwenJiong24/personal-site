@@ -65,3 +65,11 @@ $env:GH_TOKEN = $null
 `` 
 
 需要本仓根目录有 `.cf-token`：在 Cloudflare 面板 My Profile → API Tokens → 用模板 **Edit Cloudflare Pages** 建一个（只含 Pages:Edit 权限），粘进文件保存。该文件在 .gitignore 内，不进仓库、不在命令行里传。
+
+## 双语与 AIEO（2026-10-30）
+
+- 中文主语言在站点根，英文在 `/en/`；文案表在 `src/lib/i18n.ts`，加新页面用 `ui[lang]` 取词。
+- 文章双语：frontmatter `lang` + `key`（同 key = 同一篇文章），文件如 `2026-10-30-aieo-checklist.zh.md` / `.en.md`。
+- 机器可读：`/llms.txt` 索引、`/llms-full.txt` 全文、`/chain.json` 记录链、`/rss.xml`(zh) 与 `/en/rss.xml`(en)。
+- 结构化数据：首页 Person + WebSite，文章页 BlogPosting（含 `datePublished`、`dateModified`、`workTranslation`、链上摘要）。
+- `robots.txt` 逐条放行主流 AI 爬虫（清单在 `src/pages/robots.txt.ts`）。

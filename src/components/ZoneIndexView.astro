@@ -1,0 +1,53 @@
+---
+// 分区索引视图（中英共用；链接在 frontmatter 算好）
+import Base from '../layouts/base.astro';
+import { ui, langPath, type Lang } from '../lib/i18n';
+import { publishedIn, utcDay, keyOf, type Zone } from '../lib/trust';
+
+interface Props {
+  lang: Lang;
+  zone: Zone;
+}
+const { lang, zone } = Astro.props;
+const t = ui[lang];
+const posts = await publishedIn(zone, lang);
+const path = langPath(lang, '/' + zone);
+const switchHref = (lang === 'zh' ? '/en' : '') + '/' + zone;
+const info = t.zones[zone];
+const rows = posts.map((p) => ({
+  href: path + '/' + keyOf(p),
+  day: utcDay(p.data.date),
+  title: p.data.title,
+  summary: p.data.summary,
+}));
+const metaLine = t.zone.meta(posts.length);
+const descStyle = 'color: var(--text-2)';
+---
+
+<Base title={info.name} description={info.desc} path={path} lang={lang} switchHref={switchHref}>
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>{info.name}</h1>
+      <p style={descStyle}>{info.desc}</p>
+      <p class="meta">{metaLine}</p>
+    </header>
+
+    {
+      rows.length === 0 ? (
+        <p class="meta">{t.zone.empty}</p>
+      ) : (
+        <ul class="post-list">
+          {rows.map((r) => (
+            <li>
+              <a href={r.href}>
+                <span class="meta">{r.day} {t.post.utc}</span>
+                <p class="post-title">{r.title}</p>
+                {r.summary && <p class="post-excerpt">{r.summary}</p>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</Base>

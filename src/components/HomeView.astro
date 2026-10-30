@@ -1,0 +1,131 @@
+---
+// 首页视图（中英共用；文案来自 i18n）
+// 注意：链接全部在 frontmatter 里算好，模板属性里不嵌套模板字符串。
+import Base from '../layouts/base.astro';
+import SiteJsonLd from '../components/SiteJsonLd.astro';
+import { site } from '../lib/site';
+import { ui, langPath, type Lang } from '../lib/i18n';
+import { publishedPosts, stats, chain, utcDay, keyOf, type Zone } from '../lib/trust';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const path = langPath(lang, '/');
+const switchHref = lang === 'zh' ? '/en/' : '/';
+const zhPosts = await publishedPosts('zh');
+const posts = await publishedPosts(lang);
+const s = stats(zhPosts); // 统计按文章键去重：一篇双语算一篇
+const ch = await chain();
+
+const rows = posts.slice(0, 6).map((p) => ({
+  href: langPath(lang, '/' + p.collection) + '/' + keyOf(p),
+  day: utcDay(p.data.date),
+  zoneName: t.zones[p.collection as Zone].name,
+  title: p.data.title,
+  summary: p.data.summary,
+}));
+const newest = rows[0];
+
+const zoneCards = (['journal', 'insights', 'work'] as Zone[]).map((slug) => ({
+  href: langPath(lang, '/' + slug),
+  name: t.zones[slug].name,
+  desc: t.zones[slug].desc,
+}));
+
+const pillsStyle = 'display: flex; gap: 0.5rem; flex-wrap: wrap';
+const buttonsStyle = 'display: flex; gap: 0.625rem; flex-wrap: wrap';
+const listStyle = 'padding-inline-start: 1.2rem; color: var(--text-2)';
+const cardLinkStyle = '--flow-gap: 0.5rem; text-decoration: none; color: inherit';
+const chainLinkStyle = 'text-decoration: none';
+const verifyHref = langPath(lang, '/verify');
+const aboutHref = langPath(lang, '/about');
+const journalHref = langPath(lang, '/journal');
+const head8 = ch.head.slice(0, 8);
+const latestDay = s.latest ? utcDay(s.latest) : '—';
+const startPill = lang === 'en' ? 'Public record since ' + site.start : '自 ' + site.start + ' 起公开记录';
+const hero = {
+  heroSection: '--flow-gap: 1.5rem',
+  headerSection: '--flow-gap: 0.75rem',
+  taglineStyle: 'font-size: 1.125rem; color: var(--text-2)',
+  introStyle: 'color: var(--text-2)',
+};
+---
+
+<Base title={site.name} description={t.intro} path={path} lang={lang} switchHref={switchHref}>
+  <SiteJsonLd lang={lang} />
+
+  <section class="wrap flow" style={hero.heroSection}>
+    <header class="flow measure" style={hero.headerSection}>
+      <h1>{site.name}</h1>
+      <p style={pillsStyle}>
+        <span class="pill pill-accent">{t.role}</span>
+        <span class="pill">{startPill}</span>
+      </p>
+      <p style={hero.taglineStyle}>{t.tagline}。</p>
+      <p style={hero.introStyle}>{t.intro}</p>
+    </header>
+
+    <div class="card">
+      <div class="stat-row">
+        <span class="stat"><b>{s.elapsedDays}</b><small>{t.stats.days}</small></span>
+        <span class="stat"><b>{s.entries}</b><small>{t.stats.entries}</small></span>
+        <span class="stat"><b>{s.streak}</b><small>{t.stats.streak}</small></span>
+        <span class="stat"><b>{latestDay}</b><small>{t.stats.latest}</small></span>
+        <span class="stat">
+          <b><a href={verifyHref} class="mono" style={chainLinkStyle}>{head8}</a></b>
+          <small>{t.stats.chain}</small>
+        </span>
+      </div>
+    </div>
+
+    <p style={buttonsStyle}>
+      {newest && <a class="btn" href={newest.href}>{t.buttons.latest}</a>}
+      <a class="btn btn-ghost" href={aboutHref}>{t.buttons.about}</a>
+      <a class="btn btn-ghost" href={journalHref}>{t.buttons.journal}</a>
+    </p>
+  </section>
+
+  <section class="wrap flow">
+    <h2>{t.sections.recent}</h2>
+    {
+      rows.length === 0 ? (
+        <p class="meta">{t.zone.empty}</p>
+      ) : (
+        <ul class="post-list measure">
+          {rows.map((r) => (
+            <li>
+              <a href={r.href}>
+                <span class="meta">{r.day} · {r.zoneName}</span>
+                <p class="post-title">{r.title}</p>
+                {r.summary && <p class="post-excerpt">{r.summary}</p>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
+  <section class="wrap flow">
+    <h2>{t.sections.zones}</h2>
+    <div class="grid">
+      {
+        zoneCards.map((z) => (
+          <a class="card flow" href={z.href} style={cardLinkStyle}>
+            <h3>{z.name}</h3>
+            <p class="meta">{z.desc}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="wrap flow">
+    <h2>{t.sections.rules}</h2>
+    <ul class="measure" style={listStyle}>
+      {t.rules.map((r) => <li>{r}</li>)}
+    </ul>
+  </section>
+</Base>

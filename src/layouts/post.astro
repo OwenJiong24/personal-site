@@ -1,49 +1,75 @@
 ---
-// 文章页：正文 + 时间戳 + 链上位置 + 同分区上下篇。
-import Base from './base.astro';
-import { chain, utcDay, type Post } from '../lib/trust';
+// 文章页（中英共用）：正文 + 时间戳 + 链上位置 + 语言切换 + 结构化数据。
+// 注意：Astro 模板解析器对属性表达式里嵌套模板字符串敏感，所有链接先在 frontmatter 算好。
+import Base from '../layouts/base.astro';
+import ArticleJsonLd from '../components/ArticleJsonLd.astro';
+import { chain, utcDay, twinOf, keyOf, type Post, type Zone } from '../lib/trust';
+import { ui, langPath, type Lang } from '../lib/i18n';
 
 interface Props {
   entry: Post;
-  zone: 'journal' | 'insights' | 'work';
-  zoneName: string;
-  siblings: Post[]; // 同分区，新→旧
+  zone: Zone;
+  lang: Lang;
+  siblings: Post[]; // 同分区同语言，新→旧
 }
 
-const { entry, zone, zoneName, siblings } = Astro.props;
+const { entry, zone, lang, siblings } = Astro.props;
+const t = ui[lang];
 const d = entry.data;
 const ch = await chain();
 const hash = ch.byId.get(entry.id) ?? '';
 const idx = ch.ids.indexOf(entry.id) + 1;
+const twin = await twinOf(entry);
+const zoneBase = langPath(lang, '/' + zone);
+const path = zoneBase + '/' + keyOf(entry);
+const twinPath = twin ? (lang === 'zh' ? '/en/' : '/') + zone + '/' + keyOf(twin) : undefined;
 const me = siblings.findIndex((p) => p.id === entry.id);
 const newer = me > 0 ? siblings[me - 1] : undefined;
 const older = me >= 0 && me < siblings.length - 1 ? siblings[me + 1] : undefined;
-const path = `/${zone}/${entry.id}`;
+const olderHref = older ? zoneBase + '/' + keyOf(older) : '';
+const newerHref = newer ? zoneBase + '/' + keyOf(newer) : '';
+const shortHash = hash.slice(0, 8);
+const zoneLabel = t.zones[zone].name;
 const desc = d.summary || d.title;
+const navAria = lang === 'en' ? 'Previous and next in this section' : '同分区上下篇';
+const pillStyle = 'color: inherit; text-decoration: none';
+const tagsStyle = 'display: flex; gap: 0.375rem; flex-wrap: wrap';
+const navStyle = 'display: flex; gap: 1rem; flex-wrap: wrap';
+const articleStyle = '--flow-gap: 1.25rem';
 ---
 
-<Base title={d.title} description={desc} path={path} ogType="article">
-  <article class="wrap measure flow" style="--flow-gap: 1.25rem">
+<Base
+  title={d.title}
+  description={desc}
+  path={path}
+  lang={lang}
+  switchHref={twinPath}
+  ogType="article">
+  <ArticleJsonLd entry={entry} lang={lang} path={path} twinPath={twinPath} chainHash={hash} />
+
+  <article class="wrap measure flow" style={articleStyle}>
     <header class="flow stack-sm">
       <p class="meta">
-        <a href={`/${zone}`} style="color: inherit; text-decoration: none">
-          <span class="pill pill-accent">{zoneName}</span>
+        <a href={zoneBase} style={pillStyle}>
+          <span class="pill pill-accent">{zoneLabel}</span>
         </a>
       </p>
       <h1>{d.title}</h1>
       <p class="meta">
-        记录于 {utcDay(d.date)}（UTC）
-        {d.updated && ` · 更新于 ${utcDay(d.updated)}`}
+        <span>
+          {t.post.recorded} {utcDay(d.date)} {t.post.utc}
+        </span>
+        {d.updated && <span> · {t.post.updated} {utcDay(d.updated)}</span>}
         {hash && (
-            <span>
-              {' '}
-              · 链上第 {idx} 条 <span class="mono" title={hash}>#{hash.slice(0, 8)}</span>
-            </span>
-          )}
+          <span>
+            {' '}
+            · {t.post.chainLine(idx)} <span class="mono" title={hash}>#{shortHash}</span>
+          </span>
+        )}
       </p>
       {
         d.tags.length > 0 && (
-          <p style="display: flex; gap: 0.375rem; flex-wrap: wrap">
+          <p style={tagsStyle}>
             {d.tags.map((tag) => (
               <span class="pill">#{tag}</span>
             ))}
@@ -56,20 +82,14 @@ const desc = d.summary || d.title;
       <slot />
     </div>
 
-    <nav class="card-flat" aria-label="同分区上下篇" style="display: flex; gap: 1rem; flex-wrap: wrap">
-      {
-        older && (
-          <a href={`/${zone}/${older.id}`} style="margin-inline-end: auto">
-            ← {older.data.title}
-          </a>
-        )
-      }
-      {newer && <a href={`/${zone}/${newer.id}`}>{newer.data.title} →</a>}
-      {!older && !newer && <p class="meta">这是本分区目前唯一的一条记录。</p>}
+    <nav class="card-flat" aria-label={navAria} style={navStyle}>
+      {older && <a href={olderHref} style="margin-inline-end: auto">← {older.data.title}</a>}
+      {newer && <a href={newerHref}>{newer.data.title} →</a>}
+      {!older && !newer && <p class="meta">{t.post.onlyOne}</p>}
     </nav>
 
     <p class="meta">
-      本页由构建时生成；正文全文参与记录链哈希，发布后改一个字链头就会变，见 <a href="/verify">如何核对这份记录</a>。
+      {t.post.builtNote} <a href={langPath(lang, '/verify')}>{t.post.verifyLink}</a>。
     </p>
   </article>
 </Base>

@@ -1,0 +1,42 @@
+---
+// 结构化数据（AEO / AIEO 基础）：站点与人物实体。首页注入一次。
+import { site } from '../lib/site';
+import { langPath } from '../lib/i18n';
+
+interface Props {
+  lang: 'zh' | 'en';
+}
+const { lang } = Astro.props;
+const base = Astro.site ?? new URL('https://jiong-bvw.pages.dev');
+const url = (p: string) => new URL(p, base).toString();
+
+const data = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: url(langPath(lang, '/about')),
+  jobTitle: lang === 'en' ? 'Independent developer' : '独立开发者',
+  description: lang === 'en'
+    ? 'Engineer publishing a dated, checkable record of daily work in the model era.'
+    : '在 AM 时代发布带时间戳、可核对的每日工作记录的工程师。',
+  sameAs: [
+    site.anchors.github ? `https://github.com/${site.anchors.github}` : '',
+    site.anchors.email ? `mailto:${site.anchors.email}` : '',
+  ].filter(Boolean),
+  knowsAbout: ['web engineering', 'cross-border e-commerce', 'AI-era verifiability', 'AM 时代', '可核验记录'],
+};
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: `${site.name}`,
+  url: url('/'),
+  inLanguage: ['zh-CN', 'en'],
+  description: lang === 'en'
+    ? 'A public engineering log with hash-chained, dated entries.'
+    : '带哈希链与时间戳的公开工作记录。',
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />
+<script type="application/ld+json" is:inline set:html={JSON.stringify(website)} />

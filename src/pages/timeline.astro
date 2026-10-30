@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/base.astro';
 import { site, zones } from '../lib/site';
-import { publishedPosts, utcDay } from '../lib/trust';
+import { publishedPosts, utcDay, keyOf } from '../lib/trust';
 
 const posts = await publishedPosts();
 const byMonth = new Map<string, typeof posts>();
@@ -29,7 +29,7 @@ const zoneName = (c: string) => zones.find((z) => z.slug === c)?.name ?? c;
           <ul class="post-list">
             {byMonth.get(m)!.map((p) => (
               <li>
-                <a href={`/${p.collection}/${p.id}`}>
+                <a href={`/${p.collection}/${keyOf(p)}`}>
                   <span class="meta">
                     {utcDay(p.data.date)} · {zoneName(p.collection)}
                   </span>

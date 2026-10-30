@@ -4,6 +4,10 @@ import { glob } from 'astro/loaders';
 // 三个分区各自成集合（分区块做 SEO）。字段一致，新增字段一处加即三处生效。
 const article = z.object({
   title: z.string(),
+  // 双语：lang 声明语言，key 是「同一篇文章」的键（两种语言用同一个 key）。
+  // 不从文件名猜——Astro 的 glob loader 会吃掉文件名里的点。
+  lang: z.enum(['zh', 'en']).default('zh'),
+  key: z.string().optional(),
   date: z.coerce.date(),
   updated: z.coerce.date().optional(),
   summary: z.string().default(''),

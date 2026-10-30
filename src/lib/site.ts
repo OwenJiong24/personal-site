@@ -10,12 +10,15 @@ export const site = {
   lang: 'zh-CN',
   locale: 'zh-CN',
   // 可核验锚点：别人用来确认「这些内容出自同一个人」。留空即不渲染。
+  // 现状（CEO 定 2026-10-30）：只接 GitHub handle 与本站邮箱。
+  // LinkedIn 这类真人职业档案暂不接——先把内容与可核验机制跑稳，再一步一步试探连接真实职业身份。
   anchors: {
     github: 'OwenJiong24',
     email: 'owen@owenjiong.com',
     x: '',
     linkedin: '',
     rss: '/rss.xml',
+    rssEn: '/en/rss.xml',
   },
   support: {
     coze: '',
