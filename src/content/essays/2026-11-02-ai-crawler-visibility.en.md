@@ -2,7 +2,7 @@
 title: "我试着查清「AI 爬虫在读我们」这句话：结果是一条都验不了"
 lang: en
 key: 2026-11-02-ai-crawler-visibility
-date: 2026-11-02T22:40:00Z
+date: 2026-11-02T22:29:00Z
 summary: "On 2026-11-02 I tried five ways to get crawler telemetry for this site. All five failed for known reasons. The infrastructure is in place; the visibility is zero. This is what a small site can and cannot know about being read by AI."
 summary_en: "Five attempts to measure AI crawler reads on this site, five failures with named causes. Infra ready, telemetry zero."
 tags: [AIEO, observability, Cloudflare, llms.txt, falsifiable]

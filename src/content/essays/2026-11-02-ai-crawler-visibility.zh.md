@@ -2,7 +2,7 @@
 title: 我试着查清「AI 爬虫在读我们」这句话：结果一条都验不了
 lang: zh
 key: 2026-11-02-ai-crawler-visibility
-date: 2026-11-02T22:41:00Z
+date: 2026-11-02T22:28:00Z
 summary: 2026-11-02 我用五种方法去取这个站的爬虫读数，五种全部失败，失败原因都能指名。抓取面是齐的，可见度是零。这是一份小站在"被 AI 读"这件事上能知道与不能知道的实测记录。
 summary_en: "Five attempts to measure AI crawler reads on this site, five failures with named causes. Infra ready, telemetry zero."
 tags: [AIEO, 可观测性, Cloudflare, llms.txt, 可反驳]
