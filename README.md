@@ -29,7 +29,8 @@ No JavaScript framework ships to the browser. The only inline script is the pric
 ```
 src/content/        journal · essays · guides · notes · projects   (Markdown, bilingual)
 src/pages/          English routes at root, Chinese under pages/zh/
-src/pages/m/        Markdown mirror for machines: index.md · all.md · <zone>/<key>.md · pages/<name>.md
+src/pages/m/        Markdown mirror for machines: index.md · all.md · <zone>/<key>.md · pages/<name>.md · products/<slug>.md
+src/pages/products/ first-party products (data in src/data/products.ts, shared with the mirror)
 src/pages/tools/    free static tools (no cookies, runs in the browser)
 src/layouts/        base.astro (chrome, hreflang, markdown link, footer chain head) · post.astro (article)
 src/components/     Brand (logo monogram) · views · JSON-LD
@@ -65,7 +66,8 @@ Every page has a Markdown mirror so AI engines and scripts do not have to scrape
 | Site index (identity, rules, every entry, chain head) | `/m/index.md` |
 | Full corpus, all bodies in one file | `/m/all.md` |
 | One entry, with a canonical metadata block | `/m/<section>/<key>.md` |
-| Static pages (home, about, now, services, support, tools, uses, verify, tags, timeline) | `/m/pages/<name>.md` |
+| Static pages (home, about, now, services, support, tools, products, uses, verify, tags, timeline) | `/m/pages/<name>.md` |
+| First-party product pages (dated observations, no rating on a 0-review item) | `/m/products/<slug>.md` |
 | Plain-text index and corpus | `/llms.txt`, `/llms-full.txt` |
 | The record chain, one item per record with its repo source path | `/chain.json` |
 
