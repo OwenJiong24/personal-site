@@ -125,6 +125,30 @@ if (prodMdFiles.length) {
   need(mdText.includes('2026-11-26') && mdText.includes('12-04'), '产品镜像缺节日日期');
 }
 
+// 7b) 工具页也要有镜像：公式必须与页面一致，且镜像不跑 JS 就能核对算术
+const toolMdDir = join(DIST, 'm', 'tools');
+const toolMdFiles = existsSync(toolMdDir) ? readdirSync(toolMdDir).filter((f) => f.endsWith('.md')) : [];
+const toolPages = [join(DIST, 'tools', 'pricing-calculator', 'index.html'), join(DIST, 'tools', 'shipping-calculator', 'index.html')].filter((f) => existsSync(f));
+need(toolPages.length === 2, '两个工具页缺其一');
+need(toolMdFiles.length >= 2, `工具镜像只有 ${toolMdFiles.length} 个（应为 2）`);
+for (const f of toolPages) {
+  const t = read(f);
+  const slug = f.split('\\').slice(-2)[0].split('/').slice(-1)[0];
+  need(t.includes(`/m/tools/${slug}.md`), `/tools/${slug} 没链到自己的 Markdown 镜像`);
+  need(t.includes('"@type":"WebApplication"'), `/tools/${slug} 缺 WebApplication 结构化数据`);
+  need(t.includes('"@type":"FAQPage"'), `/tools/${slug} 缺 FAQPage`);
+  need(t.includes('BreadcrumbList'), `/tools/${slug} 缺面包屑结构化数据`);
+  need(t.includes('aria-describedby'), `/tools/${slug} 输入缺无障碍说明`);
+}
+for (const f of toolMdFiles) {
+  const t = read(join(toolMdDir, f));
+  for (const field of ['tool_slug: ', 'keywords: ', 'canonical_en: ', 'canonical_zh: ', 'last_updated: ', '## Formula', '## Worked example']) {
+    need(t.includes(field), `/m/tools/${f} 缺 "${field.trim()}"`);
+  }
+  need(t.includes('floor = C / (1 - fee)') || t.includes('baked price = (price + shipping + R) / (1 - fee)') || t.includes('baked price = (price + shipping + R)'),
+    `/m/tools/${f} 缺关键公式行`);
+}
+
 // 8) llms.txt 要指向 Markdown 镜像
 const llms = read(join(DIST, 'llms.txt'));
 need(llms.includes('/m/index.md'), 'llms.txt 未指向 /m/index.md');

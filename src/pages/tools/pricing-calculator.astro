@@ -1,171 +1,283 @@
 ---
 import Base from '../../layouts/base.astro';
 import { brand, site } from '../../lib/site';
+import { pricingTool } from '../../data/tools';
+
+const t = pricingTool;
+const root = Astro.site ?? new URL('https://orangeknows.com');
+const U = (x: string) => new URL(x, root).toString();
+const self = U(t.href);
+const outIds = [
+  ['floor', 'Floor price', '保本价'],
+  ['price', 'Suggested price', '建议定价'],
+  ['net', 'You take home', '到手'],
+  ['profit', 'Surplus per sale', '每件盈余'],
+  ['hourly', 'Surplus per production hour', '每生产小时盈余'],
+  ['be', 'Break-even units / month', '每月保本件数'],
+  ['margin', 'Surplus margin at price', '定价下的盈余率'],
+  ['labour', 'Labour paid at your rate', '按你填的时薪已付工资'],
+] as const;
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: t.nameEn,
+  url: self,
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any (browser)',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  browserRequirements: 'Requires JavaScript for the live calculator; the formula and worked example are readable without it.',
+  inLanguage: 'en',
+  creator: { '@type': 'Person', name: site.author, url: U('/') },
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.faq.map((f) => ({ '@type': 'Question', name: f.qEn, acceptedAnswer: { '@type': 'Answer', text: f.aEn } })),
+};
+const crumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: U('/') },
+    { '@type': 'ListItem', position: 2, name: 'Tools', item: U('/tools') },
+    { '@type': 'ListItem', position: 3, name: t.nameEn, item: self },
+  ],
+};
+const updated = '2026-11-03';
 ---
 
 <Base
-  title="Handmade pricing calculator"
-  description="Free, offline-capable calculator for handmade sellers: work out your real floor price from material, failure rate, hours, shipping and platform fees, then see what the premium is worth."
-  path="/tools/pricing-calculator"
+  title={t.titleTagEn}
+  description={t.descEn}
+  path={t.href}
   lang="en"
-  switchHref="/zh/tools/pricing-calculator">
+  switchHref={'/zh' + t.href}
+  ogType="website">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
-      <h1>Handmade pricing calculator</h1>
-      <p class="meta">Free tool · no account, no tracking · runs in your browser · part of the <a href="/guides/2026-10-30-pricing-handmade/">pricing guide</a></p>
+      <p class="meta">
+        <a href="/tools">Tools</a> · free · runs offline in your browser · no account, no tracking ·
+        companion to the <a href="/guides/2026-10-30-pricing-handmade/">pricing guide</a> ·
+        mirror <a href={`/m/tools/${t.slug}.md`}>/m/tools/{t.slug}.md</a>
+      </p>
+      <h1>{t.nameEn}</h1>
+      <p class="post-title">
+        A floor price is not “material + time”. It is the price at which your take-home equals everything this page
+        charges you: materials <em>including the pieces that fail</em>, labour at the rate you insist on paying
+        yourself, the shipping you absorb, the cost of returns, and the platform percentage taken from the price the
+        buyer pays.
+      </p>
+      <p class="meta">
+        Updated {updated} · the arithmetic is printed on the page, so you can check every step by hand ·
+        <a href="#trail">jump to the arithmetic</a>
+      </p>
     </header>
 
-    <div class="card-flat flow">
-      <p>
-        Most makers price at material plus hours and stay on the floor. This tool counts the six things that are usually
-        forgotten: small parts, packaging, failure rate, platform fees, shipping and returns — and it shows the effective
-        rate your hours end up earning.
-      </p>
-    </div>
-
-    <form class="card-flat flow" onsubmit="return false" aria-label="pricing inputs">
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
-        <label class="flow">
-          <span class="meta">Currency symbol</span>
-          <input class="inp" id="pc-cur" type="text" value="$" maxlength="3" />
-        </label>
-        <label class="flow">
-          <span class="meta">Main material</span>
-          <input class="inp" id="pc-mat" type="number" min="0" step="1" value="60" />
-        </label>
-        <label class="flow">
-          <span class="meta">Small parts + packaging</span>
-          <input class="inp" id="pc-extra" type="number" min="0" step="1" value="15" />
-        </label>
-        <label class="flow">
-          <span class="meta">Failure rate %</span>
-          <input class="inp" id="pc-fail" type="number" min="0" max="90" step="1" value="20" />
-        </label>
-        <label class="flow">
-          <span class="meta">Total hours per piece</span>
-          <input class="inp" id="pc-hours" type="number" min="0" step="0.5" value="4" />
-        </label>
-        <label class="flow">
-          <span class="meta">Your hourly rate</span>
-          <input class="inp" id="pc-rate" type="number" min="0" step="5" value="80" />
-        </label>
-        <label class="flow">
-          <span class="meta">Shipping you absorb</span>
-          <input class="inp" id="pc-ship" type="number" min="0" step="1" value="20" />
-        </label>
-        <label class="flow">
-          <span class="meta">Returns reserve</span>
-          <input class="inp" id="pc-returns" type="number" min="0" step="1" value="10" />
-        </label>
-        <label class="flow">
-          <span class="meta">Platform + payment fees %</span>
-          <input class="inp" id="pc-fee" type="number" min="0" max="60" step="1" value="13" />
-        </label>
+    <form class="card-flat flow" onsubmit="return false" autocomplete="off">
+      <div class="tool-grid">
+        {
+          t.fields.map((f) =>
+            f.id === 'pf' ? (
+              <label class="field">
+                <span class="lab">{f.labEn}: <strong id="pc-pf-label">2.0×</strong></span>
+                <input class="inp" id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" aria-describedby="pc-pf-hint" />
+                <span class="hint" id="pc-pf-hint">{f.hintEn}</span>
+              </label>
+            ) : (
+              <label class="field">
+                <span class="lab">{f.labEn}</span>
+                <span class="row">
+                  <input
+                    class="inp"
+                    id={'pc-' + f.id}
+                    type="number"
+                    inputmode="decimal"
+                    min={f.min}
+                    max={f.max}
+                    step={f.step}
+                    value={f.value}
+                    aria-describedby={'pc-' + f.id + '-hint'}
+                  />
+                  {f.unitEn && <span class="unit">{f.unitEn}</span>}
+                </span>
+                <span class="hint" id={'pc-' + f.id + '-hint'}>{f.hintEn}</span>
+              </label>
+            ),
+          )
+        }
       </div>
 
-      <label class="flow">
-        <span class="meta">Premium factor: <strong id="pc-pf-label">2.0×</strong></span>
-        <input id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" />
-      </label>
+      <div class="tool-actions">
+        <button class="pill pill-accent" type="button" id="pc-reset">Reset to defaults</button>
+        <button class="pill" type="button" id="pc-copy">Copy summary</button>
+        <span class="meta" id="pc-status"></span>
+      </div>
     </form>
 
     <div class="card-flat flow" aria-live="polite">
       <p class="meta"><strong>Results</strong> <span id="pc-out-cur"></span></p>
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
-        <div class="flow">
-          <span class="meta">Floor price (you stop losing here)</span>
-          <p class="post-title" id="pc-floor">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Selling price</span>
-          <p class="post-title" id="pc-price">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">After fees, you keep</span>
-          <p class="post-title" id="pc-net">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Profit above floor</span>
-          <p class="post-title" id="pc-profit">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Your hours earn</span>
-          <p class="post-title" id="pc-hourly">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Break-even pieces/month</span>
-          <p class="post-title" id="pc-be">—</p>
-        </div>
+      <div class="results">
+        {
+          outIds.map(([id, kEn]) => (
+            <div class="out">
+              <p class="k">{kEn}</p>
+              <p class="v" id={'pc-' + id}>—</p>
+            </div>
+          ))
+        }
       </div>
       <p class="meta" id="pc-verdict"></p>
     </div>
 
     <div class="prose">
-      <h2>The method in one line</h2>
-      <p>
-        Material and parts are amortised over your success rate, labour is priced at the rate you claim, shipping, fees and
-        a returns reserve are added, and the premium factor is applied on top of that floor. Platform fees are divided out,
-        not subtracted, because they are charged on the selling price.
-      </p>
-      <pre class="mono">floor = (material + parts) / (1 - failure) + hours x rate + shipping + returns
-price = floor x premium / (1 - platform fee)</pre>
+      <h2 id="trail">The arithmetic, line by line</h2>
+      <pre class="trail" id="pc-trail">u = 1 / (1 - failure)</pre>
+      <p class="meta">{t.exampleNoteEn}</p>
+
+      <h2>The formula, written out</h2>
+      <pre class="trail">{t.formulaLines.join('\n')}</pre>
+
       <h2>How to read it</h2>
       <ul>
-        <li><strong>Your hours earn</strong> is the honest number: it is what is left for your labour after everything else is paid. If it is below your claimed rate, the product is not carrying the premium.</li>
-        <li>A premium factor of 1.5–3 is normal for handmade. Above 3 you need a story a buyer can repeat to someone else.</li>
-        <li>The tool does not know your market. It gives you a floor you can defend; the ceiling is your judgement.</li>
+        <li><strong>Surplus per production hour</strong> is the honest number, not your hourly rate: labour is already paid in the cost base at the rate you entered, so this is what the premium adds on top of paying yourself.</li>
+        <li>A premium factor of <strong>1.5–3</strong> is common on this cost base. Above 3 the buyer needs a story they can repeat to someone else.</li>
+        <li>The tool does not know your market: it returns the floor your own numbers imply. Compare that number against listings already selling at the price.</li>
+        <li><strong>Failure rate is the maker’s hidden tax.</strong> A 30% failure rate costs 30% more materials <em>and</em> 30% more labour; most underpricing starts here.</li>
       </ul>
+
+      <h2>Questions makers ask</h2>
+      {
+        t.faq.map((f) => (
+          <div class="flow stack-sm">
+            <h3>{f.qEn}</h3>
+            <p>{f.aEn}</p>
+          </div>
+        ))
+      }
+
       <p class="meta">
-        Built by {brand.name} (<a href="/tools/">tools</a>). Free to use, no data leaves your browser.
-        Contact: <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+        Related: <a href="/tools/shipping-calculator/">shipping shape calculator</a> ·
+        <a href="/guides/2026-10-30-pricing-handmade/">the pricing guide</a> ·
+        <a href="/guides/2026-11-02-custom-order-math/">custom-order quoting</a> ·
+        <a href={`/m/tools/${t.slug}.md`}>Markdown mirror</a>
+      </p>
+      <p class="meta">
+        {brand.name} · {brand.slogan} · built by <a href="/about">{site.author}</a> ·
+        contact <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a> · nothing you type leaves this page.
       </p>
     </div>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(appLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(crumbLd)} />
   </section>
 </Base>
 
-<script is:inline>
+<script is:inline define:vars={{ toolSlug: pricingTool.slug }}>
+  const KEY = 'ok-tool-' + toolSlug;
   const el = (id) => document.getElementById(id);
-  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
-  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('en-US') : '—');
+  const ids = ['cur', 'mat', 'extra', 'fail', 'hours', 'rate', 'ship', 'ret', 'retpc', 'fee', 'fixed', 'pf'];
+  const defaults = {};
+  ids.forEach((k) => { const n = el('pc-' + k); if (n) defaults[k] = n.value; });
+
+  const num = (k) => { const n = el('pc-' + k); const v = n ? parseFloat(n.value) : NaN; return Number.isFinite(v) ? v : 0; };
+  const cur = () => (el('pc-cur') && el('pc-cur').value) || '$';
+  const money = (v) => (Number.isFinite(v) ? cur() + v.toFixed(2) : '—');
 
   function calc() {
-    const cur = el('pc-cur').value || '$';
-    const mat = num('pc-mat') + num('pc-extra');
-    const fail = Math.min(0.9, Math.max(0, num('pc-fail') / 100));
-    const hours = num('pc-hours');
-    const rate = num('pc-rate');
-    const ship = num('pc-ship') + num('pc-returns');
-    const fee = Math.min(0.6, Math.max(0, num('pc-fee') / 100));
-    const pf = num('pc-pf');
+    const fail = Math.min(0.9, Math.max(0, num('fail') / 100));
+    const fee = Math.min(0.95, Math.max(0, num('fee') / 100));
+    const retRate = Math.min(0.9, Math.max(0, num('ret') / 100));
+    const hours = num('hours');
+    const rate = num('rate');
+    const pf = Math.max(0.1, num('pf'));
 
-    const direct = mat / (1 - fail) + hours * rate + ship;
-    const floor = fee < 1 ? direct / (1 - fee) : direct;
+    const u = 1 / (1 - fail);
+    const M = (num('mat') + num('extra')) * u;
+    const L = hours * rate * u;
+    const S = num('ship');
+    const R = retRate * num('retpc');
+    const C = M + L + S + R;
+    const floor = fee < 1 ? C / (1 - fee) : C;
     const price = floor * pf;
     const net = price * (1 - fee);
-    const profit = net - direct;
-    const eff = hours > 0 ? (net - (mat / (1 - fail) + ship)) / hours : 0;
+    const profit = net - C;
+    const prodHours = hours * u;
+    const surplusPerHour = prodHours > 0 ? profit / prodHours : 0;
+    const fixed = num('fixed');
+    const be = profit > 0 ? Math.ceil(fixed / profit) : Infinity;
+    const marginPct = price > 0 ? profit / price : 0;
 
     el('pc-pf-label').textContent = pf.toFixed(1) + '×';
-    el('pc-out-cur').textContent = 'in ' + cur;
-    el('pc-floor').textContent = fmt(floor, cur);
-    el('pc-price').textContent = fmt(price, cur);
-    el('pc-net').textContent = fmt(net, cur);
-    el('pc-profit').textContent = fmt(profit, cur);
-    el('pc-hourly').textContent = fmt(eff, cur) + '/h';
+    el('pc-out-cur').textContent = '· in ' + cur();
+    el('pc-floor').textContent = money(floor);
+    el('pc-price').textContent = money(price);
+    el('pc-net').textContent = money(net);
+    el('pc-profit').textContent = money(profit);
+    el('pc-hourly').textContent = money(surplusPerHour) + '/h';
+    el('pc-be').textContent = Number.isFinite(be) ? String(be) : '∞';
+    el('pc-margin').textContent = (marginPct * 100).toFixed(1) + '%';
+    el('pc-labour').textContent = money(L);
 
-    const fixed = 200;
-    el('pc-be').textContent = profit > 0 ? Math.ceil(fixed / profit) + ' (at ' + cur + fixed + ' of monthly overhead)' : '∞';
-    el('pc-verdict').textContent = eff < rate
-      ? 'Verdict: at this price your labour is worth ' + fmt(eff, cur) + '/h, below the ' + fmt(rate, cur) + '/h you entered. Either the premium factor is too low, or this piece cannot carry it.'
-      : 'Verdict: this price pays your claimed rate with ' + fmt(profit, cur) + ' left over per piece.';
+    el('pc-trail').textContent = [
+      'u     = 1 / (1 - ' + fail.toFixed(3) + ') = ' + u.toFixed(3),
+      'M     = (' + num('mat') + ' + ' + num('extra') + ') x ' + u.toFixed(3) + ' = ' + M.toFixed(2),
+      'L     = ' + hours + ' x ' + rate + ' x ' + u.toFixed(3) + ' = ' + L.toFixed(2),
+      'S     = ' + S.toFixed(2),
+      'R     = ' + retRate.toFixed(3) + ' x ' + num('retpc') + ' = ' + R.toFixed(2),
+      'C     = ' + M.toFixed(2) + ' + ' + L.toFixed(2) + ' + ' + S.toFixed(2) + ' + ' + R.toFixed(2) + ' = ' + C.toFixed(2),
+      'floor = ' + C.toFixed(2) + ' / (1 - ' + fee.toFixed(3) + ') = ' + floor.toFixed(2),
+      'price = ' + floor.toFixed(2) + ' x ' + pf.toFixed(1) + ' = ' + price.toFixed(2),
+      'net   = ' + price.toFixed(2) + ' x (1 - ' + fee.toFixed(3) + ') = ' + net.toFixed(2),
+      'profit= ' + net.toFixed(2) + ' - ' + C.toFixed(2) + ' = ' + profit.toFixed(2),
+      'surplus/hour = ' + profit.toFixed(2) + ' / (' + hours + ' x ' + u.toFixed(3) + ') = ' + surplusPerHour.toFixed(2),
+      'break-even units = ' + fixed + ' / ' + profit.toFixed(2) + ' = ' + (Number.isFinite(be) ? be : 'infinity'),
+    ].join('\n');
+
+    const v = [];
+    if (profit <= 0) v.push('At premium ' + pf.toFixed(1) + '× the price creates no surplus: it only pays your costs and your labour. This product cannot carry the overhead you entered.');
+    if (marginPct > 0 && marginPct < 0.3) v.push('Surplus margin ' + (marginPct * 100).toFixed(1) + '% of price is thin: at that level one bad month of shipping rates erases it. Pricing, not shipping shape, is the problem.');
+    if (fail >= 0.25) v.push('Failure ' + (fail * 100).toFixed(0) + '%: you pay materials and labour for ' + u.toFixed(2) + ' units to sell one. Reducing failure is worth more than raising price.');
+    if (!v.length) v.push('Labour is paid at ' + money(rate) + '/h inside the cost base; the premium adds ' + money(surplusPerHour) + '/h on top. ' + (Number.isFinite(be) ? 'Selling ' + be + ' pieces a month covers ' + cur() + fixed + ' of fixed overhead.' : 'Raise the premium factor to cover any fixed overhead.'));
+    el('pc-verdict').textContent = v.join(' ');
+
+    try {
+      const save = {};
+      ids.forEach((k) => { const n = el('pc-' + k); if (n) save[k] = n.value; });
+      localStorage.setItem(KEY, JSON.stringify(save));
+    } catch (e) { /* storage off: the calculator still works */ }
   }
 
-  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  function restore() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      const save = JSON.parse(raw);
+      ids.forEach((k) => { if (el('pc-' + k) && save[k] !== undefined) el('pc-' + k).value = save[k]; });
+    } catch (e) { /* ignore corrupt storage */ }
+  }
+
+  ids.forEach((k) => { const n = el('pc-' + k); if (n) n.addEventListener('input', calc); });
+  el('pc-reset').addEventListener('click', () => {
+    ids.forEach((k) => { const n = el('pc-' + k); if (n) n.value = defaults[k]; });
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    el('pc-status').textContent = 'Reset.';
+    calc();
+  });
+  el('pc-copy').addEventListener('click', () => {
+    const text = [
+      'Handmade pricing — ' + new Date().toISOString().slice(0, 10),
+      'inputs: ' + ids.map((k) => k + '=' + (el('pc-' + k) ? el('pc-' + k).value : '')).join(', '),
+      'floor ' + el('pc-floor').textContent + ' · price ' + el('pc-price').textContent,
+      'net ' + el('pc-net').textContent + ' · surplus/sale ' + el('pc-profit').textContent,
+      'surplus/hour ' + el('pc-hourly').textContent + ' · break-even units ' + el('pc-be').textContent,
+      'from orangeknows.com' + toolSlug,
+    ].join('\n');
+    const done = (m) => { el('pc-status').textContent = m; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done('Summary copied.'), () => done('Copy blocked by the browser; select the arithmetic below.'));
+    else done('No clipboard in this browser; select the arithmetic below.');
+  });
+
+  restore();
   calc();
 </script>
-
-<style>
-  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
-  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  label span { display: block; }
-</style>

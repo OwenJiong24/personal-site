@@ -1,150 +1,268 @@
 ---
 import Base from '../../layouts/base.astro';
 import { brand, site } from '../../lib/site';
+import { shippingTool } from '../../data/tools';
+
+const t = shippingTool;
+const root = Astro.site ?? new URL('https://orangeknows.com');
+const U = (x: string) => new URL(x, root).toString();
+const outIds = [
+  ['ratio', 'Shipping as share of price', '运费占售价'],
+  ['shape', 'Recommended shape', '建议收法'],
+  ['baked', 'Baked-in price (fee-aware)', '摊进价（含抽成）'],
+  ['bakeddelta', 'Sticker price moves by', '标价变动'],
+  ['threshold', 'Free-shipping threshold', '包邮门槛'],
+  ['plain', 'Net if you charge shipping', '单列实收的到手'],
+  ['reserve', 'Returns reserve per item', '每件退换预留'],
+  ['after', 'Margin after absorbing shipping', '扣运费后毛利'],
+  ['flag', 'Margin vs 30% line', '与 30% 警戒线'],
+] as const;
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: t.nameEn,
+  url: U(t.href),
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any (browser)',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  browserRequirements: 'Requires JavaScript for the live calculator; the formula and worked example are readable without it.',
+  inLanguage: 'en',
+  creator: { '@type': 'Person', name: site.author, url: U('/') },
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.faq.map((f) => ({ '@type': 'Question', name: f.qEn, acceptedAnswer: { '@type': 'Answer', text: f.aEn } })),
+};
+const crumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: U('/') },
+    { '@type': 'ListItem', position: 2, name: 'Tools', item: U('/tools') },
+    { '@type': 'ListItem', position: 3, name: t.nameEn, item: U(t.href) },
+  ],
+};
+const updated = '2026-11-03';
 ---
 
 <Base
-  title="Shipping shape calculator"
-  description="Free calculator that decides how a maker should charge shipping: bake it into the price, charge it plainly, or set a free-shipping threshold. Uses shipping as a share of price, plus a threshold rule tied to average order value."
-  path="/tools/shipping-calculator"
+  title={t.titleTagEn}
+  description={t.descEn}
+  path={t.href}
   lang="en"
-  switchHref="/zh/tools/shipping-calculator">
+  switchHref={'/zh' + t.href}
+  ogType="website">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
-      <h1>Shipping shape calculator</h1>
       <p class="meta">
-        Free tool · no account, no tracking · runs in your browser · companion to the
-        <a href="/guides/2026-11-01-shipping-math/">shipping maths guide</a>
+        <a href="/tools">Tools</a> · free · runs offline in your browser · companion to the
+        <a href="/guides/2026-11-01-shipping-math/">shipping maths guide</a> ·
+        mirror <a href={`/m/tools/${t.slug}.md`}>/m/tools/{t.slug}.md</a>
       </p>
+      <h1>{t.nameEn}</h1>
+      <p class="post-title">
+        Shipping has three shapes. One number decides which wins — <strong>shipping as a share of your price</strong> —
+        and if you bake it into the price, the platform fee must be grossed up too, otherwise you pay tax on your own
+        shipping money and quietly lose the difference.
+      </p>
+      <p class="meta">Updated {updated} · every step of the arithmetic is printed on the page · <a href="#trail">jump to the arithmetic</a></p>
     </header>
 
-    <div class="card-flat flow">
-      <p>
-        Shipping has three shapes. Which one wins is decided by one number — <strong>shipping as a share of your price</strong> —
-        and, for the threshold option, by your average order value. Enter real numbers from your last orders.
-      </p>
-    </div>
+    <form class="card-flat flow" onsubmit="return false" autocomplete="off">
+      <div class="tool-grid">
+        {
+          t.fields.map((f) => (
+            <label class="field">
+              <span class="lab">{f.labEn}</span>
+              <span class="row">
+                <input
+                  class="inp"
+                  id={'sc-' + f.id}
+                  type="number"
+                  inputmode="decimal"
+                  min={f.min}
+                  max={f.max}
+                  step={f.step}
+                  value={f.value}
+                  aria-describedby={'sc-' + f.id + '-hint'}
+                />
+                {f.unitEn && <span class="unit">{f.unitEn}</span>}
+              </span>
+              <span class="hint" id={'sc-' + f.id + '-hint'}>{f.hintEn}</span>
+            </label>
+          ))
+        }
+      </div>
 
-    <form class="card-flat flow" onsubmit="return false" aria-label="shipping inputs">
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
-        <label class="flow">
-          <span class="meta">Currency symbol</span>
-          <input class="inp" id="sc-cur" type="text" value="$" maxlength="3" />
-        </label>
-        <label class="flow">
-          <span class="meta">Item price</span>
-          <input class="inp" id="sc-price" type="number" min="0" step="1" value="90" />
-        </label>
-        <label class="flow">
-          <span class="meta">Real shipping cost (median of last 50)</span>
-          <input class="inp" id="sc-ship" type="number" min="0" step="1" value="6" />
-        </label>
-        <label class="flow">
-          <span class="meta">Average order value</span>
-          <input class="inp" id="sc-aov" type="number" min="0" step="1" value="120" />
-        </label>
-        <label class="flow">
-          <span class="meta">Monthly return rate %</span>
-          <input class="inp" id="sc-ret" type="number" min="0" max="50" step="1" value="5" />
-        </label>
-        <label class="flow">
-          <span class="meta">Gross margin per item</span>
-          <input class="inp" id="sc-margin" type="number" min="0" step="1" value="40" />
-        </label>
+      <div class="tool-actions">
+        <button class="pill pill-accent" type="button" id="sc-reset">Reset to defaults</button>
+        <button class="pill" type="button" id="sc-copy">Copy summary</button>
+        <span class="meta" id="sc-status"></span>
       </div>
     </form>
 
     <div class="card-flat flow" aria-live="polite">
-      <p class="meta"><strong>Recommendation</strong></p>
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
-        <div class="flow">
-          <span class="meta">Shipping as share of price</span>
-          <p class="post-title" id="sc-ratio">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Recommended shape</span>
-          <p class="post-title" id="sc-shape">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Threshold (if threshold shipping)</span>
-          <p class="post-title" id="sc-threshold">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Baked-in price (if free shipping)</span>
-          <p class="post-title" id="sc-baked">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Returns reserve per item</span>
-          <p class="post-title" id="sc-reserve">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">Margin after shipping</span>
-          <p class="post-title" id="sc-after">—</p>
-        </div>
+      <p class="meta"><strong>Recommendation</strong> <span id="sc-out-cur"></span></p>
+      <div class="results">
+        {
+          outIds.map(([id, kEn]) => (
+            <div class="out">
+              <p class="k">{kEn}</p>
+              <p class="v" id={'sc-' + id}>—</p>
+            </div>
+          ))
+        }
       </div>
-      <p class="meta" id="sc-note"></p>
+      <p class="meta" id="sc-verdict"></p>
     </div>
 
     <div class="prose">
-      <h2>The rules behind the numbers</h2>
+      <h2 id="trail">The arithmetic, line by line</h2>
+      <pre class="trail" id="sc-trail">ratio = shipping / price</pre>
+      <p class="meta">{t.exampleNoteEn}</p>
+
+      <h2>The formula, written out</h2>
+      <pre class="trail">{t.formulaLines.join('\n')}</pre>
+
+      <h2>How to read it</h2>
       <ul>
-        <li>Above <strong>15%</strong> of price: bake shipping into the price and show free shipping. Checkout is where the loss happens.</li>
-        <li>Below <strong>8%</strong>: charge shipping plainly, keep the displayed price low for search and comparison.</li>
-        <li>In between: a free-shipping <strong>threshold at 1.2–1.5× average order value</strong> raises order value and conversion together.</li>
-        <li>Returns reserve = return rate × two legs of shipping (outbound + return).</li>
-        <li>If margin after shipping is under 30% of price, fix pricing first — see the <a href="/tools/pricing-calculator/">pricing calculator</a>.</li>
+        <li><strong>Above 15%</strong> of price: bake shipping into the price and show free shipping. Checkout is where the loss happens.</li>
+        <li><strong>Below 8%</strong>: charge shipping plainly and keep the displayed price low for search and comparison.</li>
+        <li><strong>Between 8% and 15%</strong>: a free-shipping threshold at <strong>1.2–1.5× your own average order value</strong>.</li>
+        <li>The <strong>fee gross-up is not optional</strong>: at a 13% fee you keep 87 cents of every dollar you add, so shipping baked into price must be divided by 0.87 to land whole.</li>
+        <li>Assumption stated openly: the model charges the platform fee on the price the buyer pays, <em>including</em> shipping charged to the buyer — the common marketplace rule. If your platform fees only the item, set the fee on shipping to zero in your head and the plain-charge line rises.</li>
       </ul>
+
+      <h2>Questions makers ask</h2>
+      {
+        t.faq.map((f) => (
+          <div class="flow stack-sm">
+            <h3>{f.qEn}</h3>
+            <p>{f.aEn}</p>
+          </div>
+        ))
+      }
+
       <p class="meta">
-        Built by {brand.name} (<a href="/tools/">all tools</a>). Free to use; nothing leaves your browser.
-        Contact: <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+        Related: <a href="/tools/pricing-calculator/">pricing calculator</a> ·
+        <a href="/guides/2026-11-01-shipping-math/">shipping maths guide</a> ·
+        <a href="/guides/2026-11-01-listing-that-converts/">listing that converts</a> ·
+        <a href={`/m/tools/${t.slug}.md`}>Markdown mirror</a>
+      </p>
+      <p class="meta">
+        {brand.name} · {brand.slogan} · built by <a href="/about">{site.author}</a> ·
+        contact <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a> · nothing you type leaves this page.
       </p>
     </div>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(appLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(crumbLd)} />
   </section>
 </Base>
 
-<script is:inline>
+<script is:inline define:vars={{ toolSlug: shippingTool.slug }}>
+  const KEY = 'ok-tool-' + toolSlug;
   const el = (id) => document.getElementById(id);
-  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
-  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('en-US') : '—');
+  const ids = ['cur', 'price', 'ship', 'aov', 'ret', 'retpc', 'fee', 'margin'];
+  const defaults = {};
+  ids.forEach((k) => { const n = el('sc-' + k); if (n) defaults[k] = n.value; });
+
+  const num = (k) => { const n = el('sc-' + k); const v = n ? parseFloat(n.value) : NaN; return Number.isFinite(v) ? v : 0; };
+  const cur = () => (el('sc-cur') && el('sc-cur').value) || '$';
+  const money = (v) => (Number.isFinite(v) ? cur() + v.toFixed(2) : '—');
 
   function calc() {
-    const cur = el('sc-cur').value || '$';
-    const price = num('sc-price');
-    const ship = num('sc-ship');
-    const aov = num('sc-aov');
-    const ret = Math.max(0, Math.min(0.5, num('sc-ret') / 100));
-    const margin = num('sc-margin');
+    const fee = Math.min(0.95, Math.max(0, num('fee') / 100));
+    const retRate = Math.min(0.9, Math.max(0, num('ret') / 100));
+    const price = num('price');
+    const ship = num('ship');
+    const aov = num('aov');
+    const margin = num('margin');
+    const R = retRate * num('retpc');
 
     const ratio = price > 0 ? ship / price : 0;
-    const reserve = ship * 2 * ret;
-    const after = margin - ship - reserve;
-    const baked = price + ship + reserve;
+    const baked = fee < 1 ? (price + ship + R) / (1 - fee) : price + ship + R;
+    const bakedDelta = baked - price;
+    const bakedPct = price > 0 ? bakedDelta / price : 0;
+    const plainNet = price + ship * (1 - fee) - R;
     const low = aov * 1.2;
     const high = aov * 1.5;
+    const after = margin - ship - R;
+    const afterPct = price > 0 ? after / price : 0;
 
-    let shape = 'charge plainly';
+    let shape = 'charge shipping plainly';
     if (ratio > 0.15) shape = 'bake in, show free shipping';
-    else if (ratio >= 0.08) shape = 'threshold shipping';
+    else if (ratio >= 0.08) shape = 'free-shipping threshold';
 
+    el('sc-out-cur').textContent = '· in ' + cur();
     el('sc-ratio').textContent = (ratio * 100).toFixed(1) + '%';
     el('sc-shape').textContent = shape;
-    el('sc-threshold').textContent = aov > 0 ? fmt(low, cur) + '–' + fmt(high, cur) : '—';
-    el('sc-baked').textContent = fmt(baked, cur);
-    el('sc-reserve').textContent = fmt(reserve, cur);
-    el('sc-after').textContent = fmt(after, cur);
+    el('sc-baked').textContent = money(baked);
+    el('sc-bakeddelta').textContent = money(bakedDelta) + ' (' + (bakedPct * 100).toFixed(1) + '%)';
+    el('sc-threshold').textContent = aov > 0 ? money(low) + ' – ' + money(high) : '—';
+    el('sc-plain').textContent = money(plainNet);
+    el('sc-reserve').textContent = money(R);
+    el('sc-after').textContent = money(after) + ' (' + (afterPct * 100).toFixed(1) + '%)';
+    el('sc-flag').textContent = afterPct < 0.3 ? 'BELOW 30%' : 'above 30%';
 
-    const weak = price > 0 && after < 0.3 * price;
-    el('sc-note').textContent = weak
-      ? 'Note: margin after shipping is below 30% of price. Fix pricing before choosing a shipping shape — free shipping will not rescue a thin margin.'
-      : 'Note: recompute the median shipping from your last 50 orders each quarter; carrier rates move within a year.';
+    el('sc-trail').textContent = [
+      'ratio  = ' + ship + ' / ' + price + ' = ' + (ratio * 100).toFixed(1) + '%',
+      'R      = ' + retRate.toFixed(3) + ' x ' + num('retpc') + ' = ' + R.toFixed(2),
+      'shape  = ' + shape,
+      'baked  = (' + price + ' + ' + ship + ' + ' + R.toFixed(2) + ') / (1 - ' + fee.toFixed(3) + ') = ' + baked.toFixed(2),
+      'sticker moves by = ' + bakedDelta.toFixed(2) + ' = ' + (bakedPct * 100).toFixed(1) + '%',
+      'plain net = ' + price + ' + ' + ship + ' x (1 - ' + fee.toFixed(3) + ') - ' + R.toFixed(2) + ' = ' + plainNet.toFixed(2),
+      'threshold = ' + aov + ' x 1.2 ... 1.5 = ' + low.toFixed(2) + ' ... ' + high.toFixed(2),
+      'margin after shipping = ' + margin + ' - ' + ship + ' - ' + R.toFixed(2) + ' = ' + after.toFixed(2) + ' = ' + (afterPct * 100).toFixed(1) + '% of price',
+    ].join('\n');
+
+    const v = [];
+    if (afterPct < 0.3) v.push('The margin left after absorbing shipping and returns is ' + (afterPct * 100).toFixed(1) + '% of price — under the 30% line. Fix pricing first; no shipping shape rescues a thin margin.');
+    if (ratio > 0.15) v.push('At ' + (ratio * 100).toFixed(1) + '% of price, shipping in front of the buyer loses the sale at checkout. Baking it in moves the sticker by ' + (bakedPct * 100).toFixed(1) + '% and keeps the net whole.');
+    if (ratio >= 0.08 && ratio <= 0.15) v.push('Set the threshold at ' + money(low) + '–' + money(high) + ': below 1.2x you give shipping to buyers who would have paid, far above 1.5x they cannot reach it.');
+    if (ratio < 0.08) v.push('Shipping is small relative to price: charge it plainly, keep the displayed price low, and re-check each quarter — carrier rates move inside a year.');
+    el('sc-verdict').textContent = v.join(' ');
+
+    try {
+      const save = {};
+      ids.forEach((k) => { const n = el('sc-' + k); if (n) save[k] = n.value; });
+      localStorage.setItem(KEY, JSON.stringify(save));
+    } catch (e) { /* storage off is fine */ }
   }
 
-  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  function restore() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      const save = JSON.parse(raw);
+      ids.forEach((k) => { if (el('sc-' + k) && save[k] !== undefined) el('sc-' + k).value = save[k]; });
+    } catch (e) { /* ignore */ }
+  }
+
+  ids.forEach((k) => { const n = el('sc-' + k); if (n) n.addEventListener('input', calc); });
+  el('sc-reset').addEventListener('click', () => {
+    ids.forEach((k) => { const n = el('sc-' + k); if (n) n.value = defaults[k]; });
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    el('sc-status').textContent = 'Reset.';
+    calc();
+  });
+  el('sc-copy').addEventListener('click', () => {
+    const text = [
+      'Shipping shape — ' + new Date().toISOString().slice(0, 10),
+      'inputs: ' + ids.map((k) => k + '=' + (el('sc-' + k) ? el('sc-' + k).value : '')).join(', '),
+      'ratio ' + el('sc-ratio').textContent + ' · shape: ' + el('sc-shape').textContent,
+      'baked price ' + el('sc-baked').textContent + ' (' + el('sc-bakeddelta').textContent + ')',
+      'threshold ' + el('sc-threshold').textContent + ' · reserve ' + el('sc-reserve').textContent,
+      'margin after shipping ' + el('sc-after').textContent + ' · ' + el('sc-flag').textContent,
+      'from orangeknows.com' + toolSlug,
+    ].join('\n');
+    const done = (m) => { el('sc-status').textContent = m; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done('Summary copied.'), () => done('Copy blocked; select the arithmetic below.'));
+    else done('No clipboard here; select the arithmetic below.');
+  });
+
+  restore();
   calc();
 </script>
-
-<style>
-  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
-  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  label span { display: block; }
-</style>

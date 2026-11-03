@@ -1,39 +1,80 @@
 ---
 import Base from '../../layouts/base.astro';
-import { brand, site } from '../../lib/site';
+import { site } from '../../lib/site';
+import { tools as planned } from '../../data/services';
+import { toolList } from '../../data/tools';
 
-import { tools } from '../../data/services';
-
-const live = tools.filter((t) => t.status === 'live').map((t) => ({ name: t.nameEn, href: t.href, desc: t.descEn, status: 'live' }));
-const planned = tools.filter((t) => t.status === 'planned').map((t) => ({ name: t.nameEn, href: '', desc: t.descEn, status: 'planned' }));
-const all = [...live, ...planned];
+const live = toolList.map((t) => ({
+  name: t.nameEn,
+  href: t.href,
+  desc: t.descEn.split('. ')[0] + '.',
+  mirror: `/m/tools/${t.slug}.md`,
+  status: 'live',
+  keywords: t.keywordsEn.slice(0, 3).join(' · '),
+}));
+const rest = planned
+  .filter((t) => t.status === 'planned')
+  .map((t) => ({ name: t.nameEn, href: '', desc: t.descEn, mirror: '', status: 'planned', keywords: '' }));
+const all = [...live, ...rest];
 const navAria = site.name + ' free tools';
+const updated = '2026-11-03';
 ---
 
-<Base title="Free tools" description="Small free tools built for makers. No account, no tracking, everything runs in your browser." path="/tools" lang="en" switchHref="/zh/tools">
+<Base
+  title="Free tools for makers — pricing, shipping and holiday-season maths"
+  description="Free calculators for handmade sellers: a handmade pricing calculator (floor price with platform fees, failure rate, shipping, returns) and a shipping shape calculator (bake in, charge plainly, or threshold). No account, no tracking, runs in your browser; every formula is on the page."
+  path="/tools"
+  lang="en"
+  switchHref="/zh/tools">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
       <h1>Free tools</h1>
-      <p class="meta">Small tools we built while solving our own problems. Free, no sign-up, no tracking — the code runs in your browser.</p>
+      <p class="meta">
+        Small calculators for people who make things. No account, no tracking, everything runs in your browser —
+        the page works offline once loaded. Each tool prints its own formula and a worked example, so you can check
+        the arithmetic by hand instead of trusting a black box.
+      </p>
+      <p class="meta">
+        Updated {updated} · machine-readable mirror of every tool at <a href="/m/index.md">/m/index.md</a> ·
+        tools index mirror <a href="/m/pages/tools.md">/m/pages/tools.md</a>
+      </p>
     </header>
 
-    <div class="card-grid">
+    <nav aria-label={navAria} class="card-grid">
       {
         all.map((tool) => (
           <div class="card-flat flow stack-sm">
-            <p class="post-title">
-              {tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}
-            </p>
+            <p class="post-title">{tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}</p>
             <p>{tool.desc}</p>
-            <p class="meta mono">{tool.status === 'live' ? '● live' : '○ planned'}</p>
+            {tool.keywords && <p class="meta mono">{tool.keywords}</p>}
+            <p class="meta mono">
+              {tool.status === 'live' ? '● live' : '○ planned'}
+              {tool.mirror && <> · <a href={tool.mirror}>formula + example as Markdown</a></>}
+            </p>
           </div>
         ))
       }
+    </nav>
+
+    <div class="prose">
+      <h2>Why the formulas are on the page</h2>
+      <p>
+        A number you cannot trace is a number you cannot defend in front of a bank, a partner or your own arithmetic.
+        Every tool here lists its inputs with units, the exact formula, a worked example with the numbers filled in,
+        and the assumption it makes (for example: platform fees are taken from the price the buyer pays, including
+        shipping charged to the buyer).
+      </p>
+      <h2>What these tools do not know</h2>
+      <ul>
+        <li>Your market: they compute the floor your own numbers imply, never the price your listings can hold.</li>
+        <li>Your carriers: dimensional weight, box size and zone pricing live in the <a href="/guides/2026-11-01-shipping-math/">shipping guide</a>.</li>
+        <li>Results in the world: no tool page on this site claims a conversion, savings or revenue outcome, because we publish no number we cannot point to.</li>
+      </ul>
     </div>
 
-    <p class="meta" aria-label={navAria}>
-      Want a tool that is not here? Email <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a> with the
-      calculation you keep doing by hand. {brand.signatureEn}
+    <p class="meta">
+      {site.name} · <a href="/guides/">guides</a> · <a href="/products/">first-party products</a> ·
+      contact <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
     </p>
   </section>
 </Base>

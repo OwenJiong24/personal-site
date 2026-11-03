@@ -8,6 +8,7 @@ import { ALGORITHM, BODY_RULE, MACHINE_URLS, REPO_URL, VERIFY_STEPS } from './ch
 import { gitSha } from './build';
 import { uses } from '../data/uses';
 import { product, disclosureEn, disclosureZh } from '../data/products';
+import { toolList } from '../data/tools';
 import { billing, howIWork, notFor, offers, serviceFaq, statusNote, strengths, tools } from '../data/services';
 import { tagStats } from './tags';
 
@@ -115,9 +116,11 @@ export function mdMirrorFor(path: string): string | null {
   if (m) return `/m/${m[1]}/${m[2]}.md`;
   const prod = /^\/products\/([\w.-]+)$/.exec(clean);
   if (prod) return `/m/products/${prod[1]}.md`;
+  const tool = /^\/tools\/([\w.-]+)$/.exec(clean);
+  if (tool) return `/m/tools/${tool[1]}.md`;
   const page = clean === '/' ? 'home' : clean.slice(1);
   const known: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
-  if (clean === '/tools' || clean.startsWith('/tools/')) return '/m/pages/tools.md';
+  if (clean === '/tools') return '/m/pages/tools.md';
   return known.includes(page as PageName) ? `/m/pages/${page}.md` : null;
 }
 
@@ -217,6 +220,67 @@ export async function allDoc(root: URL): Promise<string> {
 
 export type PageName = 'home' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'products' | 'uses' | 'verify' | 'tags' | 'timeline';
 export const PAGE_NAMES: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
+
+/** 工具页的 Markdown 镜像：/m/tools/<slug>.md。公式与算例照抄，机器不跑 JS 也能核对算术。 */
+export function toolDoc(t: (typeof toolList)[number], root: URL): string {
+  const url = abs(root, '/m/tools/' + t.slug + '.md');
+  const head = docHeader(
+    `${t.nameEn} / ${t.nameZh}`,
+    root,
+    'en',
+    [
+      `tool_slug: ${t.slug}`,
+      'kind-of-page: free tool',
+      'cost: free',
+      'runs: browser-only, no data sent',
+      'tracking: none on this page',
+      'last_updated: 2026-11-03',
+      `canonical_en: ${abs(root, t.href)}`,
+      `canonical_zh: ${abs(root, '/zh' + t.href)}`,
+      `keywords: ${t.keywordsEn.join(', ')}`,
+      `关键词: ${t.keywordsZh.join('、')}`,
+    ],
+    url,
+    'markdown-tool-mirror',
+  );
+  const inputs = t.fields
+    .filter((f) => f.id !== 'pf')
+    .map((f) => `- \`${f.id}\` = ${f.value} — ${f.labEn} / ${f.labZh}${f.unitEn ? ` (${f.unitEn})` : ''}: ${f.hintEn}`);
+  return [
+    ...head,
+    `> ${t.descEn}`,
+    `> ${t.descZh}`,
+    '',
+    '## Inputs (defaults, with units) / 输入（默认值与单位）',
+    '',
+    ...inputs,
+    t.fields.some((f) => f.id === 'pf') ? `- \`pf\` = premium factor 溢价系数 2.0 (1.0–4.0)` : '',
+    '',
+    '## Formula, exactly as the page computes it / 公式（与页面计算完全一致）',
+    '',
+    '```text',
+    ...t.formulaLines,
+    '```',
+    '',
+    '```中文',
+    ...t.formulaZhLines,
+    '```',
+    '',
+    '## Worked example / 算例',
+    '',
+    t.exampleNoteEn,
+    '',
+    t.exampleNoteZh,
+    '',
+    '## FAQ / 常见问题',
+    '',
+    ...t.faq.flatMap((f) => [`**Q (en): ${f.qEn}**`, '', `A: ${f.aEn}`, '', `**Q（中文）：${f.qZh}**`, '', `答：${f.aZh}`, '']),
+    `Schema shipped on the HTML page: WebApplication (free) + FAQPage + BreadcrumbList.`,
+    `Related guides: ${abs(root, '/guides/2026-10-30-pricing-handmade')} · ${abs(root, '/guides/2026-11-01-shipping-math')}`,
+  ]
+    .filter((l) => l !== '')
+    .join('\n') + '\n';
+}
 
 /** 第一方产品页的 Markdown 镜像：/m/products/<slug>.md（数字全带观察时间，不含未验证断言）。 */
 export function productDoc(root: URL): string {

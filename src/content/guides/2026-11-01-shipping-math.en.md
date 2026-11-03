@@ -83,3 +83,17 @@ Applied to shipping: **inside someone else's algorithm, follow its comparison ru
 3. After changing, hold it for four weeks and record three numbers (visits, orders, revenue) so the next change has evidence.
 
 Related: the [handmade pricing calculator](/tools/pricing-calculator/) takes shipping and returns reserve as inputs. The next tool planned is a **platform fee and shipping comparison sheet**.
+
+---
+
+**Addendum, 2026-11-03 (UTC) — the bake-in arithmetic in section 1 is incomplete**
+
+`shipped price = floor price + shipping + returns reserve` forgets the platform fee. The fee is charged on the price the buyer pays, so the shipping you bake in is itself taxed. The complete form:
+
+```text
+baked price = (price + shipping + returns reserve) / (1 - fee)
+```
+
+On this guide's own example (price 90, shipping 6, reserve 0.60, fee 13%): the naive bake-in gives a sticker of 96.60, whose net is 96.60 x 0.87 = **84.04** — 12.56 short of the 96.60 you set out to keep. The fee-aware sticker is **111.03**, whose net is exactly 96.60. The sticker has to move 23.4% to bake in a shipping cost of 6.7% of price; that is the real cost of the "free shipping" banner.
+
+The [shipping shape calculator](/tools/shipping-calculator/) prints the baked price, the sticker movement, the net under each shape and the margin flag. Original text above unchanged, per the addendum rule.

@@ -1,169 +1,279 @@
 ---
 import Base from '../../../layouts/base.astro';
 import { brand, site } from '../../../lib/site';
+import { pricingTool } from '../../../data/tools';
+
+const t = pricingTool;
+const root = Astro.site ?? new URL('https://orangeknows.com');
+const U = (x: string) => new URL(x, root).toString();
+const outIds = [
+  ['floor', '保本价'],
+  ['price', '建议定价'],
+  ['net', '到手'],
+  ['profit', '每件盈余'],
+  ['hourly', '每生产小时盈余'],
+  ['be', '每月保本件数'],
+  ['margin', '定价下的盈余率'],
+  ['labour', '按你填的时薪已付工资'],
+] as const;
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: t.nameZh,
+  url: U('/zh' + t.href),
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any (browser)',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  browserRequirements: '实时计算需要 JavaScript；公式与算例不用 JS 也能读。',
+  inLanguage: 'zh-CN',
+  creator: { '@type': 'Person', name: site.authorZh, url: U('/zh/') },
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.faq.map((f) => ({ '@type': 'Question', name: f.qZh, acceptedAnswer: { '@type': 'Answer', text: f.aZh } })),
+};
+const crumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: U('/zh/') },
+    { '@type': 'ListItem', position: 2, name: '工具', item: U('/zh/tools') },
+    { '@type': 'ListItem', position: 3, name: t.nameZh, item: U('/zh' + t.href) },
+  ],
+};
+const updated = '2026-11-03';
 ---
 
 <Base
-  title="手作定价计算器"
-  description="免费的手作卖家定价计算器：从材料、失败率、工时、运费与平台抽成算出真正的保本价，再看溢价能带来什么。纯浏览器运行，不收集任何数据。"
-  path="/zh/tools/pricing-calculator"
+  title={t.titleTagZh}
+  description={t.descZh}
+  path={'/zh' + t.href}
   lang="zh"
-  switchHref="/tools/pricing-calculator">
+  switchHref={t.href}
+  ogType="website">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
-      <h1>手作定价计算器</h1>
-      <p class="meta">免费工具 · 不用注册、没有追踪 · 浏览器本地运行 · 配套文章：<a href="/zh/guides/2026-10-30-pricing-handmade/">手作定价指南</a></p>
+      <p class="meta">
+        <a href="/zh/tools">工具</a> · 免费 · 浏览器本地运行 · 不注册、无追踪 · 配套文章
+        <a href="/zh/guides/2026-10-30-pricing-handmade/">定价指南</a> ·
+        镜像 <a href={`/m/tools/${t.slug}.md`}>/m/tools/{t.slug}.md</a>
+      </p>
+      <h1>{t.nameZh}</h1>
+      <p class="post-title">
+        保本价不是「材料 + 工时」。它是这样的价格：到手金额正好盖住这一页替你算的全部支出——
+        <em>含失败件</em>的材料、你坚持付给自己的时薪、你承担的运费、退货成本，以及平台从买家支付价款里抽走的那一刀。
+      </p>
+      <p class="meta">
+        更新于 {updated} · 每一步算术都摊在页面上，可手算核对 · <a href="#trail">跳到算术过程</a>
+      </p>
     </header>
 
-    <div class="card-flat flow">
-      <p>
-        多数手作卖家只算"材料 + 工时"，所以定价永远贴着地皮。这个工具把六件常被漏掉的东西算进去：辅料、包装、失败率、
-        平台抽成、运费与退换，并且直接告诉你——你的工时最后每小时值多少钱。
-      </p>
-    </div>
-
-    <form class="card-flat flow" onsubmit="return false" aria-label="定价输入">
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
-        <label class="flow">
-          <span class="meta">货币符号</span>
-          <input class="inp" id="pc-cur" type="text" value="¥" maxlength="3" />
-        </label>
-        <label class="flow">
-          <span class="meta">主料成本</span>
-          <input class="inp" id="pc-mat" type="number" min="0" step="1" value="60" />
-        </label>
-        <label class="flow">
-          <span class="meta">辅料 + 包装</span>
-          <input class="inp" id="pc-extra" type="number" min="0" step="1" value="15" />
-        </label>
-        <label class="flow">
-          <span class="meta">失败率 %</span>
-          <input class="inp" id="pc-fail" type="number" min="0" max="90" step="1" value="20" />
-        </label>
-        <label class="flow">
-          <span class="meta">每件总工时</span>
-          <input class="inp" id="pc-hours" type="number" min="0" step="0.5" value="4" />
-        </label>
-        <label class="flow">
-          <span class="meta">你的时薪</span>
-          <input class="inp" id="pc-rate" type="number" min="0" step="5" value="80" />
-        </label>
-        <label class="flow">
-          <span class="meta">你承担的运费</span>
-          <input class="inp" id="pc-ship" type="number" min="0" step="1" value="20" />
-        </label>
-        <label class="flow">
-          <span class="meta">退换预留</span>
-          <input class="inp" id="pc-returns" type="number" min="0" step="1" value="10" />
-        </label>
-        <label class="flow">
-          <span class="meta">平台 + 支付抽成 %</span>
-          <input class="inp" id="pc-fee" type="number" min="0" max="60" step="1" value="13" />
-        </label>
+    <form class="card-flat flow" onsubmit="return false" autocomplete="off">
+      <div class="tool-grid">
+        {
+          t.fields.map((f) =>
+            f.id === 'pf' ? (
+              <label class="field">
+                <span class="lab">{f.labZh}：<strong id="pc-pf-label">2.0×</strong></span>
+                <input class="inp" id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" aria-describedby="pc-pf-hint" />
+                <span class="hint" id="pc-pf-hint">{f.hintZh}</span>
+              </label>
+            ) : (
+              <label class="field">
+                <span class="lab">{f.labZh}</span>
+                <span class="row">
+                  <input
+                    class="inp"
+                    id={'pc-' + f.id}
+                    type="number"
+                    inputmode="decimal"
+                    min={f.min}
+                    max={f.max}
+                    step={f.step}
+                    value={f.value}
+                    aria-describedby={'pc-' + f.id + '-hint'}
+                  />
+                  {f.unitZh && <span class="unit">{f.unitZh}</span>}
+                </span>
+                <span class="hint" id={'pc-' + f.id + '-hint'}>{f.hintZh}</span>
+              </label>
+            ),
+          )
+        }
       </div>
 
-      <label class="flow">
-        <span class="meta">溢价系数：<strong id="pc-pf-label">2.0×</strong></span>
-        <input id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" />
-      </label>
+      <div class="tool-actions">
+        <button class="pill pill-accent" type="button" id="pc-reset">恢复默认</button>
+        <button class="pill" type="button" id="pc-copy">复制摘要</button>
+        <span class="meta" id="pc-status"></span>
+      </div>
     </form>
 
     <div class="card-flat flow" aria-live="polite">
       <p class="meta"><strong>结果</strong> <span id="pc-out-cur"></span></p>
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
-        <div class="flow">
-          <span class="meta">保本价（再低就亏）</span>
-          <p class="post-title" id="pc-floor">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">建议售价</span>
-          <p class="post-title" id="pc-price">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">扣抽成后到手</span>
-          <p class="post-title" id="pc-net">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">高于保本价的利润</span>
-          <p class="post-title" id="pc-profit">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">你的工时实际值</span>
-          <p class="post-title" id="pc-hourly">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">月度固定开销需要几件</span>
-          <p class="post-title" id="pc-be">—</p>
-        </div>
+      <div class="results">
+        {
+          outIds.map(([id, k]) => (
+            <div class="out">
+              <p class="k">{k}</p>
+              <p class="v" id={'pc-' + id}>—</p>
+            </div>
+          ))
+        }
       </div>
       <p class="meta" id="pc-verdict"></p>
     </div>
 
     <div class="prose">
-      <h2>算法一句话</h2>
-      <p>
-        材料与辅料按你的成功率摊销，工时按你声称的时薪计价，再加上运费与退换预留，最后乘溢价系数；平台抽成用<b>除法</b>
-        还原，因为它是对成交价收取的，不是对成本收取的。
-      </p>
-      <pre class="mono">保本价 = ((主料 + 辅料) / (1 - 失败率) + 工时 × 时薪 + 运费 + 退换) / (1 - 抽成)
-售价   = 保本价 × 溢价系数</pre>
-      <h2>怎么读结果</h2>
+      <h2 id="trail">算术过程，逐行摊开</h2>
+      <pre class="trail" id="pc-trail">u = 1 / (1 - 失败率)</pre>
+      <p class="meta">{t.exampleNoteZh}</p>
+
+      <h2>公式（写全）</h2>
+      <pre class="trail">{t.formulaZhLines.join('\n')}</pre>
+
+      <h2>怎么读这些数</h2>
       <ul>
-        <li><strong>你的工时实际值</strong>是最诚实的数字：扣掉一切之后，你的劳动每小时还剩多少。低于你填的时薪，说明这件产品撑不起你要的溢价。</li>
-        <li>手作常见的溢价系数是 1.5–3 倍；超过 3 倍，你需要一个买家能替你对别人讲出来的故事。</li>
-        <li>工具不认识你的市场。它只给你一条守得住的底线，上限由你判断。</li>
+        <li><strong>每生产小时盈余</strong>才是诚实的那个数，它不等于你的时薪：成本里已经按你填的时薪付过工资，这是溢价在工资之上多出来的部分。</li>
+        <li>在这个成本口径下，溢价系数 <strong>1.5–3</strong> 常见。超过 3，买家需要能转述给别人听的叙事。</li>
+        <li>工具不知道你的市场：它只用你自己的数字给出保本价。这个价要和已经在卖的同款去比。</li>
+        <li><strong>失败率是手作人的隐形税。</strong>30% 失败率不只多花 30% 材料，也多烧 30% 工时；定价偏低多半从这一步开始。</li>
       </ul>
+
+      <h2>卖家会问的问题</h2>
+      {
+        t.faq.map((f) => (
+          <div class="flow stack-sm">
+            <h3>{f.qZh}</h3>
+            <p>{f.aZh}</p>
+          </div>
+        ))
+      }
+
       <p class="meta">
-        由 {brand.name} 制作（<a href="/zh/tools/">全部工具</a>）。免费使用，数据不出你的浏览器。
-        联系：<a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+        相关：<a href="/zh/tools/shipping-calculator/">运费收法计算器</a> ·
+        <a href="/zh/guides/2026-10-30-pricing-handmade/">定价指南</a> ·
+        <a href="/zh/guides/2026-11-02-custom-order-math/">定制报价算术</a> ·
+        <a href={`/m/tools/${t.slug}.md`}>Markdown 镜像</a>
+      </p>
+      <p class="meta">
+        {brand.name} · {brand.sloganZh} · 作者 <a href="/zh/about">{site.authorZh}</a> ·
+        联系 <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a> · 你输入的内容不出本机。
       </p>
     </div>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(appLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(crumbLd)} />
   </section>
 </Base>
 
-<script is:inline>
+<script is:inline define:vars={{ toolSlug: pricingTool.slug }}>
+  const KEY = 'ok-tool-' + toolSlug;
   const el = (id) => document.getElementById(id);
-  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
-  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('zh-CN') : '—');
+  const ids = ['cur', 'mat', 'extra', 'fail', 'hours', 'rate', 'ship', 'ret', 'retpc', 'fee', 'fixed', 'pf'];
+  const defaults = {};
+  ids.forEach((k) => { const n = el('pc-' + k); if (n) defaults[k] = n.value; });
+
+  const num = (k) => { const n = el('pc-' + k); const v = n ? parseFloat(n.value) : NaN; return Number.isFinite(v) ? v : 0; };
+  const cur = () => (el('pc-cur') && el('pc-cur').value) || '¥';
+  const money = (v) => (Number.isFinite(v) ? cur() + v.toFixed(2) : '—');
 
   function calc() {
-    const cur = el('pc-cur').value || '¥';
-    const mat = num('pc-mat') + num('pc-extra');
-    const fail = Math.min(0.9, Math.max(0, num('pc-fail') / 100));
-    const hours = num('pc-hours');
-    const rate = num('pc-rate');
-    const ship = num('pc-ship') + num('pc-returns');
-    const fee = Math.min(0.6, Math.max(0, num('pc-fee') / 100));
-    const pf = num('pc-pf');
+    const fail = Math.min(0.9, Math.max(0, num('fail') / 100));
+    const fee = Math.min(0.95, Math.max(0, num('fee') / 100));
+    const retRate = Math.min(0.9, Math.max(0, num('ret') / 100));
+    const hours = num('hours');
+    const rate = num('rate');
+    const pf = Math.max(0.1, num('pf'));
 
-    const direct = mat / (1 - fail) + hours * rate + ship;
-    const floor = fee < 1 ? direct / (1 - fee) : direct;
+    const u = 1 / (1 - fail);
+    const M = (num('mat') + num('extra')) * u;
+    const L = hours * rate * u;
+    const S = num('ship');
+    const R = retRate * num('retpc');
+    const C = M + L + S + R;
+    const floor = fee < 1 ? C / (1 - fee) : C;
     const price = floor * pf;
     const net = price * (1 - fee);
-    const profit = net - direct;
-    const eff = hours > 0 ? (net - (mat / (1 - fail) + ship)) / hours : 0;
+    const profit = net - C;
+    const prodHours = hours * u;
+    const surplusPerHour = prodHours > 0 ? profit / prodHours : 0;
+    const fixed = num('fixed');
+    const be = profit > 0 ? Math.ceil(fixed / profit) : Infinity;
+    const marginPct = price > 0 ? profit / price : 0;
 
     el('pc-pf-label').textContent = pf.toFixed(1) + '×';
-    el('pc-out-cur').textContent = '（单位 ' + cur + '）';
-    el('pc-floor').textContent = fmt(floor, cur);
-    el('pc-price').textContent = fmt(price, cur);
-    el('pc-net').textContent = fmt(net, cur);
-    el('pc-profit').textContent = fmt(profit, cur);
-    el('pc-hourly').textContent = fmt(eff, cur) + '/小时';
+    el('pc-out-cur').textContent = '· 单位 ' + cur();
+    el('pc-floor').textContent = money(floor);
+    el('pc-price').textContent = money(price);
+    el('pc-net').textContent = money(net);
+    el('pc-profit').textContent = money(profit);
+    el('pc-hourly').textContent = money(surplusPerHour) + '/小时';
+    el('pc-be').textContent = Number.isFinite(be) ? String(be) + ' 件' : '∞';
+    el('pc-margin').textContent = (marginPct * 100).toFixed(1) + '%';
+    el('pc-labour').textContent = money(L);
 
-    const fixed = 200;
-    el('pc-be').textContent = profit > 0 ? Math.ceil(fixed / profit) + ' 件（按每月 ' + cur + fixed + ' 固定开销）' : '∞';
-    el('pc-verdict').textContent = eff < rate
-      ? '判断：这个价你的劳动只值 ' + fmt(eff, cur) + '/小时，低于你填的 ' + fmt(rate, cur) + '/小时。要么溢价系数给低了，要么这件产品撑不起这个溢价。'
-      : '判断：这个价付得起你声称的时薪，每件还剩 ' + fmt(profit, cur) + '。';
+    el('pc-trail').textContent = [
+      'u     = 1 / (1 - ' + fail.toFixed(3) + ') = ' + u.toFixed(3),
+      'M     = (' + num('mat') + ' + ' + num('extra') + ') x ' + u.toFixed(3) + ' = ' + M.toFixed(2),
+      'L     = ' + hours + ' x ' + rate + ' x ' + u.toFixed(3) + ' = ' + L.toFixed(2),
+      'S     = ' + S.toFixed(2),
+      'R     = ' + retRate.toFixed(3) + ' x ' + num('retpc') + ' = ' + R.toFixed(2),
+      'C     = ' + M.toFixed(2) + ' + ' + L.toFixed(2) + ' + ' + S.toFixed(2) + ' + ' + R.toFixed(2) + ' = ' + C.toFixed(2),
+      '保本价 = ' + C.toFixed(2) + ' / (1 - ' + fee.toFixed(3) + ') = ' + floor.toFixed(2),
+      '定价 = ' + floor.toFixed(2) + ' x ' + pf.toFixed(1) + ' = ' + price.toFixed(2),
+      '到手 = ' + price.toFixed(2) + ' x (1 - ' + fee.toFixed(3) + ') = ' + net.toFixed(2),
+      '盈余 = ' + net.toFixed(2) + ' - ' + C.toFixed(2) + ' = ' + profit.toFixed(2),
+      '每小时盈余 = ' + profit.toFixed(2) + ' / (' + hours + ' x ' + u.toFixed(3) + ') = ' + surplusPerHour.toFixed(2),
+      '保本件数 = ' + fixed + ' / ' + profit.toFixed(2) + ' = ' + (Number.isFinite(be) ? be : '无穷'),
+    ].join('\n');
+
+    const v = [];
+    if (profit <= 0) v.push('溢价 ' + pf.toFixed(1) + '× 时价格不产生盈余：只够付成本和你自己的工资，盖不住你填的固定开销。');
+    if (marginPct > 0 && marginPct < 0.3) v.push('盈余率 ' + (marginPct * 100).toFixed(1) + '% 太薄：运价一波动就归零。问题在定价，不在运费收法。');
+    if (fail >= 0.25) v.push('失败率 ' + (fail * 100).toFixed(0) + '%：卖 1 件要做 ' + u.toFixed(2) + ' 件的材料与工时。先降失败率比涨价更值钱。');
+    if (!v.length) v.push('成本里已按 ' + money(rate) + '/小时 付过工资；溢价在其上再加 ' + money(surplusPerHour) + '/小时。' + (Number.isFinite(be) ? '每月卖 ' + be + ' 件即可覆盖 ' + cur() + fixed + ' 固定开销。' : '提高溢价系数才能覆盖固定开销。'));
+    el('pc-verdict').textContent = v.join(' ');
+
+    try {
+      const save = {};
+      ids.forEach((k) => { const n = el('pc-' + k); if (n) save[k] = n.value; });
+      localStorage.setItem(KEY, JSON.stringify(save));
+    } catch (e) { /* 存不了也不影响计算 */ }
   }
 
-  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  function restore() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      const save = JSON.parse(raw);
+      ids.forEach((k) => { if (el('pc-' + k) && save[k] !== undefined) el('pc-' + k).value = save[k]; });
+    } catch (e) { /* 忽略坏数据 */ }
+  }
+
+  ids.forEach((k) => { const n = el('pc-' + k); if (n) n.addEventListener('input', calc); });
+  el('pc-reset').addEventListener('click', () => {
+    ids.forEach((k) => { const n = el('pc-' + k); if (n) n.value = defaults[k]; });
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    el('pc-status').textContent = '已恢复默认。';
+    calc();
+  });
+  el('pc-copy').addEventListener('click', () => {
+    const text = [
+      '手作定价 — ' + new Date().toISOString().slice(0, 10),
+      '输入：' + ids.map((k) => k + '=' + (el('pc-' + k) ? el('pc-' + k).value : '')).join('、'),
+      '保本价 ' + el('pc-floor').textContent + ' · 定价 ' + el('pc-price').textContent,
+      '到手 ' + el('pc-net').textContent + ' · 每件盈余 ' + el('pc-profit').textContent,
+      '每生产小时盈余 ' + el('pc-hourly').textContent + ' · 保本件数 ' + el('pc-be').textContent,
+      '来自 orangeknows.com' + toolSlug,
+    ].join('\n');
+    const done = (m) => { el('pc-status').textContent = m; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done('摘要已复制。'), () => done('浏览器拦了剪贴板，请手动选择下方算术过程。'));
+    else done('这个浏览器没有剪贴板接口，请手动选择下方算术过程。');
+  });
+
+  restore();
   calc();
 </script>
-
-<style>
-  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
-  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  label span { display: block; }
-</style>

@@ -1,148 +1,267 @@
 ---
 import Base from '../../../layouts/base.astro';
 import { brand, site } from '../../../lib/site';
+import { shippingTool } from '../../../data/tools';
+
+const t = shippingTool;
+const root = Astro.site ?? new URL('https://orangeknows.com');
+const U = (x: string) => new URL(x, root).toString();
+const outIds = [
+  ['ratio', '运费占售价'],
+  ['shape', '建议收法'],
+  ['baked', '摊进价（含抽成）'],
+  ['bakeddelta', '标价变动'],
+  ['threshold', '包邮门槛'],
+  ['plain', '单列实收的到手'],
+  ['reserve', '每件退换预留'],
+  ['after', '扣运费后毛利'],
+  ['flag', '与 30% 警戒线'],
+] as const;
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: t.nameZh,
+  url: U('/zh' + t.href),
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any (browser)',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  browserRequirements: '实时计算需要 JavaScript；公式与算例不用 JS 也能读。',
+  inLanguage: 'zh-CN',
+  creator: { '@type': 'Person', name: site.authorZh, url: U('/zh/') },
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.faq.map((f) => ({ '@type': 'Question', name: f.qZh, acceptedAnswer: { '@type': 'Answer', text: f.aZh } })),
+};
+const crumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: U('/zh/') },
+    { '@type': 'ListItem', position: 2, name: '工具', item: U('/zh/tools') },
+    { '@type': 'ListItem', position: 3, name: t.nameZh, item: U('/zh' + t.href) },
+  ],
+};
+const updated = '2026-11-03';
 ---
 
 <Base
-  title="运费收法计算器"
-  description="免费工具：用运费占售价的比例，决定手作卖家该把运费摊进价、单列实收，还是设包邮门槛；并给出门槛金额与退换预留。浏览器本地运行，无追踪。"
-  path="/zh/tools/shipping-calculator"
+  title={t.titleTagZh}
+  description={t.descZh}
+  path={'/zh' + t.href}
   lang="zh"
-  switchHref="/tools/shipping-calculator">
+  switchHref={t.href}
+  ogType="website">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
-      <h1>运费收法计算器</h1>
       <p class="meta">
-        免费工具 · 不注册、无追踪 · 浏览器本地运行 · 配套文章：<a href="/zh/guides/2026-11-01-shipping-math/">运费算术指南</a>
+        <a href="/zh/tools">工具</a> · 免费 · 浏览器本地运行 · 配套文章
+        <a href="/zh/guides/2026-11-01-shipping-math/">运费算术指南</a> ·
+        镜像 <a href={`/m/tools/${t.slug}.md`}>/m/tools/{t.slug}.md</a>
       </p>
+      <h1>{t.nameZh}</h1>
+      <p class="post-title">
+        运费只有三种收法，由一个数决定哪种赢——<strong>运费占售价的比例</strong>。
+        如果要摊进价，必须把平台抽成一起放大：否则你在自己垫的运费上又被抽一刀，差额静悄悄丢掉。
+      </p>
+      <p class="meta">更新于 {updated} · 每一步算术都摊在页面上 · <a href="#trail">跳到算术过程</a></p>
     </header>
 
-    <div class="card-flat flow">
-      <p>
-        运费只有三种收法，选哪种由一个数决定——<strong>运费占售价的比例</strong>；如果走门槛包邮，还由平均客单价决定。请填你最近订单的真实数字。
-      </p>
-    </div>
+    <form class="card-flat flow" onsubmit="return false" autocomplete="off">
+      <div class="tool-grid">
+        {
+          t.fields.map((f) => (
+            <label class="field">
+              <span class="lab">{f.labZh}</span>
+              <span class="row">
+                <input
+                  class="inp"
+                  id={'sc-' + f.id}
+                  type="number"
+                  inputmode="decimal"
+                  min={f.min}
+                  max={f.max}
+                  step={f.step}
+                  value={f.value}
+                  aria-describedby={'sc-' + f.id + '-hint'}
+                />
+                {f.unitZh && <span class="unit">{f.unitZh}</span>}
+              </span>
+              <span class="hint" id={'sc-' + f.id + '-hint'}>{f.hintZh}</span>
+            </label>
+          ))
+        }
+      </div>
 
-    <form class="card-flat flow" onsubmit="return false" aria-label="运费输入">
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
-        <label class="flow">
-          <span class="meta">货币符号</span>
-          <input class="inp" id="sc-cur" type="text" value="¥" maxlength="3" />
-        </label>
-        <label class="flow">
-          <span class="meta">商品售价</span>
-          <input class="inp" id="sc-price" type="number" min="0" step="1" value="90" />
-        </label>
-        <label class="flow">
-          <span class="meta">真实运费（最近 50 单中位数）</span>
-          <input class="inp" id="sc-ship" type="number" min="0" step="1" value="6" />
-        </label>
-        <label class="flow">
-          <span class="meta">平均客单价</span>
-          <input class="inp" id="sc-aov" type="number" min="0" step="1" value="120" />
-        </label>
-        <label class="flow">
-          <span class="meta">月退货率 %</span>
-          <input class="inp" id="sc-ret" type="number" min="0" max="50" step="1" value="5" />
-        </label>
-        <label class="flow">
-          <span class="meta">单件毛利</span>
-          <input class="inp" id="sc-margin" type="number" min="0" step="1" value="40" />
-        </label>
+      <div class="tool-actions">
+        <button class="pill pill-accent" type="button" id="sc-reset">恢复默认</button>
+        <button class="pill" type="button" id="sc-copy">复制摘要</button>
+        <span class="meta" id="sc-status"></span>
       </div>
     </form>
 
     <div class="card-flat flow" aria-live="polite">
-      <p class="meta"><strong>建议</strong></p>
-      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
-        <div class="flow">
-          <span class="meta">运费占售价比例</span>
-          <p class="post-title" id="sc-ratio">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">建议收法</span>
-          <p class="post-title" id="sc-shape">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">包邮门槛（门槛法）</span>
-          <p class="post-title" id="sc-threshold">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">摊进价后的标价（包邮法）</span>
-          <p class="post-title" id="sc-baked">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">每件退换预留</span>
-          <p class="post-title" id="sc-reserve">—</p>
-        </div>
-        <div class="flow">
-          <span class="meta">扣运费后毛利</span>
-          <p class="post-title" id="sc-after">—</p>
-        </div>
+      <p class="meta"><strong>建议</strong> <span id="sc-out-cur"></span></p>
+      <div class="results">
+        {
+          outIds.map(([id, k]) => (
+            <div class="out">
+              <p class="k">{k}</p>
+              <p class="v" id={'sc-' + id}>—</p>
+            </div>
+          ))
+        }
       </div>
-      <p class="meta" id="sc-note"></p>
+      <p class="meta" id="sc-verdict"></p>
     </div>
 
     <div class="prose">
-      <h2>数字背后的规则</h2>
+      <h2 id="trail">算术过程，逐行摊开</h2>
+      <pre class="trail" id="sc-trail">比例 = 运费 / 售价</pre>
+      <p class="meta">{t.exampleNoteZh}</p>
+
+      <h2>公式（写全）</h2>
+      <pre class="trail">{t.formulaZhLines.join('\n')}</pre>
+
+      <h2>怎么读这些数</h2>
       <ul>
         <li>超过售价 <strong>15%</strong>：把运费摊进价并显示包邮——流失发生在结账页。</li>
         <li>低于 <strong>8%</strong>：单列实收，保持标价低，搜索与比价场景占优。</li>
-        <li>中间区间：设<strong>门槛 = 平均客单价的 1.2–1.5 倍</strong>，同时抬客单价与转化。</li>
-        <li>退换预留 = 退货率 × 两个单程运费（发出 + 退回）。</li>
-        <li>扣运费后毛利不足售价 30%：先修定价——用<a href="/zh/tools/pricing-calculator/">定价计算器</a>。</li>
+        <li><strong>8%–15%</strong> 之间：门槛设在你自己平均客单价的 <strong>1.2–1.5 倍</strong>。</li>
+        <li><strong>抽成放大不是可选项</strong>：13% 抽成下，你加进去的每一块钱只留下 87 分，所以摊进价的运费要除以 0.87 才能足额到手。</li>
+        <li>口径写在明处：模型按买家支付的价款抽成，<em>包含</em>向买家收的运费（主流平台规则）。若你的平台只对商品抽成，单列实收那一行的到手会更高。</li>
       </ul>
+
+      <h2>卖家会问的问题</h2>
+      {
+        t.faq.map((f) => (
+          <div class="flow stack-sm">
+            <h3>{f.qZh}</h3>
+            <p>{f.aZh}</p>
+          </div>
+        ))
+      }
+
       <p class="meta">
-        由 {brand.name} 制作（<a href="/zh/tools/">全部工具</a>）。免费使用，数据不出你的浏览器。
-        联系：<a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+        相关：<a href="/zh/tools/pricing-calculator/">定价计算器</a> ·
+        <a href="/zh/guides/2026-11-01-shipping-math/">运费算术指南</a> ·
+        <a href="/zh/guides/2026-11-01-listing-that-converts/">能转化的 listing</a> ·
+        <a href={`/m/tools/${t.slug}.md`}>Markdown 镜像</a>
+      </p>
+      <p class="meta">
+        {brand.name} · {brand.sloganZh} · 作者 <a href="/zh/about">{site.authorZh}</a> ·
+        联系 <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a> · 你输入的内容不出本机。
       </p>
     </div>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(appLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(crumbLd)} />
   </section>
 </Base>
 
-<script is:inline>
+<script is:inline define:vars={{ toolSlug: shippingTool.slug }}>
+  const KEY = 'ok-tool-' + toolSlug;
   const el = (id) => document.getElementById(id);
-  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
-  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('zh-CN') : '—');
+  const ids = ['cur', 'price', 'ship', 'aov', 'ret', 'retpc', 'fee', 'margin'];
+  const defaults = {};
+  ids.forEach((k) => { const n = el('sc-' + k); if (n) defaults[k] = n.value; });
+
+  const num = (k) => { const n = el('sc-' + k); const v = n ? parseFloat(n.value) : NaN; return Number.isFinite(v) ? v : 0; };
+  const cur = () => (el('sc-cur') && el('sc-cur').value) || '¥';
+  const money = (v) => (Number.isFinite(v) ? cur() + v.toFixed(2) : '—');
 
   function calc() {
-    const cur = el('sc-cur').value || '¥';
-    const price = num('sc-price');
-    const ship = num('sc-ship');
-    const aov = num('sc-aov');
-    const ret = Math.max(0, Math.min(0.5, num('sc-ret') / 100));
-    const margin = num('sc-margin');
+    const fee = Math.min(0.95, Math.max(0, num('fee') / 100));
+    const retRate = Math.min(0.9, Math.max(0, num('ret') / 100));
+    const price = num('price');
+    const ship = num('ship');
+    const aov = num('aov');
+    const margin = num('margin');
+    const R = retRate * num('retpc');
 
     const ratio = price > 0 ? ship / price : 0;
-    const reserve = ship * 2 * ret;
-    const after = margin - ship - reserve;
-    const baked = price + ship + reserve;
+    const baked = fee < 1 ? (price + ship + R) / (1 - fee) : price + ship + R;
+    const bakedDelta = baked - price;
+    const bakedPct = price > 0 ? bakedDelta / price : 0;
+    const plainNet = price + ship * (1 - fee) - R;
     const low = aov * 1.2;
     const high = aov * 1.5;
+    const after = margin - ship - R;
+    const afterPct = price > 0 ? after / price : 0;
 
     let shape = '单列实收';
     if (ratio > 0.15) shape = '摊进售价，显示包邮';
     else if (ratio >= 0.08) shape = '门槛包邮';
 
+    el('sc-out-cur').textContent = '· 单位 ' + cur();
     el('sc-ratio').textContent = (ratio * 100).toFixed(1) + '%';
     el('sc-shape').textContent = shape;
-    el('sc-threshold').textContent = aov > 0 ? fmt(low, cur) + '–' + fmt(high, cur) : '—';
-    el('sc-baked').textContent = fmt(baked, cur);
-    el('sc-reserve').textContent = fmt(reserve, cur);
-    el('sc-after').textContent = fmt(after, cur);
+    el('sc-baked').textContent = money(baked);
+    el('sc-bakeddelta').textContent = money(bakedDelta) + '（' + (bakedPct * 100).toFixed(1) + '%）';
+    el('sc-threshold').textContent = aov > 0 ? money(low) + ' – ' + money(high) : '—';
+    el('sc-plain').textContent = money(plainNet);
+    el('sc-reserve').textContent = money(R);
+    el('sc-after').textContent = money(after) + '（' + (afterPct * 100).toFixed(1) + '%）';
+    el('sc-flag').textContent = afterPct < 0.3 ? '低于 30%' : '高于 30%';
 
-    const weak = price > 0 && after < 0.3 * price;
-    el('sc-note').textContent = weak
-      ? '提示：扣运费后毛利已低于售价 30%。先修定价，再选运费收法——包邮救不了薄毛利。'
-      : '提示：每季度用最近 50 单重算运费中位数，承运商单价一年内会变。';
+    el('sc-trail').textContent = [
+      '比例 = ' + ship + ' / ' + price + ' = ' + (ratio * 100).toFixed(1) + '%',
+      'R    = ' + retRate.toFixed(3) + ' x ' + num('retpc') + ' = ' + R.toFixed(2),
+      '收法 = ' + shape,
+      '摊进价 = (' + price + ' + ' + ship + ' + ' + R.toFixed(2) + ') / (1 - ' + fee.toFixed(3) + ') = ' + baked.toFixed(2),
+      '标价变动 = ' + bakedDelta.toFixed(2) + ' = ' + (bakedPct * 100).toFixed(1) + '%',
+      '单列实收到手 = ' + price + ' + ' + ship + ' x (1 - ' + fee.toFixed(3) + ') - ' + R.toFixed(2) + ' = ' + plainNet.toFixed(2),
+      '门槛 = ' + aov + ' x 1.2 ... 1.5 = ' + low.toFixed(2) + ' ... ' + high.toFixed(2),
+      '扣运费后毛利 = ' + margin + ' - ' + ship + ' - ' + R.toFixed(2) + ' = ' + after.toFixed(2) + ' = 售价的 ' + (afterPct * 100).toFixed(1) + '%',
+    ].join('\n');
+
+    const v = [];
+    if (afterPct < 0.3) v.push('承担运费与退货后剩余毛利只有售价的 ' + (afterPct * 100).toFixed(1) + '%，在 30% 线以下。先修定价——任何运费收法都救不了薄毛利。');
+    if (ratio > 0.15) v.push('运费占售价 ' + (ratio * 100).toFixed(1) + '%：把运费摆在买家面前会在结账页丢单。摊进价让标价上涨 ' + (bakedPct * 100).toFixed(1) + '%，到手保持完整。');
+    if (ratio >= 0.08 && ratio <= 0.15) v.push('门槛定在 ' + money(low) + '–' + money(high) + '：低于 1.2 倍等于把运费白送给本来就会买的客人，远高于 1.5 倍买家够不着。');
+    if (ratio < 0.08) v.push('运费相对售价很小：单列实收，保持标价低，每季度复核——承运商单价一年内会变。');
+    el('sc-verdict').textContent = v.join(' ');
+
+    try {
+      const save = {};
+      ids.forEach((k) => { const n = el('sc-' + k); if (n) save[k] = n.value; });
+      localStorage.setItem(KEY, JSON.stringify(save));
+    } catch (e) { /* 存不了也不影响计算 */ }
   }
 
-  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  function restore() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      const save = JSON.parse(raw);
+      ids.forEach((k) => { if (el('sc-' + k) && save[k] !== undefined) el('sc-' + k).value = save[k]; });
+    } catch (e) { /* 忽略坏数据 */ }
+  }
+
+  ids.forEach((k) => { const n = el('sc-' + k); if (n) n.addEventListener('input', calc); });
+  el('sc-reset').addEventListener('click', () => {
+    ids.forEach((k) => { const n = el('sc-' + k); if (n) n.value = defaults[k]; });
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    el('sc-status').textContent = '已恢复默认。';
+    calc();
+  });
+  el('sc-copy').addEventListener('click', () => {
+    const text = [
+      '运费收法 — ' + new Date().toISOString().slice(0, 10),
+      '输入：' + ids.map((k) => k + '=' + (el('sc-' + k) ? el('sc-' + k).value : '')).join('、'),
+      '比例 ' + el('sc-ratio').textContent + ' · 收法：' + el('sc-shape').textContent,
+      '摊进价 ' + el('sc-baked').textContent + '（' + el('sc-bakeddelta').textContent + '）',
+      '门槛 ' + el('sc-threshold').textContent + ' · 每件退换预留 ' + el('sc-reserve').textContent,
+      '扣运费后毛利 ' + el('sc-after').textContent + ' · ' + el('sc-flag').textContent,
+      '来自 orangeknows.com' + toolSlug,
+    ].join('\n');
+    const done = (m) => { el('sc-status').textContent = m; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done('摘要已复制。'), () => done('浏览器拦了剪贴板，请手动选择下方算术过程。'));
+    else done('这个浏览器没有剪贴板接口，请手动选择下方算术过程。');
+  });
+
+  restore();
   calc();
 </script>
-
-<style>
-  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
-  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  label span { display: block; }
-</style>

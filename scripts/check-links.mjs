@@ -115,7 +115,12 @@ if (existsSync(smIndex)) {
 }
 
 // 3) 关键产物与首页完整性
-for (const need of ['index.html', '404.html', 'rss.xml', join('zh', 'rss.xml'), 'llms.txt', 'llms-full.txt', 'chain.json', 'sitemap-index.xml', 'favicon.svg', '_headers', '_redirects']) {
+for (const need of [
+  'index.html', '404.html', 'rss.xml', join('zh', 'rss.xml'), 'llms.txt', 'llms-full.txt', 'chain.json', 'sitemap-index.xml',
+  'favicon.svg', 'favicon.ico', 'favicon-16.png', 'favicon-32.png', 'favicon-48.png',
+  'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'maskable-icon-512.png', 'logo-512.png', 'site.webmanifest',
+  '_headers', '_redirects',
+]) {
   if (!existsSync(join(DIST, need))) problems.push(`缺关键产物: ${need}`);
 }
 const home = readFileSync(join(DIST, 'index.html'), 'utf8');
@@ -125,7 +130,23 @@ for (const [label, re] of [
   ['首页缺 og:image', /property="og:image"/],
   ['首页缺 JSON-LD', /application\/ld\+json/],
   ['首页缺到中文站的语言开关', /href="\/zh\/"/],
+  ['head 缺 favicon.ico 声明', /rel="shortcut icon"[^>]*favicon\.ico/],
+  ['head 缺 apple-touch-icon 声明', /rel="apple-touch-icon"/],
+  ['head 缺 webmanifest 声明', /rel="manifest"[^>]*site\.webmanifest/],
+  ['head 缺 theme-color', /name="theme-color"/],
+  ['og:image 尺寸与实际 2400x1260 不符', /og:image:width" content="2400"[\s\S]{0,80}og:image:height" content="1260"/],
+  ['首页 JSON-LD 缺 Organization 实体', /"@type":"Organization"/],
+  ['首页 JSON-LD 缺 logo 字段', /"logo":\{"@type":"ImageObject"/],
+  ['首页 JSON-LD 缺 sameAs 共指', /"sameAs":\[/],
 ]) if (!re.test(home)) problems.push(`完整性: ${label}`);
+
+// 3b) 文章页 publisher 必须是 Organization（带 logo），不能是 Person（Google 文章富结果要求）
+const articleShells = files.filter((f) => /\\(journal|essays|guides|notes|projects)\\.+\\index\.html$/.test(f));
+for (const f of articleShells) {
+  const t = readFileSync(f, 'utf8');
+  if (/"publisher":\{"@type":"Person"/.test(t)) add(f.replace(DIST, ''), '/about', 'publisher 写成了 Person');
+  if (!/"publisher":\{"@type":"Organization"/.test(t)) add(f.replace(DIST, ''), '/about', '缺 Organization publisher');
+}
 
 if (problems.length) {
   console.error(`链接/完整性自检未通过（${problems.length} 项）：`);

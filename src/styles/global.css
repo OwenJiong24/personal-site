@@ -235,6 +235,77 @@ main { flex: 1; }
 
 /* ── 可访问性 ── */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+/* 工具页表单：字段 + 单位后缀 + 结果栅格。
+   2026-11-03 重做：旧版把 input 直接放在 label 里且没控宽，长标签在 3 列栅格里互相重叠。
+   现在字段自成一格，输入 100% 宽，单位做成贴边的后缀块，小屏单列，绝不重叠。 */
+.tool-grid {
+  display: grid;
+  gap: 0.9rem 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+.field { display: grid; gap: 0.3rem; align-content: start; min-width: 0; }
+.field > .lab {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.field .row { display: flex; align-items: stretch; min-width: 0; }
+.field .inp {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-family: var(--font-mono);
+  padding: 0.45rem 0.55rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+.field .inp:has(+ .unit) { border-start-end-radius: 0; border-end-end-radius: 0; border-inline-end: 0; }
+.field .unit {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 0.6rem;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  border: 1px solid var(--border-strong);
+  border-start-start-radius: 0;
+  border-start-end-radius: var(--radius);
+  border-end-end-radius: var(--radius);
+  border-end-start-radius: 0;
+}
+.field .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.field .hint { font-size: 0.8rem; line-height: 1.45; color: var(--text-2); }
+.field input[type='range'] { width: 100%; accent-color: var(--accent); }
+.results {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+.results .out { padding: 0.5rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); min-width: 0; }
+.results .out .k { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-2); }
+.results .out .v { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: 1.15rem; overflow-wrap: anywhere; }
+.trail {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.8rem;
+  overflow-x: hidden;
+}
+.tool-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.kw-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
 .skip-link {
   position: absolute;
   inset-inline-start: 1rem;

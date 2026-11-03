@@ -1,40 +1,78 @@
 ---
 import Base from '../../../layouts/base.astro';
-import { brand, site } from '../../../lib/site';
+import { site } from '../../../lib/site';
+import { tools as planned } from '../../../data/services';
+import { toolList } from '../../../data/tools';
 
-import { tools } from '../../../data/services';
-
-const all = tools.map((t) => ({
+const live = toolList.map((t) => ({
   name: t.nameZh,
-  href: t.status === 'live' ? '/zh' + t.href : '',
-  desc: t.descZh,
-  status: t.status,
+  href: '/zh' + t.href,
+  desc: t.descZh.split('。 ')[0] + '。',
+  mirror: `/m/tools/${t.slug}.md`,
+  status: '已上线',
+  keywords: t.keywordsZh.slice(0, 3).join(' · '),
 }));
+const rest = planned
+  .filter((t) => t.status === 'planned')
+  .map((t) => ({ name: t.nameZh, href: '', desc: t.descZh, mirror: '', status: '计划中', keywords: '' }));
+const all = [...live, ...rest];
+const navAria = site.name + ' 免费工具';
+const updated = '2026-11-03';
 ---
 
-<Base title="免费工具" description="为手作卖家做的小工具：不用注册、没有追踪，全部在浏览器本地运行。" path="/zh/tools" lang="zh" switchHref="/tools">
+<Base
+  title="免费工具：手作定价、运费收法与节日季的算术"
+  description="给手作卖家的免费计算器：手作定价计算器（把平台抽成、失败率、运费、退换算进保本价）与运费收法计算器（摊进价、单列实收、门槛包邮）。不注册、无追踪，浏览器本地运行，公式全写在页面上。"
+  path="/zh/tools"
+  lang="zh"
+  switchHref="/tools">
   <section class="wrap measure flow">
     <header class="flow stack-sm">
       <h1>免费工具</h1>
-      <p class="meta">我们在解决自己的问题时顺手做的小工具。免费、不用注册、不追踪，代码跑在你自己的浏览器里。</p>
+      <p class="meta">
+        给做东西的人用的小计算器。不注册、无追踪，全部在浏览器本地运行——页面加载后可离线用。
+        每个工具都把自己的公式与算例写在页面上，你可以手算核对，而不是信一个黑箱。
+      </p>
+      <p class="meta">
+        更新于 {updated} · 整站机器可读索引 <a href="/m/index.md">/m/index.md</a> ·
+        工具索引镜像 <a href="/m/pages/tools.md">/m/pages/tools.md</a>
+      </p>
     </header>
 
-    <div class="card-grid">
+    <nav aria-label={navAria} class="card-grid">
       {
         all.map((tool) => (
           <div class="card-flat flow stack-sm">
-            <p class="post-title">
-              {tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}
-            </p>
+            <p class="post-title">{tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}</p>
             <p>{tool.desc}</p>
-            <p class="meta mono">{tool.status === 'live' ? '● 已上线' : '○ 计划中'}</p>
+            {tool.keywords && <p class="meta mono">{tool.keywords}</p>}
+            <p class="meta mono">
+              ● {tool.status}
+              {tool.mirror && <> · <a href={tool.mirror}>公式与算例（Markdown）</a></>}
+            </p>
           </div>
         ))
       }
+    </nav>
+
+    <div class="prose">
+      <h2>为什么公式写在页面上</h2>
+      <p>
+        一个你追不到来源的数字，你在银行、合伙人，甚至在你自己的验算面前都站不住。
+        这里每个工具都列出输入项与单位、完整公式、带数字的算例，以及它使用的假设
+        （例如：平台抽成从买家支付的价款里扣，包含向买家收的运费）。
+      </p>
+      <h2>这些工具不知道什么</h2>
+      <ul>
+        <li>你的市场：它只用你自己的数字算保本价，不告诉你店里能撑住什么价。</li>
+        <li>你的承运商：体积重、箱型与分区计价在<a href="/zh/guides/2026-11-01-shipping-math/">运费算术指南</a>里。</li>
+        <li>现实结果：本站工具页不声称转化率、省了多少钱或带来多少营收，因为我们不写核对不了的数字。</li>
+      </ul>
     </div>
 
     <p class="meta">
-      想要这里没有的工具？把"你一直在手算的那笔账"发给 <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>。{brand.signatureEn}
+      {site.name} · <a href="/zh/guides/">指南</a> · <a href="/zh/products/">第一方产品</a> ·
+      联系 <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
     </p>
   </section>
 </Base>

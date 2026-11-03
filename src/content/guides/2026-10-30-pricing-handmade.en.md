@@ -60,3 +60,23 @@ If you do not dare quote that number, either the hourly rate is too high for you
 
 Handmade pricing was never cost plus margin. It is what you endow. Counting cost tells you the floor; saying what you endow is how you reach the ceiling.
 > Try it: [the handmade pricing calculator](/tools/pricing-calculator/) — free, no sign-up, runs in your browser.
+
+---
+
+**Addendum, 2026-11-03 (UTC) — two corrections to the formula above, found while rebuilding the calculator**
+
+The formula printed here (`floor = (material + small parts + packaging) / (1 - failure) + hours x rate + shipping + platform fees + returns reserve`) has two flaws we now treat as errors:
+
+1. **Platform fees cannot be an added line.** The fee is taken from the price the buyer pays, so it is a division, not a cost you add. Adding a percentage understates it: on a 13% fee, a cost base of 518.25 needs a price of **595.69**, not 518.25 + 67.37 = 585.62 — a gap of 10.07 per sale, 1.7% of the price, which is exactly the fee on your own profit.
+2. **The failure rate must multiply labour too.** A failed piece burns the same hours as a sold one. Grossing up only the materials underprices every high-failure product.
+
+The corrected chain, which the [pricing calculator](/tools/pricing-calculator/) now computes and prints line by line:
+
+```text
+u     = 1 / (1 - failure)
+C     = (material + parts) x u + hours x rate x u + shipping + (return rate x cost per return)
+floor = C / (1 - fee)
+price = floor x premium factor
+```
+
+The original text above stays as written, per the rule that a published record is not edited after the fact.
