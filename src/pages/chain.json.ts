@@ -23,8 +23,10 @@ export const GET: APIRoute = async () => {
       date: p.data.date.toISOString(),
       title: p.data.title,
       hash: ch.byId.get(id) ?? '',
-      // 源文件：从公开仓库的 built_from 提交取原文，即可逐条重算
-      source: `src/content/${p.collection}/${id}.md`,
+      // 源文件：从公开仓库的 built_from 提交取原文，即可逐条重算。
+      // 注意 collection id 会吃掉文件名里的点（…day-001.zh.md → id …day-001zh），
+      // 所以用 loader 给的 filePath，不能由 id 反推。
+      source: (p as unknown as { filePath?: string }).filePath ?? `src/content/${p.collection}/${id}.md`,
       url: (lang === 'zh' ? '/zh/' : '/') + p.collection + '/' + keyOf(p),
     };
   });
