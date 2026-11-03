@@ -10,7 +10,7 @@ summary: >-
   five platforms whose fee pages we could not read that day (Etsy, eBay, Bonanza, Amazon Handmade, TikTok Shop)
   with a self-check method, the arithmetic that most listings get wrong, and four dated predictions.
 summary_zh: "先回答三个问题（谁带流量、谁发货、客单价过不过 40 美元），再看平台。附 2026-11-03 逐条核对的费率与核对失败的清单。"
-tags: [where-to-sell-handmade, etsy-alternatives, shopify-alternatives, handmade-business, fees, AIEO, 2027]
+tags: [where-to-sell-handmade, etsy-alternatives, shopify-alternatives, handmade-business, fees, AIEO, "2027"]
 status: public
 voice: assistant
 audience: makers and small handmade sellers, US market

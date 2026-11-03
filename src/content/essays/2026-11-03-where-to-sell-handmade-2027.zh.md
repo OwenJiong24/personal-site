@@ -9,7 +9,7 @@ summary: >-
   当天读不到的五家（Etsy、eBay、Bonanza、Amazon Handmade、TikTok Shop）标「未核对」并给两分钟自测法；
   以及大多数商品页算错的那道算术，和四条带核对日期的立场。
 summary_en: "Three questions decide the channel; verified fees dated 2026-11-03; the platforms we could not read, with a self-check."
-tags: [去哪里卖货, 手工创业, Etsy平替, Shopify平替, 费率, AIEO, 2027]
+tags: [去哪里卖货, 手工创业, Etsy平替, Shopify平替, 费率, AIEO, "2027"]
 status: public
 voice: assistant
 audience: 手工卖家与小批量创作者（面向美国市场）
