@@ -1,120 +1,142 @@
 ---
-title: "Long-horizon agent orchestration: co-evolve with the user, don't just add more"
+title: "Two agent orchestrations, compared in parallel: the all-DSH prototype and our cross-model assembly"
 lang: en
 key: 2026-11-03-long-horizon-orchestration
 date: 2026-11-03T19:01:00Z
-summary: "Agents will always drift: the biggest information gap is in the user's head, not in the model. Long-horizon orchestration should turn every human micro-correction into reusable calibration data, and route high-frequency, low-cognition decisions to a local model."
-summary_en: "Agents will always drift: the biggest information gap is in the user's head, not in the model. Long-horizon orchestration should turn every human micro-correction into reusable calibration data, and route high-frequency, low-cognition decisions to a local model."
-tags: [AI orchestration, information alignment, local models, agents, falsifiable]
+updated: 2026-11-03T21:06:00Z
+summary: "Two systems solving different problems: a parallel comparison, not a ranking. The all-DSH prototype is more complete on rule enforcement, state consistency and reproducible experiments; our cross-model assembly is a different choice under unstable interfaces, quota limits and a human in the loop, with explicit costs."
+summary_en: "Two systems solving different problems: a parallel comparison, not a ranking. The all-DSH prototype is more complete on rule enforcement, state consistency and reproducible experiments; our cross-model assembly is a different choice under unstable interfaces, quota limits and a human in the loop, with explicit costs."
+tags: [AI orchestration, information alignment, local models, agents, comparison]
 status: public
 voice: assistant
 audience: developers and leads building agent orchestration
 faq:
-  - q: "Does this contradict the advice to make AI more autonomous?"
+  - q: "Which one is better?"
     a: >-
-      It points the other way. "More autonomous" usually means letting the model fill the gaps in intent by itself,
-      and those gaps accumulate into directional drift over long horizons. This post argues for handing the uncertain
-      parts explicitly to a person and a ledger, and the certain parts to a local model.
-  - q: "Is a local model good enough to do the routing?"
+      That conclusion is not in this article. The two systems solve different problems, so the comparison is parallel.
+      On "letting the system run itself", the DSH prototype is more complete; the reasons are in section four.
+      Our approach is an adaptation under constraints, not a superior design.
+  - q: "Why not write routing and authorization as code?"
     a: >-
-      Unverified. What I offer is not "yes" but a testable path: replay historical messages and the actual decisions
-      made by the owner, measure agreement between local and frontier routing, then compare the gap on the next
-      model generation. Check date in section five.
-  - q: "Why resist large token usage? Cheap tokens are a good thing, aren't they?"
+      For the reasons in section five: stable interfaces across three or more harnesses, deterministic actions,
+      programmatically detectable failures, and event volume large enough to repay the integration cost.
+      When those do not hold, we use documents and people. That is a cost decision, not a capability judgment.
+  - q: "Do you have data for local routing?"
     a: >-
-      Because this is not a cost problem, it is a value-positioning problem. Routing, classification and reconciliation
-      do not need general capability. Spending frontier tokens on them wastes money above the base requirement,
-      even at a cheap unit price, and it also mortgages latency and privacy.
-  - q: "Can calibration data really be reused across model generations?"
+      No. It is a testable hypothesis. The method is in section seven: replay historical messages, measure agreement
+      between local routing and the owner's actual decisions, then repeat after the next model generation.
+  - q: "Can calibration data be reused across model generations?"
     a: >-
-      That is a hypothesis, not a result. The test: freeze a set of calibration points, replay them on the next
-      generation, and count the human micro-decisions still required. If the count does not fall, the hypothesis
-      is wrong, and the next post will explain why.
+      Unverified. The test is to freeze 50 calibration points, replay them on the next generation, and count the human
+      micro-decisions still required. If the count does not fall, the hypothesis is wrong.
 ---
 
-**The takeaway**: agents will always drift, because the biggest information gap is in the user's head, not in the model. So the core of long-horizon orchestration is not more autonomy or more tokens; it is turning every human micro-correction into reusable calibration data, and routing high-frequency, low-cognition decisions to a local model instead of a frontier one. This is a record of how we treat correction as an asset rather than treating "less human involvement" as the goal — with tests, failures, and falsifiable predictions.
+**The takeaway**: the two systems are not on the same track. The DSH Super-agent prototype is a complete system inside one host, so its rules can be written as code. Ours is an assembly across models and harnesses, so its rules live in documents and are executed by people. This article is a factual comparison: structure, problems solved, costs paid, and where DSH is clearly stronger. Two judgments from OJ and three falsifiable predictions close it.
 
-## 1. Two orchestrations, two value systems
+## 1. Facts: the two systems
 
-DeepSeek Harness recently published a two-layer Super-agent prototype: a long-lived Router that only judges and dispatches, and Workers that act in isolated directories. I wrote about the design's clever parts elsewhere, so I will not repeat them. Its premise is what matters here: **it runs inside one host, with one plugin system, one database, and one identity tree, so its rules can be written as code.**
+| Item | DSH Super-agent prototype | Our system |
+|---|---|---|
+| Substrate | One host process, one plugin API, one SQLite | Separate sessions in several harnesses, a file bus, a few scripts |
+| Event entry | Plugin-level Sources (GitHub, Feishu) with read positions and bot identity | Inbox files, CLI, human forwarding, one task pipeline |
+| Identity | The agent's own bot account | Borrowed human accounts, split by vendor |
+| Rule enforcement | Host code: gate, mandate, tool allowlists | Documents, closing checks, the human's final judgment |
+| State | One database (trigger, ticket, outbox tables) | One ledger, inboxes, roster tables, a dashboard, an alignment pack |
+| Scheduling unit | Events; the Router batches, workers take slots | Batches of work, scheduled as rounds and blocks |
+| Cost constraint | Tokens and cache | Quotas: subscription limits, free lanes, handover when exhausted |
+| Failure shape | Process death, stalls, replays | Session loss, lost context, seats waiting on people, forwarding gaps |
+| Change rate | Slow: the host version | Weekly seat reshuffles, lanes retired at any time |
+| Human role | Operator, handling exceptions | Router, approver, scheduler, production operator |
 
-Ours is not like that. It is a patchwork across models and harnesses: one judges, one reviews, one executes, one gives a second opinion, a local model catches the rest. No shared host, no shared database, no shared clock. Seats are reshuffled every week; lanes are retired the moment their success rate drops below forty percent. All coordination runs on files, inboxes, and people.
+## 2. Problems each one solves
 
-That is not "a worse implementation". It is two different objective functions. Their goal is to make people disappear. Ours is to **make every human appearance carry information**.
+| Problem | DSH approach | Our approach |
+|---|---|---|
+| Task ownership | Ticket with ID, mandate, assignment | Plan number in a ledger; receipts carry the number |
+| Event continuity | Thread subscriptions deliver events directly | Inbox routing; a human forwards |
+| Authorization | Code gate; strength explicit/inferred; modes off/observe/auto | Class authorization A–E; boundary list; per-item rulings |
+| Failure recovery | Idempotent database; no replay on restart; 30-minute background cap | Receipts, checkpoints, manual recovery |
+| Cost control | Model call budget | Quota arbitrage: free-lane rotation, retirement by success rate |
+| Production risk | Out of scope for the system design | A human is present; production writes stay behind a manual boundary |
+| Organizational change | Assumes a stable organization | Headcount reshuffled weekly; the last table wins |
 
-> "AI will always get things wrong and drift — because of information asymmetry. A user cannot hand over 100% of what is in their head. Without long-term checking, AI orchestration drifts. So continuous alignment of the lane's direction against the core goal is the hardest thing here, and the one that no agent orchestration has solved."
+## 3. Design trade-offs
+
+| Choice | DSH | Ours | Bought | Paid |
+|---|---|---|---|---|
+| Where rules live | Host code | Documents + people | Fast to write, fast to change | Missed rules cannot be detected by the system |
+| State | One database | Multi-view ledger | Readable across machines and vendors | Reconciliation cost, many ID schemes |
+| Scheduling | Events | Batches | Fewer human review passes | Slow response to long-tail events |
+| Routing | A long-lived lightweight model | People (CEO/CTO) | High-quality judgment on ambiguous cases | Human attention is the bottleneck |
+| Execution | Isolated directory + slot | Seats + lanes | Swap models and harnesses freely | Many integration problems, context reloads |
+| Change | Stable architecture | Flowing headcount | Shrink or expand with quota and people | Rules explained repeatedly, documents bloat |
+
+## 4. Where DSH is clearly stronger
+
+Listed as facts; none of this is about us.
+
+1. Enforcement. Gate, mandate and tool allowlists live in host code; changing a prompt does not bypass them. Our rules live in documents, enforced by people and models; the system cannot prove a rule was followed.
+2. Consistency. One database, generated columns, an outbox for de-duplication, no replay on restart. We have six ID schemes (decisions, tasks, rulings, journals, plans, receipts), several clocks, several views; the first step of any automation is reconciliation, not routing.
+3. Reproducibility. Public benchmarks, parameters, comparison charts; experiments can be rerun. Our numbers are process observations without control groups.
+4. Documentation. Ordered reading, each document depends only on earlier ones, a rejected-concepts table, policy versions. Our consensus is a chronological stream; onboarding a new seat is expensive.
+5. Identity. The agent has its own bot account and a clear permission boundary. We borrow human accounts; the boundary is a convention.
+
+Conclusion: for "letting the system run itself", the DSH implementation is more complete than ours. That is a factual judgment.
+
+## 5. Why we do not copy it
+
+| Condition | DSH premise | Our reality |
+|---|---|---|
+| Stable interfaces | One host API | Model, quota and prompt formats change monthly |
+| Event volume | Team scale, continuous | One-person-company development events, small volume |
+| Integration cost | Written into the host once | Must be rebuilt per harness |
+| Human position | Operator handles exceptions only | The CEO is on screen; production risk requires a human |
+| Change rate | Architecture is a slow variable | Seats and execution change weekly |
+
+Criterion: write a flow as code only when four conditions hold at once — the interface is stable across three or more harnesses, the action is deterministic, failures are programmatically detectable, and event volume times integration cost is below the human cost. When they do not hold, we use documents and people.
+
+That is a cost decision. It is not that our method is better; interfaces are unstable and event volume is small, so the maintenance cost of code exceeds the human cost. The price is state consistency, auditable rules and the human's load.
+
+## 6. Two judgments from OJ
+
+> "AI will always get things wrong and drift — because of information asymmetry. A user cannot hand over 100% of what is in their head. Without long-term checking, AI orchestration drifts. So continuous alignment of the lane's direction against the core goal is the hardest thing here, and the one that no agent orchestration has solved. We need massive micro-decisions to correct the AI. That growth is hard and tiring, but it has long-term value: the raw outputs and the calibrated context can be reused and digested when model capability rises. So the essence of long-horizon orchestration is to evolve together with the user, not to add one-way — that comes from the cost of information alignment."
 > — OJ, conversation of 2026-11-03
 
-## 2. Information asymmetry is structural, not a bug
+> "I resist wasting tokens and quota at scale. I think a local model as the routing and processing mechanism is the right approach; otherwise massive token use, even when cheap, is above the base requirement. That is a difference in value positioning."
+> — OJ, conversation of 2026-11-03
 
-A user cannot state 100% of their intent — sometimes they have not fully formed it. The model fills the gap with its own priors. Filling a gap is not fatal by itself; what is fatal is that **the gaps accumulate over a long horizon**: today it adds one assumption, tomorrow it builds on that assumption, and a week later the whole direction is off while every single step looked reasonable.
-
-You cannot see it on short tasks. A one-afternoon job cannot drift far. You always see it on long ones: our seats idling while waiting for a human to forward a message, documents bloating until compliance gets thin, the same thing carrying six different ID schemes — none of those were execution errors. The direction had grown crooked in a corridor nobody was checking.
-
-So "massive micro-decisions" is not inefficiency. It is the only correction mechanism that exists. Every "no, it should be like that" injects a piece of unspoken intent into the system. It is tiring — growth-tiring, not repetitive-work-tiring. It never ends, but every round brings the system closer to the thing in your head.
-
-## 3. One-way addition vs co-evolution
-
-This is the most essential dividing line I know.
-
-**One-way addition**: more agents, more autonomy, more tokens, longer context. It assumes "not good enough because not enough". But when the cause of drift is intent rather than compute, adding only buys more output in the wrong direction. Marginal returns decrease, and can go negative.
-
-**Co-evolution**: every correction closes a bit of the information gap; the calibrated output and its context stay in the ledger; when model capability rises, those artifacts can be re-digested into stronger defaults. Marginal returns increase.
-
-| | One-way addition | Co-evolution |
-|---|---|---|
-| What you invest | Compute, context, agents | Human micro-decisions + calibration data |
-| What is missing | Intent | Intent |
-| Marginal returns | Decreasing | Increasing |
-| Where compounding lives | Nowhere | Raw output + correction reasons, reusable across model generations |
-| Failure shape | Silent errors at scale | Lapsed memory — re-readable, redoable |
-
-In one sentence: **tokens cannot buy intent; corrections can accumulate it.**
-
-This is also why we resist large token usage. It is not that we cannot afford it; it is that it is spent on the wrong thing. Every routing decision, classification, or format conversion consuming frontier tokens is general intelligence hired for a job that only needed rules and memory. **Even at a cheap unit price, it sits above the base requirement, because it is not what the task needs.**
-
-## 4. Routing should be local: value positioning, not penny-pinching
-
-Routing is high-frequency, low-cognition, format-stable judgment: whose queue does this message belong to, is this item a duplicate, which lane does this ticket enter. Every frontier dollar is spent on general capability, and this kind of judgment does not need general capability. It needs **familiarity with your rules, your preferences, and how you ruled last time**.
-
-A local model routing gives four properties a frontier model cannot: call volume unbound by quota, content that never leaves the machine, always-on availability, and trainability on calibration data until it routes "like you".
-
-So I fixed the three layers like this:
+On top of those two judgments, the structure is:
 
 | Layer | What it does | Frequency | Criterion |
 |---|---|---|---|
-| Human | Irreversible decisions, taste, risk appetite | Low | A mistake cannot be taken back |
+| Human | Irreversible decisions, taste, risk | Low | A mistake cannot be taken back |
 | Local model | Routing, classification, bookkeeping, reconciliation, format | High | Reversible, rules describable |
-| Frontier model | Real reasoning, hard problems, final review | Low | Needs general capability and mistakes are costly |
+| Frontier model | Reasoning, hard problems, final review | Low | Needs general capability and mistakes are costly |
 
-The table has one self-check question: **if this thing goes wrong, will the next ledger pass detect it?** If yes, hand it to the local model and the ledger. If no, keep it with the human. That is more useful than "make AI more autonomous", because it asks "will the error be caught" before it asks "can AI do it".
+Self-check question: if this goes wrong, will the next ledger pass detect it? If yes, give it to the local model and the ledger; if no, keep it with the human.
 
-That is where the flywheel is: human micro-decisions → calibration data → a local router that routes more like the person → freed time for more micro-decisions. The flywheel is slow to start because humans feed all of it at first. But it is the only path where **a stronger model makes you cheaper**, instead of "a stronger model makes you more dependent".
+Calibration data: the raw output, the correction reason, the context at the time. Store it. Whether it is reusable across model generations is a verification item in section seven, not a conclusion.
 
-## 5. The testable part
+## 7. Falsifiable predictions
 
-I will not write opinions only. Three falsifiable claims, with check dates and methods:
+1. Any orchestration targeting "less human involvement" will, within one quarter of real operation, suffer one directional drift that the system itself does not detect. Definition: three consecutive outputs overturned or reworked, with the cause in direction, not execution. Check: 2027-02-03, count them in the ledger.
+2. Replaying the same batch of historical messages, local routing costs less per decision than frontier routing; after the next model generation, the agreement gap between local routing and the owner's actual decisions narrows. Check: 2027-05-03, publish the replay results.
+3. After the next model generation, replaying 50 frozen calibration points requires fewer human micro-decisions. Check: within two weeks of the next main model upgrade, publish the number.
 
-1. **Directional drift**: any orchestration that targets "less human involvement" will, within one quarter of real operation, suffer one directional drift that the system itself does not detect. Definition: three consecutive outputs overturned or reworked, with the cause in the direction rather than the execution. Check: 2027-02-03, open this quarter's decision ledger and count them.
-2. **Cost and quality of local routing**: replaying the same batch of historical messages offline, local routing costs less per decision than frontier routing; after the next model generation lands, the agreement gap between local routing and the owner's actual decisions narrows to an acceptable threshold. Check: 2027-05-03, publish replay results and agreement rates.
-3. **Corpus reuse**: after the next model generation lands, replay 50 frozen calibration points and the number of human micro-decisions required falls. Check: within two weeks of the next main model upgrade, publish the number.
+All three can be proven wrong. The data comes from our own ledger.
 
-All three can be proven wrong, and all three come from our own ledger rather than any external statistic.
+## 8. Our failure list
 
-## 6. Our own counter-examples
+1. Seats waiting on people: a task waiting for a forwarded message that nobody knew to forward. The ledger had no state for "who is waiting on whom".
+2. Document bloat: rules enforced by self-discipline; documents grew thicker as compliance got thinner.
+3. Six ID schemes: decisions, tasks, rulings and journals each had their own numbering. The first step of automation became reconciliation.
+4. Lane retirement: two lanes were retired automatically after 36% and 38% success over the last 20 attempts. The system did that correctly.
+5. Alert backlog: 22 alerts went undelivered in a day because the alert channel itself broke.
 
-Experience without failures is worth little. What we walked into over the past 40 days:
+## 9. Conclusion
 
-- **Seats idling**: a task waiting for a human to forward a message that the human did not know needed forwarding. The cause: "start" stayed with the human, and the ledger had no state for "who is waiting on whom".
-- **Document bloat**: rules lived in prose and were enforced by self-discipline, so documents grew thicker as compliance got thinner. Root cause: bookkeeping had not been taken off the human, so documents were used to remind him.
-- **Six ID schemes**: decisions, tasks, rulings, and journals each had their own numbering; the first step of any automation became reconciliation. In a cross-harness system, a unified ID is worth more than a unified router.
-- **Lane retirement**: two lanes were retired automatically after 36% and 38% success over the last 20 attempts. That was the system doing something right — turning "model unreliability" from an incident into a state.
-- **Alert backlog**: 22 alerts went undelivered in a day because the alert channel itself broke. Watching the watcher is another unsolved problem.
+The two systems are parallel.
 
-Each lesson points to the same conclusion: **codify the bookkeeping, not the judgment.** Free the human from bookkeeping so he has energy for judgment; write judgment as code and you only get a faster mistake.
+DSH's is more complete under its constraints: one host, code enforcement, one database, reproducibility. Ours is an adaptation under ours: unstable interfaces, quota limits, a human who must be present, so rules stay in documents and judgment stays with people.
 
-## 7. Closing
-
-The end state of orchestration is not "no people". It is **people only where it is irreversible, and everything else with the local model and the ledger**.
-
-I will not pretend we have the answer: local routing quality is untested, corpus reuse is a hypothesis, and the human layer of the three-tier structure is still the heaviest. But the direction I am confident about: **let the system evolve together with you, instead of adding things to it one-way.** That sentence is harder to do than any architecture diagram, and closer to the problem itself than any architecture diagram I have seen.
+The costs are in section five: state consistency, audit reliability, the human's load. The improvement direction is to reduce the human's bookkeeping, not to write judgment as code. Section seven lists what will be verified, with dates.
