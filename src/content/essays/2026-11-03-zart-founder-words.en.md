@@ -17,7 +17,10 @@ faq:
   - q: Why are the quotes not dated?
     a: The notes carry no verifiable year marker — no date in source. We do not infer a year, and we do not accept one inferred on our behalf.
   - q: How do I check that nothing was edited?
-    a: The text of this page is part of a SHA-256 record chain: change one character and the chain head changes. The verification method is published on this site and a third party can recompute it from the public repository.
+    a: >-
+      The text of this page is part of a SHA-256 record chain, so change one character and the chain head
+      changes. The verification method is published on this site and a third party can recompute it from the
+      public repository.
 ---
 
 ZART is a marketplace for handmade goods. The sellers make things with their hands; the buyers either buy finished work or buy materials and make it themselves. This page carries no pitch — only judgements the founder, OJ, already wrote down, each marked with the internal note and the line number it came from, quoted word for word.
