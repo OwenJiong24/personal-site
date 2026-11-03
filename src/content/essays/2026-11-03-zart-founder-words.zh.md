@@ -2,7 +2,7 @@
 title: 「做手工的人凭什么该被多付一点钱」——ZART 创始人笔记原话，逐字照录
 lang: zh
 key: 2026-11-03-zart-founder-words
-date: 2026-11-03T21:25:00Z
+date: 2026-11-03T21:18:00Z
 summary: ZART 平台创始人 OJ 的内部笔记原话，逐字引用并标到文件与行号：效率服务于人、价值在 Story·Effort·Scarcity、AI 四级分类、真实性疲劳、奖励努力与兜底、不鼓励虚假折扣、禁止价格合谋。不写费率、不写退款与时效、不评价同行。
 summary_en: "The founder's own notes, quoted verbatim with file and line numbers: no fees, no promises, no competitor talk."
 tags: [ZART, handmade, marketplace, founder, verbatim, verifiable]

@@ -2,7 +2,7 @@
 title: "Why the people who make things by hand deserve to be paid more — the founder's own notes, quoted verbatim"
 lang: en
 key: 2026-11-03-zart-founder-words
-date: 2026-11-03T21:25:00Z
+date: 2026-11-03T21:18:00Z
 summary: "ZART is a marketplace for handmade goods, run by the author of this record. This page carries no marketing copy: only lines from the founder's own working notes, quoted word for word, each with the file and line number it came from. No fees, no refund terms, no service-level promises, no talk about other companies."
 summary_zh: "ZART 创始人的内部笔记原话，逐字引用并标到文件与行号；不写费率、不写退款与时效、不评价同行。"
 tags: [ZART, handmade, marketplace, founder, verbatim, verifiable]
