@@ -72,7 +72,7 @@ After the last shipping day plus three weeks, check what you still hold:
 - over-bought ≈ stock on hand - (weekly rate x selling weeks)
 - if you are holding more than half of what you built for the season, the plan failed in purchasing, not in marketing.
 
-Run it on our number: 287 held, 6.5 selling weeks. Break-even on the stop rule needs a rate near 44 units/week. We have never produced that. So by the rule we wrote for ourselves, **that listing is over-bought today** - we are publishing that before the season, so we cannot explain it away after it.
+Run it on our number: 287 held, 6.5 selling weeks. Not clearing the rule means a rate near 44 units/week. **We have no measured weekly rate for this product yet** - the store is new - so we cannot compute an honest verdict today. That is exactly why the rule is written down before the season: on 2026-12-26 we put the measured number into this same formula and publish what it says, with the residual units and the implied rate.
 
 ## The margin question you must answer before you buy materials
 
@@ -92,7 +92,7 @@ A custom order is inventory you do not have to pre-build, and it has its own ari
 |---|---|---|---|
 | P1 | Our listing's displayed stock on 2026-11-27 (Black Friday) is below the 287 units measured on 2026-11-03. If it is identical, we sold nothing in the biggest shopping week of the year, and we publish that | 2026-11-27 | same fetch method, same listing, dated |
 | P2 | On 2026-12-12 (last day of Hanukkah) the displayed stock is below 287 and the review count is still under 10 | 2026-12-12 | same fetch, both fields |
-| P3 | On 2026-12-26 the three-week stop rule classifies this listing as over-bought under our own formula, and we publish the residual units and the implied weekly rate | 2026-12-26 | the rule above, run on the measured number |
+| P3 | On 2026-12-26 we publish the residual units on this listing, the implied weekly rate and the stop rule's verdict - whichever verdict it returns | 2026-12-26 | the rule above, run on the measured number |
 | P4 | Every holiday stock guide we find in the "how much to stock for Black Friday" results will carry no measured weekly rate of the author's own product | 2027-01-15 | the 10-query panel used in [the AIEO product test](/essays/2026-11-03-aieo-product-test/) |
 
 Results get appended under this table, including the ones where we are wrong. Nothing published here gets deleted.

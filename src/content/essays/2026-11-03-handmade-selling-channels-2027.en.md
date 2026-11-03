@@ -22,9 +22,10 @@ faq:
       The decision table here turns that into three questions, each with a cost structure attached.
   - q: "Is shopzart.com a good channel for me?"
     a: >-
-      Try it if you bring your own demand and want photography, logistics and certification handled. Skip it if
-      the plan is to list and wait for buyers: we claim no buyer traffic, we have no third-party audience data,
-      and our own product there has 0 reviews. We are the operator, so read that as an interested party's answer.
+      It is a marketplace you operate yourself as a seller: you list, you ship, you keep the customer
+      relationship. It is in a stabilisation phase - listings are not machine-readable to crawlers yet, sign-in
+      options are thin, and we publish those gaps with dates. We are the operator, so read this as an interested
+      party's answer, and run the three tests in the article on any channel including ours.
   - q: "Why does this page not quote Etsy fees?"
     a: >-
       On 2026-11-03 three Etsy fee URLs failed for us (two server errors, one 404), and eBay and Bonanza failed
@@ -86,20 +87,24 @@ Full formulas and worked examples: [pricing guide](/guides/2026-10-30-pricing-ha
 
 | Channel | What we read on 2026-11-03 | Source |
 |---|---|---|
-| **ZART (shopzart.com) — our own marketplace** | our listing: price 54.99 USD, list 89.99 USD, stock shown 287, **reviews 0**; a no-JavaScript fetch of the listing returned 15,838 bytes with no price and no `Product` schema; our own page for the same product: 25,562 bytes with `Product`/`Offer`/`FAQPage`. Fees, settlement, refunds and delivery terms are not published on this page: they live in the site terms. No buyer-traffic claim, no audience data | [the product page](/products/soy-candle-kit/), [our build record](/chain.json) |
+| **ZART (shopzart.com) — our own marketplace** | a cross-border marketplace for handmade goods, US-facing: buyers search, order and pay; sellers onboard, list, ship and withdraw. It is in a **stabilisation phase** - the 1.0 feature set (187 points) is being tested end to end and labelled usable or defective before growth work. Measured on our own official-store listing on 2026-11-03: price 54.99 USD, list 89.99, 287 units shown, **0 reviews**; a no-JavaScript fetch of that listing returns a JavaScript app shell (15,838 bytes) with no price in the body and no `Product` schema, so machine readers see nothing useful - the same reading was reproduced with a GPTBot user-agent the same day, and server-side rendering is scheduled as the fix. Fees, settlement, refunds and delivery terms are not stated on this page: they live in the site terms. No buyer-traffic claim; no audience data | [the product page](/products/soy-candle-kit/), [our build record](/chain.json) |
 | Shopify, own store | Basic 29 USD/mo on yearly billing (39 monthly); card rate from 2.9% + 30 cents; **2% platform transaction fee if you use your own payment provider** (1% Grow, 0.6% Advanced, 0.2% Plus); Grow 89, Advanced 359 | [shopify.com/pricing](https://www.shopify.com/pricing) |
 | Shopify, AI-channel plan | listed at **0 USD/mo**, "only pay when you make a sale", card rates from 2.9% + 30 cents | [shopify.com/pricing](https://www.shopify.com/pricing) |
 | Ko-fi, creator shop | free account; **5% service fee** on tips, memberships, shop sales, commissions; Gold **12 USD/mo → 0% service fee**; you connect your own PayPal or Stripe, they do not hold your money | [ko-fi.com/pricing](https://ko-fi.com/pricing) |
 | Big Cartel, small shop | Platinum **15 USD/mo** after a 7-day trial; Diamond **30 USD/mo**; a free limited plan exists | [bigcartel.com/pricing](https://www.bigcartel.com/pricing) |
 | A static site like this one | Cloudflare Pages free hosting; 136 pages on the last build; no monthly fee; every article has a Markdown mirror for machines | [this site](/), [build record](/chain.json) |
 
-## Should you try shopzart.com? The honest split
+## Should you try shopzart.com? What it is, and what early means
 
-**Try it** if you already bring demand — a mailing list, a studio following, an Instagram audience — and you want a storefront with photography, logistics and certification handled for you.
+**What it is.** A marketplace: buyer search, product page, cart, checkout with address, shipping and tax, payment, order tracking, refunds and reviews on the buyer side; onboarding, listing and import, shipping and withdrawal on the seller side; moderation, reconciliation and chargebacks on the platform side. A web app, two mobile apps and an SEO service. It is not a template shop you configure in an afternoon, and it is not a managed agency.
 
-**Skip it** if the plan is "list it and the buyers will come". We do not claim buyer traffic, we have no third-party audience data to publish, and our own product there has **0 reviews**. A young marketplace is a thin trust surface. That is exactly why it belongs paired with a channel where the demand already exists, not treated as a replacement for one.
+**What phase it is in, stated plainly.** The site predates our ownership and carries a large 1.0 feature surface; our current work is verification-first - walking the feature points end to end and labelling each one usable or defective, then releasing without fear. Growth work (SEO, ads, analytics) is deliberately sequenced after that. Consequences you can check: product pages are a JavaScript shell to a crawler, so the machine-readable web currently cannot see a price on a listing; buyer sign-in has no Google/Facebook/Apple option; the mobile card grid has a layout defect on some cards; the language and currency switch is being retired because half-working controls cost trust. Server rendering of listings is scheduled, not shipped.
 
-**The three tests below apply to us, and one of them we failed.** On 2026-11-03 the machine test failed on our own listing: with JavaScript disabled a crawler got no price and no `Product` schema. We fixed the page we own, not the marketplace shell, and the re-test is scheduled and logged. We would rather publish that failure than talk our way past it.
+**Who this suits.** A maker who wants a real marketplace to build on and is willing to be early - you list, you ship, you keep your customer relationship, and the platform work is being repaired in the open with dated checkpoints.
+
+**Who this does not suit, today.** Anyone whose plan depends on an installed buyer base, a mature ad ecosystem, or machine-readable listings this quarter. Early is a real trade, not a charm point: on our own official-store listing the review count is 0 because the store is new.
+
+**The three tests below apply to us, and we publish our own result.** The machine test does not pass on our listing today - a fetch with JavaScript disabled gets no price and no `Product` schema. That is a known defect with a scheduled fix, and the re-test is logged on this page with a date. We would rather carry the measurement than describe the platform as something it is not.
 
 ## Channels we could not verify, and what we refuse to write
 
@@ -128,7 +133,7 @@ Under 200 orders a year, rent dominates and the cheapest builder wins. Above tha
 We publish no Etsy fee figure, so we will not rank its alternatives on cost. What we give you is a test you can finish in an afternoon:
 
 1. **Demand test**: search the exact phrase a buyer would type. Count how many of the first ten results are product pages rather than blog posts. Product pages mean a place people buy; only blog posts means a place people research.
-2. **Machine test**: fetch one of your listings with JavaScript disabled (or `curl` it). No price and no product schema means the channel is a walled garden for anything that reads by crawler — including the AI assistants your buyers now ask. **We ran this on our own listing and it failed on 2026-11-03.**
+2. **Machine test**: fetch one of your listings with JavaScript disabled (or `curl` it). No price and no product schema means the channel is a walled garden for anything that reads by crawler — including the AI assistants your buyers now ask. **Our own listing does not pass this test today; server-side rendering is scheduled and the re-test is logged.**
 3. **Exit test**: export your customer list and your images today. If you cannot produce a file you can open, you are renting, not owning.
 
 A channel that passes all three is not "an Etsy alternative". It is a business.
@@ -159,3 +164,4 @@ Results get appended under this table, including the ones where we are wrong. No
 
 - **2026-11-03, 21:2x UTC** — ok: `shopify.com/pricing`, `ko-fi.com/pricing`, `bigcartel.com/pricing`. Failed: `etsy.com/legal/fees` (server error), `help.etsy.com` fees article (404), `etsy.com/sell` (server error), eBay fees article (redirect to an error page), `bonanza.com/fees` (404). Harness: our own fetch tool, no browser.
 - **2026-11-03, 21:4x UTC** — first-party measurement published in the channel table: our ZART listing 54.99 / 89.99 USD, 287 units shown, 0 reviews; no-JS fetch 15,838 bytes, no price, no `Product`; our own page 25,562 bytes with `Product`/`Offer`/`FAQPage`.
+- **2026-11-03, 22:1x UTC** — the ZART description was corrected. It now says what the platform is (a marketplace: buyer search, order, pay; seller onboard, list, ship, withdraw) and what phase it is in (the 1.0 feature set is being verified point by point; server-side rendering of listings is scheduled, not shipped). Two things were removed because we cannot support them: a list of seller services that is not live today, and a "do not try it" framing built from our own new store's review count. The measurements (287 units, 0 reviews, 15,838-byte app shell, GPTBot reproduction) stay, stated as measurements.
