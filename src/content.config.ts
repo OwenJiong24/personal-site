@@ -23,6 +23,11 @@ const article = z.object({
   // 作者审定：0–5 分 + 一句话快速点评。留空 = 待补（构建时列进待补清单，不阻塞发布）。
   ownerRating: z.number().int().min(0).max(5).optional(),
   ownerNote: z.string().default(''),
+  // 问答小节：正文可见 + FAQPage 结构化数据同时存在（只写 schema 不显示，或只显示不写 schema，
+  // 都是 Google 反对的组合）。字段必须在基础 schema 里，否则 zod 会把 essays 的 faq 静默剥离
+  //（实测：essays 声明的 faq 进不了 data，两篇文章一直没有 FAQPage）。
+  audience: z.string().default(''),
+  faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
 });
 
 const col = (dir: string, extra?: z.ZodRawShape) =>
