@@ -9,6 +9,10 @@ export async function getStaticPaths() {
   return tags.map((t) => ({ params: { tag: t.slug }, props: { tag: t.tag } }));
 }
 
+// 标签页不进 sitemap：单语标签在 sitemap 里会被默认语言标成 hreflang="en"，
+// 等于把只有中文内容的页面报成英文页（2026-11-03 门禁抓出）。标签索引页已配对进 sitemap。
+export const sitemap = false;
+
 const { tag } = Astro.props as { tag: string };
 const lang = 'en';
 const posts = (await postsByTag(tag, lang)) as Post[];

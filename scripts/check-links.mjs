@@ -96,9 +96,20 @@ if (existsSync(smIndex)) {
   for (const m of readFileSync(smIndex, 'utf8').matchAll(/<loc>(https?:\/\/[^<]+)<\/loc>/g)) {
     const relPath = new URL(m[1]).pathname.replace(/^\//, '');
     if (!existsSync(join(DIST, relPath))) { add('sitemap-index.xml', m[1], 'sitemap 子文件缺失'); continue; }
-    for (const s of readFileSync(join(DIST, relPath), 'utf8').matchAll(/<loc>(https?:\/\/[^<]+)<\/loc>/g)) {
+    for (const s of readFileSync(join(DIST, relPath), 'utf8').matchAll(/<loc>(https?:\/\/[^<]+)<\/loc>([\s\S]*?)<\/url>/g)) {
       if (!selfHost(s[1])) continue;
       if (!existsPage(new URL(s[1]).pathname)) add('sitemap', s[1], 'sitemap URL 404');
+      // 语言标注必须和 URL 前缀一致：英文默认后，根路径页在 sitemap 里不能标成 zh-Hans
+      const isZhUrl = new URL(s[1]).pathname.startsWith('/zh/');
+      const tags = [...s[2].matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)];
+      for (const t of tags) {
+        const target = new URL(t[2]).pathname.startsWith('/zh/');
+        if (t[1] === 'en' && target) add('sitemap', t[2], 'hreflang en 指向 /zh/ 路径');
+        if (t[1] === 'zh-Hans' && !target) add('sitemap', t[2], 'hreflang zh-Hans 指向非 /zh/ 路径（英文页被当中文上报）');
+      }
+      const langs = tags.map((t) => t[1] + '|' + t[2]);
+      if (new Set(langs).size !== langs.length) add('sitemap', s[1], 'sitemap 语言条目重复');
+      if (isZhUrl && !tags.some((t) => t[1] === 'zh-Hans')) add('sitemap', s[1], '中文页缺 zh-Hans 自指条目');
     }
   }
 }

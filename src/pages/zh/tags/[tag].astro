@@ -9,6 +9,9 @@ export async function getStaticPaths() {
   return tags.map((t) => ({ params: { tag: t.slug }, props: { tag: t.tag } }));
 }
 
+// 同英文侧：标签页不进 sitemap，避免单语页被标成错误语言；入口由 /zh/tags 索引页提供。
+export const sitemap = false;
+
 const { tag } = Astro.props as { tag: string };
 const lang = 'zh';
 const posts = (await postsByTag(tag, lang)) as Post[];
