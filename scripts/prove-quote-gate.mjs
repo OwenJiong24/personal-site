@@ -115,6 +115,12 @@ const cases = [
     expect: 'Q5',
   },
   {
+    rule: 'Q7 流程残留',
+    prevents: 'CEO 本轮指出：把「v1 作废 / 门禁 / 登记表 / A-B-C 状态」当文章内容发给读者，读者什么也得不到',
+    input: { registry, approved: [], pages: page('<p>v1 已作废；v2 的规矩（可被机器检查）：每句引用进登记表并标 A 类/B 类/C 类</p>') },
+    expect: 'Q7',
+  },
+  {
     rule: 'Q5 商业数字',
     prevents: '融资/GMV/卖家规模等机密进公开页',
     input: { registry, approved: [], pages: page('<p>我们的 GMV 与卖家数在涨</p>') },

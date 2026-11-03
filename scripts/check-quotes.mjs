@@ -126,6 +126,10 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
     for (const w of absolutes) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现排名/绝对化用语「${w}」：${p.name}`);
     for (const w of promises) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现承诺/SLA 用语「${w}」：${p.name}`);
     for (const w of ['GMV', '营收', '融资', '估值', 'CAC', '卖家数', '万人民币', '亿美金']) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现商业数字用语「${w}」：${p.name}`);
+    // Q7 流程残留：项目管理语言不得当内容发（CEO 2026-11-03：读者看这些得到什么？）
+    for (const w of ['作废', '门禁', '登记表', '白名单', '红证', '坏样本', '断言', '流水线', '逐条勾选', '需 OJ', '需 CEO', 'v1 的', 'A 类', 'B 类', 'C 类']) {
+      if (t.includes(w)) problems.push(`Q7 内部流程用语出现在公开页「${w}」：${p.name}`);
+    }
   }
 
   return problems;
