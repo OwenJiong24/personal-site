@@ -60,8 +60,10 @@ main { flex: 1; }
   position: sticky;
   top: 0;
   z-index: 10;
-  background: color-mix(in oklch, var(--bg) 92%, transparent);
-  backdrop-filter: blur(10px);
+  /* 不透明纸白：半透明 + backdrop-filter 会在合成层上出问题——
+     无头截图实测顶部出现一条黑带（2026-11-03），iOS 过滚动时同理会露暗条。
+     页头与页面同色，靠发丝线分层，不用模糊。 */
+  background: var(--bg);
   border-bottom: 1px solid var(--border-strong);
 }
 .site-header .wrap {
