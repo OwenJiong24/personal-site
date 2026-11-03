@@ -44,6 +44,18 @@ const recent = posts.slice(0, 10).map((p) => ({
         </p>
       </div>
 
+      <h3>自己复现链头：不需要账号、不需要密钥</h3>
+      <p>
+        <span class="mono">git clone https://github.com/{site.anchors.github}/personal-site</span>，检出页脚写明的提交号，
+        跑 <span class="mono">node scripts/verify-chain.mjs</span>：它会下载 <span class="mono">/chain.json</span>，
+        从公开仓库逐条取回记录的 Markdown 原文，重算全部 {ch.count} 条摘要，任一条对不上就以非零码退出。
+      </p>
+      <p>
+        参与哈希的正文口径是<strong>实测出来的，不是猜的</strong>：去掉 YAML frontmatter、首尾空白 trim、
+        换行统一为 <span class="mono">\n</span>。五种候选口径里只有这一种能复现公布链头
+        （2026-11-03 实测 {ch.count}/{ch.count} 条全部一致）。列表页用的 <span class="mono">summary</span> 不参与哈希。
+      </p>
+
       <h2>2. 部署时间：内容由 Cloudflare 盖章</h2>
       <p>
         站点是纯静态构建，部署产物不可在服务器端改写。访客看到的内容与 HTTP 响应头

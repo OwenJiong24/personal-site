@@ -48,6 +48,19 @@ const recent = posts.slice(0, 10).map((p) => ({
         </p>
       </div>
 
+      <h3>Reproduce the head yourself — no account, no key</h3>
+      <p>
+        <span class="mono">git clone https://github.com/{site.anchors.github}/personal-site</span>, check out the commit
+        named in the footer, then run <span class="mono">node scripts/verify-chain.mjs</span>. It downloads
+        <span class="mono">/chain.json</span>, fetches every record's Markdown source from the public repository,
+        recomputes all {ch.count} digests, and exits non-zero if anything differs.
+      </p>
+      <p>
+        Body rule, measured rather than assumed: the hashed text is the file with YAML frontmatter removed and
+        surrounding whitespace trimmed, newlines normalised to <span class="mono">\n</span>. Of five candidate rules,
+        only this one reproduces the published head (verified 2026-11-03: {ch.count}/{ch.count} records).
+      </p>
+
       <h2>2. Deployment time: the content is stamped by the platform</h2>
       <p>
         The site is a static build; deployment output cannot be rewritten server-side. What you see matches the files a

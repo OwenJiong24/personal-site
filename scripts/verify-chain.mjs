@@ -23,10 +23,13 @@ if (items.length !== count) {
 }
 console.log(`算法: ${algorithm}`);
 
-// 正文 = 去掉 YAML frontmatter、并把换行统一为 \n 后的内容（与站点的 v2 哈希口径一致）
+// 正文口径 = 去掉 YAML frontmatter 后 trim 首尾空白。
+// 2026-11-03 实测：五种候选口径里只有这一种能复现公布链头（38 条逐条一致）——Astro 的 glob loader
+// 交给 entry.body 的就是「去 frontmatter 且已 trim」的文本。用别的外加空白会全部哈希不符。
 const stripFrontmatter = (text) => {
-  const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(text);
-  return (m ? text.slice(m[0].length) : text).replace(/\r\n/g, '\n');
+  const m = /^---\r?\n[\s\S]*?\r?\n---/.exec(text);
+  const body = m ? text.slice(m[0].length) : text;
+  return body.replace(/\r\n/g, '\n').trim();
 };
 
 const base = `https://raw.githubusercontent.com/OwenJiong24/personal-site/${sha}`;
