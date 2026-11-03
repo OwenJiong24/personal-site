@@ -55,6 +55,7 @@ export const GET: APIRoute = async ({ site: base }) => {
         `- ${ui.en.sections[slug].name}: ${abs('/' + slug)} · 中文 ${abs('/zh/' + slug)} — ${ui.en.sections[slug].desc}`,
     ),
     `- Tools (free, offline): ${abs('/tools')} · 中文 ${abs('/zh/tools')}`,
+    `- Products (first-party, ours): ${abs('/products')} · 产品 ${abs('/zh/products')} · product mirror ${abs('/m/products/<slug>.md')}`,
     `- Services (work with me): ${abs('/services')} · 合作方式 ${abs('/zh/services')}`,
     `- Tags: ${abs('/tags')} · 标签 ${abs('/zh/tags')}`,
     `- Uses: ${abs('/uses')} · 清单 ${abs('/zh/uses')}`,

@@ -1,0 +1,49 @@
+---
+import Base from '../../../layouts/base.astro';
+import { brand } from '../../../lib/site';
+import { product, disclosureZh } from '../../../data/products';
+
+const items = [
+  {
+    nameZh: product.titleZh,
+    href: '/zh/products/' + product.slug,
+    descZh: `家用容器大豆蜡烛全套：2.5 磅蜡、10 支香精、10 支染料、20 根烛芯、10 个容器。${product.observedAt} 实测：$${product.price}、现货 ${product.stock} 件、评价 ${product.reviews} 条。`,
+    status: '已上线',
+  },
+];
+const navAria = brand.name + ' 第一方产品';
+---
+
+<Base
+  title="产品"
+  description="作者自己运营的平台上的第一方商品：写清我们实测到什么、什么时候测的、什么没测过，并带 Markdown 镜像给机器读。不是联盟链接，每页都有披露。"
+  path="/zh/products"
+  lang="zh"
+  switchHref="/products">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>产品</h1>
+      <p class="meta">
+        这里是我们自己的商品，卖在我们自己运营的平台。每页都写明：实测数据与时间、没做过的测试、以及给机器的 Markdown 镜像。
+      </p>
+      <p class="meta">{disclosureZh}</p>
+    </header>
+
+    <nav aria-label={navAria} class="card-grid">
+      {
+        items.map((it) => (
+          <div class="card-flat flow stack-sm">
+            <p class="post-title"><a href={it.href}>{it.nameZh}</a></p>
+            <p>{it.descZh}</p>
+            <p class="meta mono">● {it.status} · 第一方 · 镜像：/m/products/{product.slug}.md</p>
+          </div>
+        ))
+      }
+    </nav>
+
+    <p class="meta">
+      为什么拿它做测试：<a href="/zh/essays/2026-11-03-aieo-product-test">第一方产品页作为 AIEO 测试</a>。
+      免费工具在 <a href="/zh/tools">/zh/tools</a>，合作方式在 <a href="/zh/services">/zh/services</a>。
+    </p>
+  </section>
+</Base>

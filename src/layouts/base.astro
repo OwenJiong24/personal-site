@@ -181,6 +181,8 @@ const mdMirror = mdMirrorFor(path);
             {' · '}
             <a href={aboutHref}>{lang === 'en' ? 'About' : '关于'}</a>
             {' · '}
+            <a href={langPath(lang, '/products')}>{lang === 'en' ? 'Products' : '产品'}</a>
+            {' · '}
             <a href={langPath(lang, '/services')}>{lang === 'en' ? 'Work with me' : '合作方式'}</a>
             {' · '}
             <a href={langPath(lang, '/tags')}>{lang === 'en' ? 'Tags' : '标签'}</a>

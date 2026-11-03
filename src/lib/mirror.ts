@@ -7,6 +7,7 @@ import { chain, keyOf, langOf, publishedPosts, stats, utcDay, type Post } from '
 import { ALGORITHM, BODY_RULE, MACHINE_URLS, REPO_URL, VERIFY_STEPS } from './chain-spec';
 import { gitSha } from './build';
 import { uses } from '../data/uses';
+import { product, disclosureEn, disclosureZh } from '../data/products';
 import { billing, howIWork, notFor, offers, serviceFaq, statusNote, strengths, tools } from '../data/services';
 import { tagStats } from './tags';
 
@@ -112,8 +113,10 @@ export function mdMirrorFor(path: string): string | null {
   const clean = p.startsWith('/zh') ? p.slice(3) || '/' : p;
   const m = /^\/(journal|essays|guides|notes|projects)\/([\w.-]+)$/.exec(clean);
   if (m) return `/m/${m[1]}/${m[2]}.md`;
+  const prod = /^\/products\/([\w.-]+)$/.exec(clean);
+  if (prod) return `/m/products/${prod[1]}.md`;
   const page = clean === '/' ? 'home' : clean.slice(1);
-  const known: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'uses', 'verify', 'tags', 'timeline'];
+  const known: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
   if (clean === '/tools' || clean.startsWith('/tools/')) return '/m/pages/tools.md';
   return known.includes(page as PageName) ? `/m/pages/${page}.md` : null;
 }
@@ -168,7 +171,8 @@ export async function indexDoc(root: URL): Promise<string> {
     '',
     '## Pages',
     '',
-    `- [Home](${abs(root, '/m/pages/home.md')}) · [About](${abs(root, '/m/pages/about.md')}) · [Now](${abs(root, '/m/pages/now.md')}) · [Services](${abs(root, '/m/pages/services.md')}) · [Support](${abs(root, '/m/pages/support.md')}) · [Tools](${abs(root, '/m/pages/tools.md')}) · [Uses](${abs(root, '/m/pages/uses.md')}) · [Verify](${abs(root, '/m/pages/verify.md')}) · [Tags](${abs(root, '/m/pages/tags.md')}) · [Timeline](${abs(root, '/m/pages/timeline.md')})`,
+    `- [Home](${abs(root, '/m/pages/home.md')}) · [About](${abs(root, '/m/pages/about.md')}) · [Now](${abs(root, '/m/pages/now.md')}) · [Services](${abs(root, '/m/pages/services.md')}) · [Support](${abs(root, '/m/pages/support.md')}) · [Tools](${abs(root, '/m/pages/tools.md')}) · [Products](${abs(root, '/m/pages/products.md')}) · [Uses](${abs(root, '/m/pages/uses.md')}) · [Verify](${abs(root, '/m/pages/verify.md')}) · [Tags](${abs(root, '/m/pages/tags.md')}) · [Timeline](${abs(root, '/m/pages/timeline.md')})`,
+    `- First-party product mirrors: ${abs(root, '/m/products/' + 'soy-candle-kit' + '.md')}`,
     '',
     '## Entries (English, root URLs)',
     '',
@@ -211,8 +215,74 @@ export async function allDoc(root: URL): Promise<string> {
   return [...head, `Total: ${all.length} entries (${en.length} English, ${zh.length} Chinese). Full bodies included; chain head above.`, '', ...parts].join('\n');
 }
 
-export type PageName = 'home' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'uses' | 'verify' | 'tags' | 'timeline';
-export const PAGE_NAMES: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'uses', 'verify', 'tags', 'timeline'];
+export type PageName = 'home' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'products' | 'uses' | 'verify' | 'tags' | 'timeline';
+export const PAGE_NAMES: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
+
+/** 第一方产品页的 Markdown 镜像：/m/products/<slug>.md（数字全带观察时间，不含未验证断言）。 */
+export function productDoc(root: URL): string {
+  const p = product;
+  const url = abs(root, '/m/products/' + p.slug + '.md');
+  const head = docHeader(
+    `${p.titleEn} / ${p.titleZh}`,
+    root,
+    'en',
+    [
+      `product_slug: ${p.slug}`,
+      `observed: ${p.observedAt}`,
+      `price: ${p.price} ${p.currency}`,
+      `list_price: ${p.listPrice} ${p.currency}`,
+      `in_stock: ${p.stock}`,
+      `reviews: ${p.reviews}`,
+      'first_party: true',
+      'affiliate: false',
+      `canonical_en: ${abs(root, '/products/' + p.slug)}`,
+      `canonical_zh: ${abs(root, '/zh/products/' + p.slug)}`,
+      `listing: ${p.listingUrl}`,
+      `test_writeup: ${abs(root, '/essays/2026-11-03-aieo-product-test')}`,
+    ],
+    url,
+    'markdown-product-mirror',
+  );
+  return [
+    ...head,
+    disclosureEn,
+    '',
+    disclosureZh,
+    '',
+    `> ${p.pitchEn}`,
+    `> ${p.pitchZh}`,
+    '',
+    '## Contents / 套装内容',
+    '',
+    '| Qty | Item (en) | 物品（中文） |',
+    '|---|---|---|',
+    ...p.contents.map((c) => `| ${c.qty} | ${c.itemEn} | ${c.itemZh} |`),
+    '',
+    '## Holiday fit 2026 (dates cross-checked) / 节日适配',
+    '',
+    '| Date | Occasion (en) | 节点（中文） | Fit (en) | 用法（中文） |',
+    '|---|---|---|---|---|',
+    ...p.holidayTable.map((h) => `| ${h.date} | ${h.en} | ${h.zh} | ${h.useEn} | ${h.useZh} |`),
+    '',
+    '## Claims we do not make / 我们不声称什么',
+    '',
+    ...p.factsEn.map((f) => `- ${f}`),
+    ...p.factsZh.map((f) => `- 中文：${f}`),
+    '- No best-selling, ranking, conversion, repeat-purchase or sales figure: nothing we cannot point to a source for.',
+    '- No shipping cut-off promise: terms live on the listing page, observed ' + p.observedAt + '.',
+    '',
+    '## Safety (as the listing states) / 安全提示',
+    '',
+    ...p.safetyEn.map((s) => `- ${s}`),
+    ...p.safetyZh.map((s) => `- 中文：${s}`),
+    '',
+    '## FAQ / 常见问题',
+    '',
+    ...p.faq.flatMap((f) => [`**Q (en): ${f.qEn}**`, '', `A: ${f.aEn}`, '', `**Q（中文）：${f.qZh}**`, '', `答：${f.aZh}`, '']),
+    `Schema shipped on the HTML page: Product + Offer + FAQPage + BreadcrumbList (no aggregateRating: ${p.reviews} reviews).`,
+  ].join('\n') + '\n';
+}
+
 
 /** 静态页的 Markdown 镜像（数据来自与页面相同的来源，不是手抄）。 */
 export async function pageDoc(name: PageName, root: URL): Promise<string> {
@@ -357,6 +427,25 @@ export async function pageDoc(name: PageName, root: URL): Promise<string> {
         ]),
         ...sec('Planned (not built — do not cite as available)'),
         ...tools.filter((t) => t.status === 'planned').map((t) => `- ${t.nameEn} / ${t.nameZh}: ${t.descEn}`),
+      ].join('\n') + '\n';
+
+    case 'products':
+      return [
+        ...head,
+        'First-party products: sold on the marketplace the author runs. Every page states what was measured, when, and what was not tested. Not affiliate links.',
+        '中文：第一方商品，卖在作者自己运营的平台。每页写明实测内容与时间、没测过什么；不是联盟链接。',
+        '',
+        `### ${product.titleEn} / ${product.titleZh}`,
+        '',
+        `- Canonical (en): ${abs(root, '/products/' + product.slug)} · 中文: ${abs(root, '/zh/products/' + product.slug)}`,
+        `- Listing (first-party): ${product.listingUrl}`,
+        `- Mirror of the full product page: ${abs(root, '/m/products/' + product.slug + '.md')}`,
+        `- Observed ${product.observedAt}: price ${product.price} ${product.currency}, list ${product.listPrice} ${product.currency}, in stock ${product.stock}, reviews ${product.reviews}`,
+        `- Contents: ${product.contents.map((c) => `${c.qty} ${c.itemEn}`).join('; ')}`,
+        `- Disclosure: ${disclosureEn}`,
+        `- 披露：${disclosureZh}`,
+        `- Test write-up (method, query panel, check dates): ${abs(root, '/essays/2026-11-03-aieo-product-test')}`,
+        `- No claims we cannot check: no yield, success rate, ranking, conversion, sales figure, shipping cut-off.`,
       ].join('\n') + '\n';
 
     case 'uses':

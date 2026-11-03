@@ -83,13 +83,55 @@ for (const p of articleHtml) {
 }
 need(linked === articleHtml.length, `文章页 ${linked}/${articleHtml.length} 带镜像 link`);
 
-// 7) llms.txt 要指向 Markdown 镜像
+// 7) 第一方产品页也要有镜像，页面要链到它，并带 Product 结构化数据
+// Astro 产物是目录式：dist/products/<slug>/index.html，所以要递归找 index.html，不能只看 *.html
+let prodCount = 0;
+const prodMdDir = join(DIST, 'm', 'products');
+const prodMdFiles = existsSync(prodMdDir) ? readdirSync(prodMdDir).filter((f) => f.endsWith('.md')) : [];
+const findProductPages = (dir, base) => {
+  const found = [];
+  if (!existsSync(dir)) return found;
+  for (const n of readdirSync(dir)) {
+    const p = join(dir, n);
+    if (statSync(p).isDirectory()) {
+      if (existsSync(join(p, 'index.html'))) found.push({ slug: n, file: join(p, 'index.html'), base });
+      found.push(...findProductPages(p, base + '/' + n));
+    }
+  }
+  return found;
+};
+const prodPages = [...findProductPages(join(DIST, 'products'), '/products'), ...findProductPages(join(DIST, 'zh', 'products'), '/zh/products')];
+const prodIndexFiles = [join(DIST, 'products', 'index.html'), join(DIST, 'zh', 'products', 'index.html')].filter((f) => existsSync(f));
+need(prodIndexFiles.length === 2, '产品索引页缺中英任一处');
+need(prodPages.length > 0, '没有任何产品页');
+const uniqueSlugs = [...new Set(prodPages.map((p) => p.slug))];
+need(prodMdFiles.length >= uniqueSlugs.length, `产品 ${uniqueSlugs.length} 个 slug，镜像只有 ${prodMdFiles.length} 个（中英共用一份镜像）`);
+for (const pg of prodPages) {
+  const t = read(pg.file);
+  prodCount += 1;
+  const mirrorPath = '/m/products/' + pg.slug + '.md';
+  need(t.includes(`href="${mirrorPath}"`), `${pg.base}/${pg.slug} 没链到自己的 Markdown 镜像 ${mirrorPath}`);
+  need(t.includes('"@type":"Product"'), `${pg.base}/${pg.slug} 缺 Product 结构化数据`);
+  // 0 评价：页面里不许出现评分字段（措辞里提到 aggregateRating 不算，看的是真字段）
+  need(!/"@type":\s*"AggregateRating"/.test(t) && !/ratingValue/.test(t), `${pg.base}/${pg.slug} 出现评分字段（0 评价不得写 aggregateRating）`);
+  need(existsSync(join(DIST, 'm', 'products', pg.slug + '.md')), `缺产品镜像文件 /m/products/${pg.slug}.md（中文页共用同一份）`);
+}
+if (prodMdFiles.length) {
+  const mdText = read(join(prodMdDir, prodMdFiles[0]));
+  for (const field of ['observed: ', 'price: ', 'in_stock: ', 'reviews: ', 'first_party: true', 'affiliate: false', 'listing: ']) {
+    need(mdText.includes(field), `/m/products/${prodMdFiles[0]} 缺字段 "${field.trim()}"`);
+  }
+  need(!/^ratingValue\s*:/m.test(mdText), '产品镜像出现 ratingValue 字段（0 评价不得写评分）');
+  need(mdText.includes('2026-11-26') && mdText.includes('12-04'), '产品镜像缺节日日期');
+}
+
+// 8) llms.txt 要指向 Markdown 镜像
 const llms = read(join(DIST, 'llms.txt'));
 need(llms.includes('/m/index.md'), 'llms.txt 未指向 /m/index.md');
 need(llms.includes('/m/all.md'), 'llms.txt 未指向 /m/all.md');
 need((llms.match(/\| md: /g) ?? []).length >= chainJson.count / 2, 'llms.txt 条目清单未附 md 地址');
 
-// 8) _headers 要把 .md 声明为 text/markdown（Cloudflare 默认按 text/plain 发）
+// 9) _headers 要把 .md 声明为 text/markdown（Cloudflare 默认按 text/plain 发）
 const headers = read(join(DIST, '_headers'));
 need(/text\/markdown/.test(headers), '_headers 未给 /m/* 声明 Content-Type: text/markdown');
 
@@ -99,6 +141,6 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `Markdown 镜像自检通过（${mirrors} 篇单篇 + ${pageFiles.length} 个页面镜像 + 索引/全文，` +
+  `Markdown 镜像自检通过（${mirrors} 篇单篇 + ${pageFiles.length} 个页面镜像 + ${prodCount} 个产品页镜像 + 索引/全文，` +
   `链 ${chainJson.count} 条；${linked}/${articleHtml.length} 个文章页带 link）`,
 );

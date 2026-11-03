@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/base.astro';
+import { brand } from '../../lib/site';
+import { product, disclosureEn } from '../../data/products';
+
+const items = [
+  {
+    nameEn: product.titleEn,
+    href: '/products/' + product.slug,
+    descEn: `All-in-one container soy candle kit: 2.5 lb wax, 10 fragrance oils, 10 dyes, 20 wicks, 10 vessels. Observed ${product.observedAt}: $${product.price}, ${product.stock} in stock, ${product.reviews} reviews.`,
+    status: 'live',
+  },
+];
+const navAria = brand.name + ' first-party products';
+---
+
+<Base
+  title="Products"
+  description="First-party products from the marketplace the author runs, with the numbers we can check and a dated observation. Not affiliate links; disclosure on every page."
+  path="/products"
+  lang="en"
+  switchHref="/zh/products">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Products</h1>
+      <p class="meta">
+        These are our own products, sold on the marketplace we run. Every page states what we measured and when,
+        what we did not test, and carries a Markdown mirror for machines.
+      </p>
+      <p class="meta">{disclosureEn}</p>
+    </header>
+
+    <nav aria-label={navAria} class="card-grid">
+      {
+        items.map((it) => (
+          <div class="card-flat flow stack-sm">
+            <p class="post-title"><a href={it.href}>{it.nameEn}</a></p>
+            <p>{it.descEn}</p>
+            <p class="meta mono">● {it.status} · first-party · mirror: /m/products/{product.slug}.md</p>
+          </div>
+        ))
+      }
+    </nav>
+
+    <p class="meta">
+      Why this page exists as a test: <a href="/essays/2026-11-03-aieo-product-test">a first-party product page as an AIEO test</a>.
+      Free tools live at <a href="/tools">/tools</a>; work with me at <a href="/services">/services</a>.
+    </p>
+  </section>
+</Base>
