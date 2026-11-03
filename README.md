@@ -29,14 +29,17 @@ No JavaScript framework ships to the browser. The only inline script is the pric
 ```
 src/content/        journal · essays · guides · notes · projects   (Markdown, bilingual)
 src/pages/          English routes at root, Chinese under pages/zh/
-src/pages/tools/    free static tools (no tracking, runs in the browser)
-src/layouts/        base.astro (chrome, hreflang, footer chain head) · post.astro (article)
+src/pages/m/        Markdown mirror for machines: index.md · all.md · <zone>/<key>.md · pages/<name>.md
+src/pages/tools/    free static tools (no cookies, runs in the browser)
+src/layouts/        base.astro (chrome, hreflang, markdown link, footer chain head) · post.astro (article)
 src/components/     Brand (logo monogram) · views · JSON-LD
-src/lib/            site.ts (identity, the single config entry) · i18n.ts · trust.ts · build.ts
+src/data/           services.ts · uses.ts — one source read by both the pages and the Markdown mirror
+src/lib/            site.ts (identity, the single config entry) · i18n.ts · trust.ts · tags.ts · mirror.ts · chain-spec.ts · build.ts
 src/styles/         tokens.css (brand values) · global.css (brand grammar)
-scripts/            lint-content.mjs (publish gate) · check-css.mjs (build self-check) · deploy.ps1
+scripts/            lint-content.mjs (publish gate) · check-css.mjs · check-i18n.mjs · check-links.mjs ·
+                    check-md.mjs · verify-chain.mjs (independent chain recomputation) · deploy.ps1
 docs/STRATEGY.md    audience, positioning, BIMI plan, dual-voice writing rules
-public/             _headers · _redirects · favicon · og.png
+public/             _headers (CSP, HSTS, markdown content-type) · _redirects · favicon · og.png
 ```
 
 ## Run it locally
@@ -44,12 +47,39 @@ public/             _headers · _redirects · favicon · og.png
 ```bash
 pnpm install
 pnpm dev        # http://localhost:4321
-pnpm build      # content red-line gate → CSS self-check → dist/
+pnpm build      # five gates: content red-line → CSS → canonical/hreflang → dead links → Markdown mirror
 ```
 
 `pnpm build` fails on purpose when public content contains credentials, host addresses, internal
 identifiers, a non-brand email domain, `sensitive: true` together with `status: public`, a missing
-summary, or a missing `lang` / `key` declaration. Do not work around the gate.
+summary, or a missing `lang` / `key` declaration — or when a published page links to a route that does
+not exist, a canonical/hreflang pair points at a 404, or the Markdown mirror drifts from the entries it
+mirrors. Do not work around the gate.
+
+## Machine-readable Markdown
+
+Every page has a Markdown mirror so AI engines and scripts do not have to scrape HTML:
+
+| What | Where |
+|---|---|
+| Site index (identity, rules, every entry, chain head) | `/m/index.md` |
+| Full corpus, all bodies in one file | `/m/all.md` |
+| One entry, with a canonical metadata block | `/m/<section>/<key>.md` |
+| Static pages (home, about, now, services, support, tools, uses, verify, tags, timeline) | `/m/pages/<name>.md` |
+| Plain-text index and corpus | `/llms.txt`, `/llms-full.txt` |
+| The record chain, one item per record with its repo source path | `/chain.json` |
+
+Discovery is explicit: each HTML page ships `<link rel="alternate" type="text/markdown">`, the footer links
+`/m/index.md`, and `_headers` serves `/m/*` as `Content-Type: text/markdown`. The mirrors are generated from
+the same data the pages render, and `scripts/check-md.mjs` fails the build if the mirror falls out of step.
+Cite the canonical `url` in a mirror header, not the `.md` path.
+
+Recompute the record chain without trusting this site:
+
+```bash
+git clone https://github.com/OwenJiong24/personal-site && cd personal-site
+node scripts/verify-chain.mjs   # fetches /chain.json + every source file, recomputes all digests
+```
 
 ## Content model
 
