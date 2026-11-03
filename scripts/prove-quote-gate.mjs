@@ -49,6 +49,30 @@ const cases = [
     expect: 'Q1',
   },
   {
+    rule: 'Q1b 自造日期标记',
+    prevents: 'v1 的真实错：把摘要自造的【0808】当原文标记',
+    input: { registry: (() => { const r = clone(registry); r.find((q) => q.id === 'value-story-effort-scarcity').rawTag = '0808'; return r; })(), approved: [], pages: [] },
+    expect: 'Q1b',
+  },
+  {
+    rule: 'Q1b 登记簿带年份',
+    prevents: '把索引推断的年份写成事实（语料内 0 个年份锚点）',
+    input: { registry: (() => { const r = clone(registry); r.find((q) => q.id === 'value-story-effort-scarcity').year = '2025-11-19'; return r; })(), approved: [], pages: [] },
+    expect: 'Q1b',
+  },
+  {
+    rule: 'Q2b 页面写语料年份',
+    prevents: '页面上出现「原文 2025-11-19」这类不可证年份',
+    input: { registry, approved: [], pages: page(`<p>「${norm(A_plain.quote)}」—— 脱密原文 2025-11-19（原文未标日期）</p>`) },
+    expect: 'Q2b',
+  },
+  {
+    rule: 'Q6 旧字段残留',
+    prevents: '旧 dateLabel 混进登记簿，年份规则失效',
+    input: { registry: (() => { const r = clone(registry); r.find((q) => q.id === 'position-enable-light-social').dateLabel = '2025-06-04'; return r; })(), approved: [], pages: [] },
+    expect: 'Q6',
+  },
+  {
     rule: 'Q2 日期',
     prevents: '把摘要【MMDD】当日期；原文无日期时不给标注',
     input: { registry, approved: [], pages: page(`<p>「${norm(A_null_date.quote)}」—— OJ，2025-08-08</p>`) },

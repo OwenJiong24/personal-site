@@ -65,6 +65,8 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
     if (ids.has(q.id)) problems.push(`Q6 登记簿 id 重复：${q.id}`);
     ids.add(q.id);
     if (q.status === 'C' && !(Array.isArray(q.forbid) && q.forbid.length)) problems.push(`Q6 C 类 ${q.id} 必须给 forbid 短语`);
+    if (q.rawTag && !/^(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/.test(q.rawTag)) problems.push(`Q6 ${q.id} rawTag 非法（应为 MMDD）：${q.rawTag}`);
+    if ('dateLabel' in q) problems.push(`Q6 ${q.id} 仍带旧字段 dateLabel（年份不可证，字段已废）`);
   }
 
   const corpusFiles = new Map();
@@ -86,6 +88,11 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
     if (!window.includes(norm(q.quote))) {
       problems.push(`Q1 ${q.id} 引用与脱密原文 ${q.file}:L${q.lineFrom}-${q.lineTo} 不逐字一致（引用被改写或行号错）`);
     }
+    // Q1b 日期标记必须真在该行里（v1 的日期全来自索引推断与摘要自造标签，实测语料内 0 个年份锚点）
+    if (q.rawTag && !lines.slice(q.lineFrom - 1, q.lineTo).join('\n').includes(q.rawTag)) {
+      problems.push(`Q1b ${q.id} 的日期标记 ${q.rawTag} 不在所引原文行内（标签是编的）`);
+    }
+    if (q.year) problems.push(`Q1b ${q.id} 不得带年份（语料内无年份锚点）：${q.year}`);
   }
 
   // Q2 日期诚实 + Q3 C 类外泄 + Q4 B 类批准
@@ -101,8 +108,8 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
     if (q.status === 'B' && shown.length && !approvedSet.has(q.id)) {
       problems.push(`Q4 B 类未经批准不得公开：${q.id}（${q.ask ?? '需 CEO 点头'}）`);
     }
-    if (q.status !== 'C' && !q.dateLabel && shown.length) {
-      for (const p of shown) if (!norm(p.text).includes('原文未标日期')) problems.push(`Q2 ${q.id} 原文无日期，页面必须标「原文未标日期」：${p.name}`);
+    if (q.status !== 'C' && !q.rawTag && shown.length) {
+      for (const p of shown) if (!norm(p.text).includes('原文未标日期')) problems.push(`Q2 ${q.id} 原文行内没有日期标记，页面必须写「原文未标日期」：${p.name}`);
     }
   }
 
@@ -112,6 +119,9 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
   const promises = ['承诺', '保证', '全额退款', '免费退货', '1min', '每1分钟', '一定退', '必定'];
   for (const p of zartPages) {
     const t = norm(p.text);
+    // Q2b：不得把语料年份当事实写出来（实测：脱密笔记里 0 个年份锚点，索引的年份全是推断）
+    const yearPair = /(原文|笔记|脱密|脱密原文|source)[^<\n]{0,60}(20\d{2})|(20\d{2})[^<\n]{0,40}(原文|笔记|脱密)/g;
+    for (const m of t.matchAll(yearPair)) problems.push(`Q2b 语料年份不可证，公开页不得出现：「${m[0].slice(0, 70)}」→ ${p.name}`);
     for (const w of rivals) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现竞争对手名称「${w}」：${p.name}`);
     for (const w of absolutes) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现排名/绝对化用语「${w}」：${p.name}`);
     for (const w of promises) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现承诺/SLA 用语「${w}」：${p.name}`);
