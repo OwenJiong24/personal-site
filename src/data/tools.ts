@@ -27,7 +27,7 @@ export const pricingTool = {
   descEn:
     'Free handmade pricing calculator. Enter material, small parts, failure rate, hours, hourly rate, shipping you absorb, return rate, cost per return and platform fees; it returns the floor price, a premium price, the surplus per production hour and the break-even units. Runs offline in your browser, no account, no tracking, arithmetic shown line by line.',
   descZh:
-    '免费手作定价计算器。填材料、配件包装、失败率、工时、时薪、你承担的运费、退货率、单次退货成本与平台抽成，得到保本价、溢价定价、每生产小时盈余与保本件数。浏览器本地运行、不注册、无追踪，每一步算术都摊在页面上。',
+    '免费手作定价计算器。填材料、配件包装、失败率、工时、时薪、你承担的运费、退货率、单次退货成本与平台抽成，得到保本价、溢价定价、每生产小时盈余与保本件数。浏览器本地运行、不注册、输入不出本机，每一步算术都摊在页面上。',
   keywordsEn: [
     'handmade pricing calculator',
     'etsy fee calculator',

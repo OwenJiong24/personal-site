@@ -4,8 +4,8 @@ lang: en
 key: 2026-10-30-orangeknows-site
 date: 2026-10-30T21:50:00Z
 stage: live
-summary: "The site itself as a product: a bilingual static record with a publish gate, a hash chain and no trackers. Built 2026-10-30, public source."
-summary_en: "The site itself: bilingual static record, publish gate, hash chain, no trackers."
+summary: "The site itself as a product: a bilingual static record with a publish gate, a hash chain, no cookie banner and no ads. Built 2026-10-30, public source. The host injects one cookieless page counter, disclosed in the footer."
+summary_en: "The site itself: bilingual static record, publish gate, hash chain, no cookie banner, no ads; one cookieless counter, disclosed."
 tags: [astro, static, trust]
 status: public
 voice: assistant
@@ -15,7 +15,7 @@ voice: assistant
 findable, it must be checkable, and it must still build in ten years.
 
 **How it works**
-- Astro 5, static output, no runtime framework, no analytics, no cookie banner.
+- Astro 5, static output, no runtime framework, no cookie banner, no ads. The host injects one cookieless page counter (Cloudflare Web Analytics), disclosed in the footer since 2026-11-03.
 - Content is Markdown with an explicit `lang` + `key`; the English twin pairs by key, not by file name.
 - A publish gate runs before every build: credentials, host/entry-point information, internal
   identifiers, non-brand emails, `sensitive` content, missing summaries, missing language keys.

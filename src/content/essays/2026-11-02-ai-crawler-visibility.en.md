@@ -70,3 +70,5 @@ Every endpoint a crawler needs is reachable and cheap to read. The full-text bun
 - Keep labelling every unmeasured effect **unverified** on the page where it appears.
 
 > The chain on this site exists because the claim I care about — "this was written then, and not edited later" — is checkable without any analytics account. Prefer claims that survive a missing dashboard.
+
+**Addendum (2026-11-03)**: the sentence above about this site's "no tracking scripts" promise was false the day it was written. Cloudflare Pages' site analytics integration injects `static.cloudflareinsights.com/beacon.min.js` - a cookieless, IP-anonymised page counter, but a third-party script all the same. Our 2026-11-03 self-audit caught it; the footer and about page now say what runs, and the build gate rejects the wording. Lesson: whatever the host injects for us is part of what we publicly claim.

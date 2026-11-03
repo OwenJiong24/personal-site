@@ -4,8 +4,8 @@ lang: zh
 key: 2026-10-30-orangeknows-site
 date: 2026-10-30T21:50:00Z
 stage: live
-summary: 把这个站当产品做：双语静态记录 + 发布门禁 + 哈希链，无追踪。2026-10-30 建成，源码公开。
-summary_en: "The site as a product: bilingual static record, publish gate, hash chain, no trackers."
+summary: 把这个站当产品做：双语静态记录 + 发布门禁 + 哈希链，无 Cookie 横幅、无广告。2026-10-30 建成，源码公开。托管方注入一枚无 Cookie 的页面计数，页脚已披露。
+summary_en: "The site as a product: bilingual static record, publish gate, hash chain, no cookie banner, no ads; one cookieless counter, disclosed."
 tags: [astro, 静态站, 信任]
 status: public
 voice: assistant
@@ -14,7 +14,7 @@ voice: assistant
 **是什么**：你现在看的这个站，被当成一个产品来做，只有三条要求——**被找到、被核对、十年后还能构建**。
 
 **怎么做的**
-- Astro 5 静态输出，无运行时框架、无统计脚本、无 Cookie 横幅。
+- Astro 5 静态输出，无运行时框架、无 Cookie 横幅、无广告；统计只有托管方注入的一枚无 Cookie 页面计数（2026-11-03 起在页脚披露）。
 - 内容用 Markdown，显式声明 `lang` + `key`；中英两版用同一个 key 配对，不靠文件名推断。
 - 每次构建前过发布门禁：凭据、主机与入口信息、内部标识、非本站邮箱、`sensitive` 内容、缺摘要、缺语言键——命中即构建失败。
 - 每篇正文全文进 SHA-256 链；页脚显示链头与本次构建来自的提交号。

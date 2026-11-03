@@ -148,6 +148,35 @@ for (const f of articleShells) {
   if (!/"publisher":\{"@type":"Organization"/.test(t)) add(f.replace(DIST, ''), '/about', '缺 Organization publisher');
 }
 
+// 3c) 事实一致性：本站自 Pages 集成起加载 Cloudflare 分析 beacon（无 Cookie 计数，页脚已披露），
+//     因此公开文本不得声称"无追踪/无统计脚本/无第三方脚本"。2026-11-03 自审抓到项目页摘要就是这样一句。
+const TRACKER_CLAIMS = ['无追踪', '无跟踪', '无统计脚本', '无第三方脚本', 'no trackers', 'no analytics script', 'no third-party script'];
+// 引用别人（包括我们自己说过的）话不算自夸：落在引号跨度内即豁免
+const QUOTE_PAIRS = [['「', '」'], ['『', '』'], ['“', '”'], ['"', '"'], ['\'', '\'']];
+function insideQuote(t, i) {
+  for (const [o, c] of QUOTE_PAIRS) {
+    const lastOpen = t.lastIndexOf(o, i - 1);
+    if (lastOpen < 0) continue;
+    if (!t.slice(lastOpen + 1, i).includes(c)) return true;
+  }
+  return false;
+}
+for (const f of files) {
+  // 扫全文（含 meta description 与可见正文），只剥掉 script 体，避免 beacon 自身与 JSON-LD 干扰
+  const text = readFileSync(f, 'utf8').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/\s+/g, ' ');
+  const low = text.toLowerCase();
+  for (const p of TRACKER_CLAIMS) {
+    let i = low.indexOf(p.toLowerCase());
+    while (i >= 0) {
+      if (!insideQuote(text, i)) {
+        problems.push(`事实一致性: ${f.replace(DIST, '')} 写「${p}」——本站确有 Cloudflare 分析 beacon，此说法不成立：…${text.slice(Math.max(0, i - 45), i + 45)}…`);
+        break; // 每个文件每种措辞只报一次
+      }
+      i = low.indexOf(p.toLowerCase(), i + p.length);
+    }
+  }
+}
+
 if (problems.length) {
   console.error(`链接/完整性自检未通过（${problems.length} 项）：`);
   for (const p of problems.slice(0, 60)) console.error('  - ' + p);

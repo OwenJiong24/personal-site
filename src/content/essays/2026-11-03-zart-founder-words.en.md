@@ -117,4 +117,4 @@ A platform's feature list is always longer than what can be finished. So we get 
 
 The English and the Chinese sit side by side, because the Chinese one reads closer to what we can actually deliver.
 
-Quoted word for word, cited to the line, open to checking.
+Quoted word for word, cited to the line. The source notes are not in the public repository, so what you can verify is that this text entered the hash chain and was never edited afterwards; you cannot recompute the originals. We state that plainly instead of writing "open to checking".

@@ -467,7 +467,7 @@ export async function pageDoc(name: PageName, root: URL): Promise<string> {
       return [
         ...head,
         'How to support this record: it is free to read, has no ads, no tracking, and no paywall.',
-        '中文：这份记录免费公开阅读，无广告、无追踪、无付费墙。',
+        '中文：这份记录免费公开阅读，无广告、无付费墙；页面带一枚托管方注入的无 Cookie 访问计数，页脚已披露。',
         '',
         ...sec('Routes that exist today'),
         `- Read it, cite it, link it: canonical URLs above; short quotes with attribution are welcome.`,
@@ -485,7 +485,7 @@ export async function pageDoc(name: PageName, root: URL): Promise<string> {
       return [
         ...head,
         'Free tools for makers. No account, no tracking, everything runs in your browser (the page works offline once loaded).',
-        '中文：给手作卖家的免费工具。不注册、无追踪，全部在浏览器本地运行。',
+        '中文：给手作卖家的免费工具。不注册、输入不出本机，全部在浏览器本地运行。',
         '',
         ...sec('Live'),
         ...tools.filter((t) => t.status === 'live').flatMap((t) => [
