@@ -55,6 +55,13 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
   const ids = new Set();
   const approvedSet = new Set(approved);
   const zartPages = pages.filter((p) => p.zart);
+  // 引用了登记簿原话的「单页」也算 ZART 公开面（文章 slug 未必含 zart）。
+  // 聚合文件（llms-full.txt、m/all.md）天然含全站文本，不纳入扫描面，避免自伤。
+  const quoteCores = registry.map((q) => norm(q.quote));
+  const faces = [
+    ...zartPages,
+    ...pages.filter((p) => /index\.html$/i.test(p.name) && !p.zart && quoteCores.some((c) => c.length > 12 && norm(p.text).includes(c))),
+  ];
 
   // Q6 登记簿卫生
   for (const q of registry) {
@@ -109,15 +116,16 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
       problems.push(`Q4 B 类未经批准不得公开：${q.id}（${q.ask ?? '需 CEO 点头'}）`);
     }
     if (q.status !== 'C' && !q.rawTag && shown.length) {
-      for (const p of shown) if (!norm(p.text).includes('原文未标日期')) problems.push(`Q2 ${q.id} 原文行内没有日期标记，页面必须写「原文未标日期」：${p.name}`);
+      const markers = ['原文未标日期', 'no date in source'];
+      for (const p of shown) if (!markers.some((m) => norm(p.text).includes(m))) problems.push(`Q2 ${q.id} 原文行内没有日期标记，页面必须写「原文未标日期 / no date in source」：${p.name}`);
     }
   }
 
-  // Q5 公关边界（只在 ZART 公开面生效）
+  // Q5 公关边界（只在 ZART 公开面与引用了登记簿原话的单页生效）
   const rivals = ['Etsy', 'Shopify', 'Amazon', 'eBay', 'Makely', 'Storenvy', 'artisans.coop', 'novica', 'Kiwico', 'Uncommon Goods', 'Cratejoy'];
   const absolutes = ['唯一', '仅次于', '最好的', '行业第一', '第一名', '最优质'];
   const promises = ['承诺', '保证', '全额退款', '免费退货', '1min', '每1分钟', '一定退', '必定'];
-  for (const p of zartPages) {
+  for (const p of faces) {
     const t = norm(p.text);
     // Q2b：不得把语料年份当事实写出来（实测：脱密笔记里 0 个年份锚点，索引的年份全是推断）
     const yearPair = /(原文|笔记|脱密|脱密原文|source)[^<\n]{0,60}(20\d{2})|(20\d{2})[^<\n]{0,40}(原文|笔记|脱密)/g;
