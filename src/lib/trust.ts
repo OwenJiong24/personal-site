@@ -64,13 +64,16 @@ const sha256 = (s: string) => createHash('sha256').update(s, 'utf8').digest('hex
  * 记录链：全部公开条目（含英文译文）按时间升序串成一条哈希链。
  * 摘要 = SHA256(上一条摘要 | 序号 | 文件 id | 日期 | 标题 | 正文全文)。
  * 正文与译文都在哈希范围内；列表用的 summary 不参与。
+ * v2（2026-11-03）：正文参与哈希前把换行统一为 \n。
+ *   原因：本机文件多为 CRLF，而公开仓库与 raw.githubusercontent 是 LF，
+ *   不统一的话第三方拉到源码也重算不出链头（实测 38 条全部不符）。链头因此只与内容相关，与检出平台无关。
  */
 export async function chain() {
   const posts = (await allPublic()).slice().sort((a, b) => t(a) - t(b)); // 旧→新
   let hash = `GENESIS:${site.start}`;
   const byId = new Map<string, string>();
   posts.forEach((p, i) => {
-    const raw = (p as unknown as { body?: string }).body ?? '';
+    const raw = ((p as unknown as { body?: string }).body ?? '').replace(/\r\n/g, '\n');
     hash = sha256(`${hash}|${i}|${p.id}|${p.data.date.toISOString()}|${p.data.title}|${raw}`);
     byId.set(p.id, hash);
   });

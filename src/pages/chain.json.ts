@@ -33,7 +33,7 @@ export const GET: APIRoute = async () => {
   const body = {
     genesis: site.start,
     algorithm:
-      'SHA256(prev | index | id | ISO8601 date | title | body), 从 GENESIS:<start> 起按 items 顺序升序；summary 不参与哈希；中英两版各算一条',
+      'v2 SHA256(prev | index | id | ISO8601 date | title | body), 从 GENESIS:<start> 起按 items 顺序升序；正文换行统一为 \\n 后参与哈希；summary 不参与；中英两版各算一条',
     head: ch.head,
     count: ch.count,
     built_at: new Date().toISOString(),
