@@ -1,0 +1,59 @@
+---
+import Base from '../../../layouts/base.astro';
+import { linkableTags, postsByTag, tagStats, tagPageExists } from '../../../lib/tags';
+import { keyOf, utcDay, type Post } from '../../../lib/trust';
+import { brand } from '../../../lib/site';
+
+export async function getStaticPaths() {
+  const tags = await linkableTags('zh');
+  return tags.map((t) => ({ params: { tag: t.slug }, props: { tag: t.tag } }));
+}
+
+const { tag } = Astro.props as { tag: string };
+const lang = 'zh';
+const posts = (await postsByTag(tag, lang)) as Post[];
+const all = await tagStats();
+const entry = all.find((t) => t.tag === tag);
+const slug = entry?.slug ?? '';
+// 语言切换只在另一语言的标签页真的存在时给（单语标签的中文页不能指向不存在的 /tags/…）
+const switchHref = entry && tagPageExists(entry, 'en') ? `/tags/${slug}` : undefined;
+const listStyle = 'list-style:none;padding:0;margin:0;display:grid;gap:0.75rem';
+---
+
+<Base
+  title={`标签 · ${tag}`}
+  description={`OrangeKnows 公开记录里带「${tag}」标签的 ${posts.length} 条中文内容。`}
+  path={`/zh/tags/${slug}`}
+  lang={lang}
+  switchHref={switchHref}>
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <p class="meta"><a href="/zh/tags">全部标签</a></p>
+      <h1>{tag}</h1>
+      <p class="meta">带这个标签的中文内容 {posts.length} 条（同一标签在英文记录里也出现）。</p>
+    </header>
+
+    <ul style={listStyle}>
+      {
+        posts.map((p) => (
+          <li>
+            <a href={`/zh/${p.collection}/${keyOf(p)}`}>
+              <span class="meta">{utcDay(p.data.date)} · {p.collection}</span>
+              <p class="post-title">{p.data.title}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: `标签：${tag}`,
+      url: new URL(`/zh/tags/${entry?.slug ?? ''}`, Astro.site ?? 'https://orangeknows.com').toString(),
+      inLanguage: 'zh-CN',
+      numberOfItems: posts.length,
+      isPartOf: { '@type': 'WebSite', url: (Astro.site ?? 'https://orangeknows.com').toString() },
+    })} />
+  </section>
+</Base>

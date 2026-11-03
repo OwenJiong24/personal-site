@@ -13,7 +13,7 @@ for (const p of posts) {
 const months = [...byMonth.keys()].sort().reverse();
 const names = ui.en.sections as Record<string, { name: string }>;
 const rows = new Map(months.map((m) => [m, byMonth.get(m)!.map((p) => ({
-  href: '/en/' + p.collection + '/' + keyOf(p),
+  href: '/' + p.collection + '/' + keyOf(p),
   day: utcDay(p.data.date),
   zoneName: names[p.collection]?.name ?? p.collection,
   title: p.data.title,

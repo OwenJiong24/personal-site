@@ -1,0 +1,49 @@
+---
+import Base from '../../../layouts/base.astro';
+import { brand } from '../../../lib/site';
+import { linkableTags, tagStats } from '../../../lib/tags';
+
+const lang = 'zh';
+const all = await tagStats();
+const linkable = await linkableTags(lang);
+const slugs = new Set(linkable.map((t) => t.slug));
+const navAria = '标签总览';
+const cardStyle = 'display:flex;flex-wrap:wrap;gap:0.5rem';
+---
+
+<Base
+  title="标签"
+  description="这份记录里出现过的全部标签与条目数。只有两条以上内容的标签才建索引页，避免薄内容页。"
+  path="/zh/tags"
+  lang={lang}
+  switchHref="/tags">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>标签</h1>
+      <p class="meta">
+        共 {all.length} 个标签，覆盖 {all.reduce((n, t) => n + t.zh, 0)} 条中文记录。只有条目数 ≥2 的标签有自己的页面——
+        薄内容页对读者和爬虫都没好处。
+      </p>
+    </header>
+
+    <nav aria-label={navAria} style={cardStyle}>
+      {
+        all.map((t) =>
+          t.count >= 2 && slugs.has(t.slug) ? (
+            <a class="pill pill-accent" href={`/zh/tags/${t.slug}/`}>
+              {t.tag} {t.count}
+            </a>
+          ) : (
+            <span class="pill" title="只有一条内容，不建索引页">
+              {t.tag} {t.count}
+            </span>
+          ),
+        )
+      }
+    </nav>
+
+    <p class="meta">
+      {brand.name} · {brand.slogan} · <a href="/zh/essays">洞察</a> · <a href="/zh/guides">指南</a> · <a href="/zh/journal">日志</a>
+    </p>
+  </section>
+</Base>

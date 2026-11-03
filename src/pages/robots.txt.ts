@@ -24,7 +24,7 @@ const CRAWLERS = [
 ];
 
 export const GET: APIRoute = ({ site }) => {
-  const base = site ?? new URL('https://jiong-bvw.pages.dev');
+  const base = site ?? new URL('https://orangeknows.com');
   const sitemap = new URL('/sitemap-index.xml', base);
   const llms = new URL('/llms.txt', base);
   const lines = [

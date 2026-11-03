@@ -12,21 +12,22 @@ const block = (p: Post, url: string) => {
 };
 
 export const GET: APIRoute = async ({ site: base }) => {
-  const root = base ?? new URL('https://jiong-bvw.pages.dev');
+  const root = base ?? new URL('https://orangeknows.com');
   const zh = await publishedPosts('zh');
   const en = await publishedPosts('en');
   const head = [
     `${site.name} — full text of the public record`,
-    `Author: ${site.name}. All dates UTC. Index: /llms.txt`,
+    `Author: ${site.author}, published as ${site.name}. All dates UTC. Index: /llms.txt`,
+    'English entries are at the site root; Chinese entries under /zh/. Dual-voice rule: narration is compiled by the OK assistant (AI-assisted); quoted lines are OJ in his own words.',
     '',
   ].join('\n');
   const body = [
-    '# Chinese (zh-Hans)',
+    '# English (root URLs)',
     '',
-    ...zh.map((p) => block(p, new URL(`/${p.collection}/${keyOf(p)}`, root).toString())),
-    '# English',
+    ...en.map((p) => block(p, new URL(`/${p.collection}/${keyOf(p)}`, root).toString())),
+    '# 中文 (zh-Hans, /zh/ 前缀)',
     '',
-    ...en.map((p) => block(p, new URL(`/en/${p.collection}/${keyOf(p)}`, root).toString())),
+    ...zh.map((p) => block(p, new URL(`/zh/${p.collection}/${keyOf(p)}`, root).toString())),
   ].join('\n');
   return new Response(`${head}\n${body}`, {
     headers: { 'content-type': 'text/plain; charset=utf-8' },

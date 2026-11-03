@@ -13,6 +13,7 @@ import Brand from '../components/Brand.astro';
 import { brand, site } from '../lib/site';
 import { publishedPosts, stats, chain } from '../lib/trust';
 import { ui, langPath, type Lang } from '../lib/i18n';
+import { mdMirrorFor } from '../lib/mirror';
 
 interface Props {
   title: string;
@@ -42,6 +43,7 @@ const ogImage = new URL('/og.png', base).toString();
 const verifyHref = langPath(lang, '/verify');
 const aboutHref = langPath(lang, '/about');
 const authorLabel = lang === 'en' ? site.author : site.authorZh;
+const mdMirror = mdMirrorFor(path);
 ---
 
 <!doctype html>
@@ -65,15 +67,30 @@ const authorLabel = lang === 'en' ? site.author : site.authorZh;
     <link
       rel="alternate"
       type="application/rss+xml"
+      hreflang="zh-Hans"
       title={`${brand.name} — Journal (zh)`}
-      href={new URL(lang === 'zh' ? '/zh/rss.xml' : '/rss.xml', base)}
+      href={new URL('/zh/rss.xml', base)}
     />
     <link
       rel="alternate"
       type="application/rss+xml"
+      hreflang="en"
       title={`${brand.name} — Journal (en)`}
-      href={new URL('/en/rss.xml', base)}
+      href={new URL('/rss.xml', base)}
     />
+    {
+      // Markdown 镜像：这一页的机器可读版本（AI/harness 直接读它，不必抓 HTML）
+      mdMirror && (
+        <link
+          rel="alternate"
+          type="text/markdown"
+          hreflang={lang === 'zh' ? 'zh-Hans' : 'en'}
+          title={`${brand.name} — Markdown mirror`}
+          href={new URL(mdMirror, base)}
+        />
+      )
+    }
+    <link rel="alternate" type="text/markdown" title={`${brand.name} — site index (Markdown)`} href={new URL('/m/index.md', base)} />
     <meta name="generator" content={Astro.generator} />
     <meta name="color-scheme" content="light dark" />
     <meta name="author" content={site.author} />
@@ -126,7 +143,7 @@ const authorLabel = lang === 'en' ? site.author : site.authorZh;
               </a>
             )
           }
-          <a href="/rss.xml">RSS</a>
+          <a href={langPath(lang, '/rss.xml')}>RSS</a>
           <button class="theme-toggle" id="theme-toggle" type="button" aria-label={t.theme.aria}>
             <span class="theme-label" data-light={t.theme.light} data-dark={t.theme.dark}>{t.theme.light}</span>
           </button>
@@ -163,6 +180,14 @@ const authorLabel = lang === 'en' ? site.author : site.authorZh;
             )}
             {' · '}
             <a href={aboutHref}>{lang === 'en' ? 'About' : '关于'}</a>
+            {' · '}
+            <a href={langPath(lang, '/services')}>{lang === 'en' ? 'Work with me' : '合作方式'}</a>
+            {' · '}
+            <a href={langPath(lang, '/tags')}>{lang === 'en' ? 'Tags' : '标签'}</a>
+            {' · '}
+            <a href="/m/index.md" title={lang === 'en' ? 'Whole site as one Markdown file, for AI and scripts' : '整站一份 Markdown 文件，给 AI 与脚本直接读'}>
+              Markdown
+            </a>
             {' · '}
             {t.footer.noTracker}
           </span>

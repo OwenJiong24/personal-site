@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/base.astro';
+import { site } from '../lib/site';
+import { billing, howIWork, notFor, offers, serviceFaq, statusNote, strengths } from '../data/services';
+
+const email = site.anchors.email;
+const faq = serviceFaq.map((f) => f.en);
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'E-commerce growth and advertising consulting for handmade and craft sellers',
+  provider: { '@type': 'Person', name: site.author, url: 'https://orangeknows.com/' },
+  areaServed: 'US and English-speaking markets',
+  availableLanguage: ['English', 'Chinese'],
+  url: 'https://orangeknows.com/services',
+};
+const faqPage = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const cards = 'display:grid;gap:0.75rem;grid-template-columns:1fr';
+---
+
+<Base
+  title="Work with me"
+  description="Short, bounded engagements for handmade and craft sellers: growth diagnosis, unit economics, listing and shipping structure, small-budget advertising."
+  path="/services"
+  lang="en"
+  switchHref="/zh/services">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Work with me</h1>
+      <p class="meta">Short, bounded engagements. Plain language, numbers on the table, and a written action list you can run without me.</p>
+      <p class="meta">
+        Machine-readable version of this page: <a href="/m/pages/services.md">/m/pages/services.md</a>
+      </p>
+    </header>
+
+    <div class="prose">
+      <h2>What I am good at</h2>
+      <ul>
+        {strengths.map((s) => <li>{s.en}</li>)}
+      </ul>
+
+      <h2>Two ways to start</h2>
+      <div style={cards}>
+        {
+          offers.map((o) => (
+            <div class="card-flat flow stack-sm">
+              <p class="post-title">{o.titleEn}</p>
+              <p>{o.descEn}</p>
+              <p class="meta">
+                {o.metaEn} Email{' '}
+                <a href={`mailto:${email}?subject=diagnosis%20%C2%B7%20my%20shop`}>{email}</a>.
+              </p>
+            </div>
+          ))
+        }
+      </div>
+
+      <h2>Who this is not for</h2>
+      <ul>
+        {notFor.map((x) => <li>{x.en}</li>)}
+      </ul>
+
+      <h2>How I work</h2>
+      <ul>
+        {
+          howIWork.map((x) => (
+            <li>
+              <strong>{x.en.split('.')[0]}.</strong> {x.en.split('.').slice(1).join('.').trim()}
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2>Honest status</h2>
+      <p>{statusNote.en}</p>
+      <p class="meta">{billing.en}</p>
+    </div>
+
+    <section class="flow stack-sm">
+      <h2>Questions</h2>
+      {
+        faq.map((f) => (
+          <div class="card-flat flow">
+            <p class="post-title">{f.q}</p>
+            <p>{f.a}</p>
+          </div>
+        ))
+      }
+    </section>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(serviceLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqPage)} />
+  </section>
+</Base>

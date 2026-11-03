@@ -1,4 +1,4 @@
-// 双语界面文案。中文是主语言之一（URL 无前缀），英文在 /en/ 前缀下。
+// 双语界面文案。英文在站点根（2026-10-30 英文默认），中文在 /zh/ 前缀下。
 // 品牌语气规则见 ui-toolkit/modes/c-orangeknows.md 第 7 节：先结论后依据、状态如实标、不喊营销口号。
 import type { SectionSlug } from './site';
 
@@ -20,6 +20,7 @@ export const ui = {
       { path: '/projects', label: '项目' },
       { path: '/uses', label: '清单' },
       { path: '/tools', label: '工具' },
+      { path: '/services', label: '合作' },
       { path: '/about', label: '关于' },
     ],
     tagline: 'AM 时代的公开工作日志：一个人类工程师的连续记录',
@@ -48,7 +49,8 @@ export const ui = {
       '每篇公开记录进入一条哈希链（正文全文参与哈希），链头写在页脚：改一个字链头就变。',
       '不写密钥、主机地址、客户数据、未发布的商业数字，也不写身份证级隐私。',
       '第一屏先给结论；状态如实标：已做 / 首次尝试 / 未验证。',
-      '静态站，无追踪脚本；中文为主，重要篇章配英文版。',
+      '静态站，无追踪脚本；英文在站点根、中文在 /zh/ 前缀，中英同 key 互指。',
+      '每页都有 Markdown 镜像：入口 /m/index.md（整站索引）、/m/all.md（全文语料）、单篇 /m/<分区>/<key>.md。',
     ],
     count: (n: number) => `${n} 条`,
     zone: { meta: (n: number) => `${n} 条记录 · 按时间倒序`, empty: '这个抽屉还是空的。第一批内容写完后会出现在这里。' },
@@ -90,6 +92,7 @@ export const ui = {
       { path: '/projects', label: 'Projects' },
       { path: '/uses', label: 'Uses' },
       { path: '/tools', label: 'Tools' },
+      { path: '/services', label: 'Work with me' },
       { path: '/about', label: 'About' },
     ],
     tagline: 'A public engineering log in the model era: one human, recorded continuously',
@@ -118,7 +121,8 @@ export const ui = {
       'Every published entry joins a hash chain (the full body is hashed). Change one character and the chain head changes.',
       'No credentials, no host addresses, no client data, no unreleased business numbers, no identity-grade private details.',
       'First screen states the conclusion; status is honest: done / first attempt / not verified.',
-      'Static site, no trackers. Chinese-first, English twin for the important pieces.',
+      'Static site, no trackers. English at the root, Chinese under /zh; paired versions share one key and link to each other.',
+      'Every page has a Markdown mirror for machines: /m/index.md (site index), /m/all.md (full corpus), /m/<section>/<key>.md (single entry).',
     ],
     count: (n: number) => `${n} ${n === 1 ? 'entry' : 'entries'}`,
     zone: { meta: (n: number) => `${n} entries · newest first`, empty: 'This drawer is still empty. The first entries will show up here.' },

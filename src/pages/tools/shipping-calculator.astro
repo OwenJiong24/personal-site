@@ -1,0 +1,150 @@
+---
+import Base from '../../layouts/base.astro';
+import { brand, site } from '../../lib/site';
+---
+
+<Base
+  title="Shipping shape calculator"
+  description="Free calculator that decides how a maker should charge shipping: bake it into the price, charge it plainly, or set a free-shipping threshold. Uses shipping as a share of price, plus a threshold rule tied to average order value."
+  path="/tools/shipping-calculator"
+  lang="en"
+  switchHref="/zh/tools/shipping-calculator">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Shipping shape calculator</h1>
+      <p class="meta">
+        Free tool · no account, no tracking · runs in your browser · companion to the
+        <a href="/guides/2026-11-01-shipping-math/">shipping maths guide</a>
+      </p>
+    </header>
+
+    <div class="card-flat flow">
+      <p>
+        Shipping has three shapes. Which one wins is decided by one number — <strong>shipping as a share of your price</strong> —
+        and, for the threshold option, by your average order value. Enter real numbers from your last orders.
+      </p>
+    </div>
+
+    <form class="card-flat flow" onsubmit="return false" aria-label="shipping inputs">
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
+        <label class="flow">
+          <span class="meta">Currency symbol</span>
+          <input class="inp" id="sc-cur" type="text" value="$" maxlength="3" />
+        </label>
+        <label class="flow">
+          <span class="meta">Item price</span>
+          <input class="inp" id="sc-price" type="number" min="0" step="1" value="90" />
+        </label>
+        <label class="flow">
+          <span class="meta">Real shipping cost (median of last 50)</span>
+          <input class="inp" id="sc-ship" type="number" min="0" step="1" value="6" />
+        </label>
+        <label class="flow">
+          <span class="meta">Average order value</span>
+          <input class="inp" id="sc-aov" type="number" min="0" step="1" value="120" />
+        </label>
+        <label class="flow">
+          <span class="meta">Monthly return rate %</span>
+          <input class="inp" id="sc-ret" type="number" min="0" max="50" step="1" value="5" />
+        </label>
+        <label class="flow">
+          <span class="meta">Gross margin per item</span>
+          <input class="inp" id="sc-margin" type="number" min="0" step="1" value="40" />
+        </label>
+      </div>
+    </form>
+
+    <div class="card-flat flow" aria-live="polite">
+      <p class="meta"><strong>Recommendation</strong></p>
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
+        <div class="flow">
+          <span class="meta">Shipping as share of price</span>
+          <p class="post-title" id="sc-ratio">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Recommended shape</span>
+          <p class="post-title" id="sc-shape">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Threshold (if threshold shipping)</span>
+          <p class="post-title" id="sc-threshold">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Baked-in price (if free shipping)</span>
+          <p class="post-title" id="sc-baked">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Returns reserve per item</span>
+          <p class="post-title" id="sc-reserve">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">Margin after shipping</span>
+          <p class="post-title" id="sc-after">—</p>
+        </div>
+      </div>
+      <p class="meta" id="sc-note"></p>
+    </div>
+
+    <div class="prose">
+      <h2>The rules behind the numbers</h2>
+      <ul>
+        <li>Above <strong>15%</strong> of price: bake shipping into the price and show free shipping. Checkout is where the loss happens.</li>
+        <li>Below <strong>8%</strong>: charge shipping plainly, keep the displayed price low for search and comparison.</li>
+        <li>In between: a free-shipping <strong>threshold at 1.2–1.5× average order value</strong> raises order value and conversion together.</li>
+        <li>Returns reserve = return rate × two legs of shipping (outbound + return).</li>
+        <li>If margin after shipping is under 30% of price, fix pricing first — see the <a href="/tools/pricing-calculator/">pricing calculator</a>.</li>
+      </ul>
+      <p class="meta">
+        Built by {brand.name} (<a href="/tools/">all tools</a>). Free to use; nothing leaves your browser.
+        Contact: <a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  const el = (id) => document.getElementById(id);
+  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
+  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('en-US') : '—');
+
+  function calc() {
+    const cur = el('sc-cur').value || '$';
+    const price = num('sc-price');
+    const ship = num('sc-ship');
+    const aov = num('sc-aov');
+    const ret = Math.max(0, Math.min(0.5, num('sc-ret') / 100));
+    const margin = num('sc-margin');
+
+    const ratio = price > 0 ? ship / price : 0;
+    const reserve = ship * 2 * ret;
+    const after = margin - ship - reserve;
+    const baked = price + ship + reserve;
+    const low = aov * 1.2;
+    const high = aov * 1.5;
+
+    let shape = 'charge plainly';
+    if (ratio > 0.15) shape = 'bake in, show free shipping';
+    else if (ratio >= 0.08) shape = 'threshold shipping';
+
+    el('sc-ratio').textContent = (ratio * 100).toFixed(1) + '%';
+    el('sc-shape').textContent = shape;
+    el('sc-threshold').textContent = aov > 0 ? fmt(low, cur) + '–' + fmt(high, cur) : '—';
+    el('sc-baked').textContent = fmt(baked, cur);
+    el('sc-reserve').textContent = fmt(reserve, cur);
+    el('sc-after').textContent = fmt(after, cur);
+
+    const weak = price > 0 && after < 0.3 * price;
+    el('sc-note').textContent = weak
+      ? 'Note: margin after shipping is below 30% of price. Fix pricing before choosing a shipping shape — free shipping will not rescue a thin margin.'
+      : 'Note: recompute the median shipping from your last 50 orders each quarter; carrier rates move within a year.';
+  }
+
+  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  calc();
+</script>
+
+<style>
+  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  label span { display: block; }
+</style>

@@ -2,11 +2,14 @@
 import Base from '../../../layouts/base.astro';
 import { brand, site } from '../../../lib/site';
 
-const tools = [
-  { name: '手作定价计算器', href: '/zh/tools/pricing-calculator', desc: '从材料、失败率、工时、运费与平台抽成算出保本价。浏览器本地运行，可离线。', status: 'live' },
-  { name: '主图拍摄清单', href: '', desc: '一个 listing 需要的五张图，附可打印自查表。', status: 'planned' },
-  { name: '平台费用与运费对比表', href: '', desc: '同一笔成交，在不同平台各自吃掉多少。', status: 'planned' },
-];
+import { tools } from '../../../data/services';
+
+const all = tools.map((t) => ({
+  name: t.nameZh,
+  href: t.status === 'live' ? '/zh' + t.href : '',
+  desc: t.descZh,
+  status: t.status,
+}));
 ---
 
 <Base title="免费工具" description="为手作卖家做的小工具：不用注册、没有追踪，全部在浏览器本地运行。" path="/zh/tools" lang="zh" switchHref="/tools">
@@ -18,7 +21,7 @@ const tools = [
 
     <div class="card-grid">
       {
-        tools.map((tool) => (
+        all.map((tool) => (
           <div class="card-flat flow stack-sm">
             <p class="post-title">
               {tool.href ? <a href={tool.href}>{tool.name}</a> : <span>{tool.name}</span>}

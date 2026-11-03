@@ -7,7 +7,7 @@ interface Props {
   lang: 'zh' | 'en';
 }
 const { lang } = Astro.props;
-const base = Astro.site ?? new URL('https://jiong-bvw.pages.dev');
+const base = Astro.site ?? new URL('https://orangeknows.com');
 const url = (p: string) => new URL(p, base).toString();
 
 const data = {

@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/base.astro';
+import { site } from '../../lib/site';
+import { billing, howIWork, notFor, offers, serviceFaq, statusNote, strengths } from '../../data/services';
+
+const email = site.anchors.email;
+const faq = serviceFaq.map((f) => f.zh);
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: '手作/电商卖家的增长诊断与小预算投放搭建',
+  provider: { '@type': 'Person', name: site.authorZh, url: 'https://orangeknows.com/zh/' },
+  areaServed: '中国市场（中文沟通）',
+  availableLanguage: ['Chinese', 'English'],
+  url: 'https://orangeknows.com/zh/services',
+};
+const faqPage = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const cards = 'display:grid;gap:0.75rem;grid-template-columns:1fr';
+---
+
+<Base
+  title="合作方式"
+  description="给手作与电商卖家的短周期合作：增长诊断、单位经济、listing 与运费结构、小预算投放搭建。中文沟通，报价按范围。"
+  path="/zh/services"
+  lang="zh"
+  switchHref="/services">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>合作方式</h1>
+      <p class="meta">短周期、有边界。先给结论，数字摊开，最后交你一份不需要我也能执行的行动清单。</p>
+      <p class="meta">
+        本页的机器可读版本：<a href="/m/pages/services.md">/m/pages/services.md</a>（中英同文件）
+      </p>
+    </header>
+
+    <div class="prose">
+      <h2>我擅长什么</h2>
+      <ul>
+        {strengths.map((s) => <li>{s.zh}</li>)}
+      </ul>
+
+      <h2>两种开始方式</h2>
+      <div style={cards}>
+        {
+          offers.map((o) => (
+            <div class="card-flat flow stack-sm">
+              <p class="post-title">{o.titleZh}</p>
+              <p>{o.descZh}</p>
+              <p class="meta">
+                {o.metaZh}
+                <a href={`mailto:${email}?subject=%E8%AF%8A%E6%96%AD%20%C2%B7%20%E6%88%91%E7%9A%84%E5%BA%97`}>{email}</a>
+              </p>
+            </div>
+          ))
+        }
+      </div>
+
+      <h2>不适合谁</h2>
+      <ul>
+        {notFor.map((x) => <li>{x.zh}</li>)}
+      </ul>
+
+      <h2>工作方式</h2>
+      <ul>
+        {howIWork.map((x) => <li>{x.zh}</li>)}
+      </ul>
+
+      <h2>如实说明</h2>
+      <p>{statusNote.zh}</p>
+      <p class="meta">{billing.zh}</p>
+    </div>
+
+    <section class="flow stack-sm">
+      <h2>常见问题</h2>
+      {
+        faq.map((f) => (
+          <div class="card-flat flow">
+            <p class="post-title">{f.q}</p>
+            <p>{f.a}</p>
+          </div>
+        ))
+      }
+    </section>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(serviceLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqPage)} />
+  </section>
+</Base>

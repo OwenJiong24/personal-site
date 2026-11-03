@@ -38,7 +38,7 @@ export const site = {
     x: '',
     linkedin: '',
     rss: '/rss.xml',
-    rssEn: '/en/rss.xml',
+    rssEn: '/rss.xml',
   },
   support: {
     coze: '',

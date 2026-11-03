@@ -1,0 +1,148 @@
+---
+import Base from '../../../layouts/base.astro';
+import { brand, site } from '../../../lib/site';
+---
+
+<Base
+  title="运费收法计算器"
+  description="免费工具：用运费占售价的比例，决定手作卖家该把运费摊进价、单列实收，还是设包邮门槛；并给出门槛金额与退换预留。浏览器本地运行，无追踪。"
+  path="/zh/tools/shipping-calculator"
+  lang="zh"
+  switchHref="/tools/shipping-calculator">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>运费收法计算器</h1>
+      <p class="meta">
+        免费工具 · 不注册、无追踪 · 浏览器本地运行 · 配套文章：<a href="/zh/guides/2026-11-01-shipping-math/">运费算术指南</a>
+      </p>
+    </header>
+
+    <div class="card-flat flow">
+      <p>
+        运费只有三种收法，选哪种由一个数决定——<strong>运费占售价的比例</strong>；如果走门槛包邮，还由平均客单价决定。请填你最近订单的真实数字。
+      </p>
+    </div>
+
+    <form class="card-flat flow" onsubmit="return false" aria-label="运费输入">
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">
+        <label class="flow">
+          <span class="meta">货币符号</span>
+          <input class="inp" id="sc-cur" type="text" value="¥" maxlength="3" />
+        </label>
+        <label class="flow">
+          <span class="meta">商品售价</span>
+          <input class="inp" id="sc-price" type="number" min="0" step="1" value="90" />
+        </label>
+        <label class="flow">
+          <span class="meta">真实运费（最近 50 单中位数）</span>
+          <input class="inp" id="sc-ship" type="number" min="0" step="1" value="6" />
+        </label>
+        <label class="flow">
+          <span class="meta">平均客单价</span>
+          <input class="inp" id="sc-aov" type="number" min="0" step="1" value="120" />
+        </label>
+        <label class="flow">
+          <span class="meta">月退货率 %</span>
+          <input class="inp" id="sc-ret" type="number" min="0" max="50" step="1" value="5" />
+        </label>
+        <label class="flow">
+          <span class="meta">单件毛利</span>
+          <input class="inp" id="sc-margin" type="number" min="0" step="1" value="40" />
+        </label>
+      </div>
+    </form>
+
+    <div class="card-flat flow" aria-live="polite">
+      <p class="meta"><strong>建议</strong></p>
+      <div style="display:grid;gap:0.75rem;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
+        <div class="flow">
+          <span class="meta">运费占售价比例</span>
+          <p class="post-title" id="sc-ratio">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">建议收法</span>
+          <p class="post-title" id="sc-shape">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">包邮门槛（门槛法）</span>
+          <p class="post-title" id="sc-threshold">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">摊进价后的标价（包邮法）</span>
+          <p class="post-title" id="sc-baked">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">每件退换预留</span>
+          <p class="post-title" id="sc-reserve">—</p>
+        </div>
+        <div class="flow">
+          <span class="meta">扣运费后毛利</span>
+          <p class="post-title" id="sc-after">—</p>
+        </div>
+      </div>
+      <p class="meta" id="sc-note"></p>
+    </div>
+
+    <div class="prose">
+      <h2>数字背后的规则</h2>
+      <ul>
+        <li>超过售价 <strong>15%</strong>：把运费摊进价并显示包邮——流失发生在结账页。</li>
+        <li>低于 <strong>8%</strong>：单列实收，保持标价低，搜索与比价场景占优。</li>
+        <li>中间区间：设<strong>门槛 = 平均客单价的 1.2–1.5 倍</strong>，同时抬客单价与转化。</li>
+        <li>退换预留 = 退货率 × 两个单程运费（发出 + 退回）。</li>
+        <li>扣运费后毛利不足售价 30%：先修定价——用<a href="/zh/tools/pricing-calculator/">定价计算器</a>。</li>
+      </ul>
+      <p class="meta">
+        由 {brand.name} 制作（<a href="/zh/tools/">全部工具</a>）。免费使用，数据不出你的浏览器。
+        联系：<a href={`mailto:${site.anchors.email}`}>{site.anchors.email}</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  const el = (id) => document.getElementById(id);
+  const num = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
+  const fmt = (v, cur) => (Number.isFinite(v) ? cur + Math.round(v).toLocaleString('zh-CN') : '—');
+
+  function calc() {
+    const cur = el('sc-cur').value || '¥';
+    const price = num('sc-price');
+    const ship = num('sc-ship');
+    const aov = num('sc-aov');
+    const ret = Math.max(0, Math.min(0.5, num('sc-ret') / 100));
+    const margin = num('sc-margin');
+
+    const ratio = price > 0 ? ship / price : 0;
+    const reserve = ship * 2 * ret;
+    const after = margin - ship - reserve;
+    const baked = price + ship + reserve;
+    const low = aov * 1.2;
+    const high = aov * 1.5;
+
+    let shape = '单列实收';
+    if (ratio > 0.15) shape = '摊进售价，显示包邮';
+    else if (ratio >= 0.08) shape = '门槛包邮';
+
+    el('sc-ratio').textContent = (ratio * 100).toFixed(1) + '%';
+    el('sc-shape').textContent = shape;
+    el('sc-threshold').textContent = aov > 0 ? fmt(low, cur) + '–' + fmt(high, cur) : '—';
+    el('sc-baked').textContent = fmt(baked, cur);
+    el('sc-reserve').textContent = fmt(reserve, cur);
+    el('sc-after').textContent = fmt(after, cur);
+
+    const weak = price > 0 && after < 0.3 * price;
+    el('sc-note').textContent = weak
+      ? '提示：扣运费后毛利已低于售价 30%。先修定价，再选运费收法——包邮救不了薄毛利。'
+      : '提示：每季度用最近 50 单重算运费中位数，承运商单价一年内会变。';
+  }
+
+  document.querySelectorAll('input').forEach((i) => i.addEventListener('input', calc));
+  calc();
+</script>
+
+<style>
+  .inp { font: inherit; font-family: var(--font-mono); padding: 0.4rem 0.5rem; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+  .inp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  label span { display: block; }
+</style>

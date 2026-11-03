@@ -4,7 +4,7 @@ import { site } from '../../lib/site';
 import { publishedPosts, keyOf } from '../../lib/trust';
 import { ui } from '../../lib/i18n';
 
-// 中文主订阅（英文版在 /en/rss.xml，两路各自单语，不混语言）
+// 中文订阅 /zh/rss.xml（英文在根 /rss.xml，两路各自单语，不混语言）
 export const GET: APIRoute = async (context) => {
   const posts = await publishedPosts('zh');
   return rss({

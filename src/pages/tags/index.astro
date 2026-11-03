@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/base.astro';
+import { brand } from '../../lib/site';
+import { linkableTags, tagStats } from '../../lib/tags';
+
+const lang = 'en';
+const all = await tagStats();
+const linkable = await linkableTags(lang);
+const slugs = new Set(linkable.map((t) => t.slug));
+const navAria = 'Tag index';
+const cardStyle = 'display:flex;flex-wrap:wrap;gap:0.5rem';
+---
+
+<Base
+  title="Tags"
+  description="Every topic in this record, with entry counts. Tag pages exist only for topics with two or more entries."
+  path="/tags"
+  lang={lang}
+  switchHref="/zh/tags">
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>Tags</h1>
+      <p class="meta">
+        {all.length} tags across {all.reduce((n, t) => n + t.en, 0)} English entries. A tag gets its own page only when it
+        has two or more entries — thin pages help nobody, including crawlers.
+      </p>
+    </header>
+
+    <nav aria-label={navAria} style={cardStyle}>
+      {
+        all.map((t) =>
+          t.count >= 2 && slugs.has(t.slug) ? (
+            <a class="pill pill-accent" href={`/tags/${t.slug}/`}>
+              {t.tag} {t.count}
+            </a>
+          ) : (
+            <span class="pill" title="one entry — no index page">
+              {t.tag} {t.count}
+            </span>
+          ),
+        )
+      }
+    </nav>
+
+    <p class="meta">
+      {brand.name} · {brand.slogan} · <a href="/essays">Essays</a> · <a href="/guides">Guides</a> · <a href="/journal">Journal</a>
+    </p>
+  </section>
+</Base>
