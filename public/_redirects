@@ -8,3 +8,11 @@
 /work/*       /zh/projects/:splat  301
 /insights     /zh/essays           301
 /work         /zh/projects         301
+
+# 2026-11-03：渠道文删旧发新（CEO 要求直接删除重发），旧地址 301 到新 key
+/essays/2026-11-03-where-to-sell-handmade-2027    /essays/2026-11-03-handmade-selling-channels-2027  301
+/essays/2026-11-03-where-to-sell-handmade-2027/   /essays/2026-11-03-handmade-selling-channels-2027  301
+/zh/essays/2026-11-03-where-to-sell-handmade-2027    /zh/essays/2026-11-03-handmade-selling-channels-2027  301
+/zh/essays/2026-11-03-where-to-sell-handmade-2027/   /zh/essays/2026-11-03-handmade-selling-channels-2027  301
+/m/essays/2026-11-03-where-to-sell-handmade-2027en.md  /m/essays/2026-11-03-handmade-selling-channels-2027en.md  301
+/m/essays/2026-11-03-where-to-sell-handmade-2027.md    /m/essays/2026-11-03-handmade-selling-channels-2027.md    301
