@@ -146,3 +146,27 @@ Results get appended under this table, including the ones where we were wrong. N
 ## Verification log (append-only)
 
 - **2026-11-03, 21:2x UTC** — fetched `shopify.com/pricing` (ok), `ko-fi.com/pricing` (ok), `bigcartel.com/pricing` (ok); failed: `etsy.com/legal/fees` (server error), `help.etsy.com` fees article (404), `etsy.com/sell` (server error), eBay fees article (redirect to error page), `bonanza.com/fees` (404). Harness: our own fetch tool, no browser.
+
+---
+
+## Addendum, 2026-11-03 (21:40 UTC): our own marketplace belongs in the table
+
+The CEO asked why `shopzart.com` is not listed as a channel to try in 2027. Fair: an article about where to sell that skips the marketplace we run reads as evasion. It goes in below, measured the same way as the others, including the part that makes us look bad.
+
+**What we measured on our own marketplace on 2026-11-03** (one product, our own listing):
+
+| Field | Reading on 2026-11-03 |
+|---|---|
+| Price / list price | 54.99 USD / 89.99 USD |
+| Stock shown | 287 units |
+| Reviews | **0** |
+| No-JavaScript fetch of the listing | **15,838 bytes**: a title and a cookie banner, no price in the body; structured data `Organization` / `ContactPoint` / `WebSite`, **no `Product`** |
+| Our own page for the same product | **25,562 bytes** with `Product`, `Offer`, `FAQPage`, `BreadcrumbList`, and a Markdown mirror a machine can read |
+
+Fees, settlement, refunds and delivery terms for ZART are not written on this page. They live in the site terms and the product pages, because a number written into an article has to stay true forever.
+
+**Who should try selling on ZART, and who should not.** Try it if you bring your own demand — a mailing list, a studio following, an Instagram audience — and you want a shopfront with managed photography, logistics and certification behind it. Do not try it if the plan is "list it and the buyers will come": we do not claim buyer traffic, we have no third-party audience data to publish, and on our own product the review count is zero. A young marketplace is a thin trust surface, and that is the honest reason to run it next to one channel where the demand already exists.
+
+**The three tests above apply to us.** The machine test failed on our own listing on 2026-11-03: with JavaScript off, a crawler got no price and no `Product` schema. We fixed the page we own, not the marketplace shell, and we re-test on a schedule logged in this file. That is the standard we accept being measured against, on our own product first.
+
+**Dated check we commit to**: on 2027-01-15 we re-fetch this listing with JavaScript disabled and publish the byte count, whether a price appears in the body, and which schema types are present - whatever the result says. The line lands under this addendum, and nothing published here gets deleted.
