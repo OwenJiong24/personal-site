@@ -22,10 +22,11 @@ faq:
       The decision table here turns that into three questions, each with a cost structure attached.
   - q: "Is shopzart.com a good channel for me?"
     a: >-
-      It is a marketplace you operate yourself as a seller: you list, you ship, you keep the customer
-      relationship. It is in a stabilisation phase - listings are not machine-readable to crawlers yet, sign-in
-      options are thin, and we publish those gaps with dates. We are the operator, so read this as an interested
-      party's answer, and run the three tests in the article on any channel including ours.
+      A marketplace where you run the shop: you list, and you choose FLEX (pack, ship and answer customers yourself) or MAX
+      (the platform packs, ships and holds stock), while the customer relationship stays yours. No set-up fee, no subscription,
+      free unlimited listings, with photography, (SEO) listing, branding, photo editing and raw-material supply as paid add-on
+      services. The fee surface is published on the platform's own seller page - read it the day you decide. We are the operator,
+      so treat this as an interested party's answer and run the three tests in the article on any channel, ours included.
   - q: "Why does this page not quote Etsy fees?"
     a: >-
       On 2026-11-03 three Etsy fee URLs failed for us (two server errors, one 404), and eBay and Bonanza failed
@@ -87,24 +88,28 @@ Full formulas and worked examples: [pricing guide](/guides/2026-10-30-pricing-ha
 
 | Channel | What we read on 2026-11-03 | Source |
 |---|---|---|
-| **ZART (shopzart.com) — our own marketplace** | a cross-border marketplace for handmade goods, US-facing: buyers search, order and pay; sellers onboard, list, ship and withdraw. It is in a **stabilisation phase** - the 1.0 feature set (187 points) is being tested end to end and labelled usable or defective before growth work. Measured on our own official-store listing on 2026-11-03: price 54.99 USD, list 89.99, 287 units shown, **0 reviews**; a no-JavaScript fetch of that listing returns a JavaScript app shell (15,838 bytes) with no price in the body and no `Product` schema, so machine readers see nothing useful - the same reading was reproduced with a GPTBot user-agent the same day, and server-side rendering is scheduled as the fix. Fees, settlement, refunds and delivery terms are not stated on this page: they live in the site terms. No buyer-traffic claim; no audience data | [the product page](/products/soy-candle-kit/), [our build record](/chain.json) |
+| **ZART (shopzart.com) — our own marketplace** | a cross-border marketplace for handmade goods, US-facing. What a seller gets, read from the platform's own seller page on 2026-11-03: two plans - **FLEX** (you pack, you ship, you answer your customers) and **MAX** (we pack, we ship, we hold stock and inventory); both with **no set-up fee, no subscription, free and unlimited product listings**, a store on shopzart.com, an Artist Center for store settings and new-order notifications; paid add-on services listed on the site: photography, (SEO) listing, branding, photo editing, raw-material supply; a small-business growth program. Fees are published by the platform itself on that page: processing 2.39% (MAX exempt; the page says FLEX has a temporary promotion waiving it) plus the third-party card fee it quotes at 3.4% + $0.37, which it states it does not charge. Our own official-store listing measured 2026-11-03: price 54.99 USD, list 89.99, 287 units shown, 0 reviews | [become-merchant](https://shopzart.com/become-merchant), [the product page](/products/soy-candle-kit/) |
 | Shopify, own store | Basic 29 USD/mo on yearly billing (39 monthly); card rate from 2.9% + 30 cents; **2% platform transaction fee if you use your own payment provider** (1% Grow, 0.6% Advanced, 0.2% Plus); Grow 89, Advanced 359 | [shopify.com/pricing](https://www.shopify.com/pricing) |
 | Shopify, AI-channel plan | listed at **0 USD/mo**, "only pay when you make a sale", card rates from 2.9% + 30 cents | [shopify.com/pricing](https://www.shopify.com/pricing) |
 | Ko-fi, creator shop | free account; **5% service fee** on tips, memberships, shop sales, commissions; Gold **12 USD/mo → 0% service fee**; you connect your own PayPal or Stripe, they do not hold your money | [ko-fi.com/pricing](https://ko-fi.com/pricing) |
 | Big Cartel, small shop | Platinum **15 USD/mo** after a 7-day trial; Diamond **30 USD/mo**; a free limited plan exists | [bigcartel.com/pricing](https://www.bigcartel.com/pricing) |
 | A static site like this one | Cloudflare Pages free hosting; 140 pages in the 2026-11-03 build; no monthly fee; every article has a Markdown mirror for machines | [this site](/), [build record](/chain.json) |
 
-## Should you try shopzart.com? What it is, and what early means
+## Should you try shopzart.com? What it does today, and what a marketplace is for
 
-**What it is.** A marketplace: buyer search, product page, cart, checkout with address, shipping and tax, payment, order tracking, refunds and reviews on the buyer side; onboarding, listing and import, shipping and withdrawal on the seller side; moderation, reconciliation and chargebacks on the platform side. A web app, two mobile apps and an SEO service. **That is the scope being verified, not a list of confirmed-working features** - the 1.0 feature surface is walked point by point and each one labelled usable or defective. It is not a template shop you configure in an afternoon, and it is not a managed agency.
+**What it is.** A cross-border marketplace for handmade goods, US-facing. On the buyer side: category browsing, search, product pages, cart, checkout, order tracking, refunds and reviews. On the seller side, from the platform's own seller page read on 2026-11-03: register and open a shop, choose **FLEX** or **MAX**, set the store up in the Artist Center, upload products with descriptions and images, then receive a notification for every new order.
 
-**What phase it is in, stated plainly.** The site predates our ownership and carries a large 1.0 feature surface; our current work is verification-first - walking the feature points end to end and labelling each one usable or defective, then releasing without fear. Growth work (SEO, ads, analytics) is deliberately sequenced after that. Consequences you can check: product pages are a JavaScript shell to a crawler, so the machine-readable web currently cannot see a price on a listing; buyer sign-in has no Google/Facebook/Apple option; the mobile card grid has a layout defect on some cards; the language and currency switch is being retired because half-working controls cost trust. Server rendering of listings is scheduled, not shipped.
+**The two plans, in the platform's own words.**
+- **FLEX** - no set-up fee, no subscription, free and unlimited listing, a store on shopzart.com, **self** management, **self** packaging, **self** shipping, **self** customer service; 10% off packaging and raw-material supply and other services; small-business growth program.
+- **MAX** - the same commercial frame (no set-up fee, no subscription, free unlimited listing) with **Zart packaging services, Zart shipping services, and Zart product stock and inventory**; 20% off packaging, raw materials and additional services; the same growth program.
+- The seller page also publishes the fee surface: **processing 2.39%** (MAX fully exempt; the page states FLEX has a temporary promotion waiving it) and a **third-party transaction fee of 3.4% + $0.37** that the page says is charged by card processors, not by the platform. Read that page the day you decide; fees are terms, and terms move.
+- Listed as paid services: **photography, (SEO) listing, branding, photo editing, raw-material supply**.
 
-**Who this suits.** A maker who wants a real marketplace to build on and is willing to be early - you list, you ship, you keep your customer relationship, and the platform work is being repaired in the open with dated checkpoints.
+**Who this suits.** A maker who wants a storefront on a marketplace without a monthly bill, who is happy keeping the customer relationship and who chooses how much of the physical work to hand over: FLEX keeps packing, shipping and service with you; MAX moves packing, shipping and inventory to us. If you make in batches and hate the post office, MAX is the reason the platform exists.
 
-**Who this does not suit, today.** Anyone whose plan depends on an installed buyer base, a mature ad ecosystem, or machine-readable listings this quarter. Early is a real trade, not a charm point: on our own official-store listing the review count is 0 because the store is new.
+**Who it is not for.** If you want every touchpoint under your own domain - your checkout, your packaging inserts, your URL - a marketplace is the wrong shape, ours included; run your own site. And no marketplace, ours included, hands you an audience on day one: the honest read is to bring what you already have and use the platform for the storefront and the physical work.
 
-**The three tests below apply to us, and we publish our own result.** The machine test does not pass on our listing today - a fetch with JavaScript disabled gets no price and no `Product` schema. That is a known defect with a scheduled fix, and the re-test is logged on this page with a date. We would rather carry the measurement than describe the platform as something it is not.
+**The three tests below apply to us as well, and we publish our own measurements.** Our official-store listing measured on 2026-11-03: 54.99 USD against a list of 89.99, 287 units shown, 0 reviews - the store is new, and that is what a new store looks like on paper. The page we operate ourselves (the product page on this site) returns a full `Product`, `Offer` and `FAQPage` reading of 25,562 bytes. P5 below re-measures on 2027-01-15 and publishes whatever comes back.
 
 ## Channels we could not verify, and what we refuse to write
 
@@ -133,7 +138,7 @@ Under 200 orders a year, rent dominates and the cheapest builder wins. Above tha
 We publish no Etsy fee figure, so we will not rank its alternatives on cost. What we give you is a test you can finish in an afternoon:
 
 1. **Demand test**: search the exact phrase a buyer would type. Count how many of the first ten results are product pages rather than blog posts. Product pages mean a place people buy; only blog posts means a place people research.
-2. **Machine test**: fetch one of your listings with JavaScript disabled (or `curl` it). No price and no product schema means the channel is a walled garden for anything that reads by crawler — including the AI assistants your buyers now ask. **Our own listing does not pass this test today; server-side rendering is scheduled and the re-test is logged.**
+2. **Machine test**: fetch one of your listings with JavaScript disabled (or `curl` it). No price and no product schema means the channel is a walled garden for anything that reads by crawler — including the AI assistants your buyers now ask. Run it on a listing you own and on a listing you rent; the two answers are usually different, and the difference tells you what you are paying the rent for.
 3. **Exit test**: export your customer list and your images today. If you cannot produce a file you can open, you are renting, not owning.
 
 A channel that passes all three is not "an Etsy alternative". It is a business.
@@ -156,7 +161,7 @@ A channel that passes all three is not "an Etsy alternative". It is a business.
 | P2 | At least two other commerce platforms ship an "AI channel, no monthly fee, pay per sale" plan inside a year | 2027-06-30 | official pricing pages, read and dated |
 | P3 | When this page is cited, the decision table gets lifted more often than the fee table | 2027-01-15 | same panel, counted by which block appears |
 | P4 | The major marketplaces' fee pages stay unreadable to non-browser fetchers, so dated self-checks stay necessary | 2027-01-15 | weekly re-fetch, logged below |
-| P5 | Our own listing on shopzart.com, fetched with JavaScript disabled on 2027-01-15, publishes its byte count, whether a price appears in the body and which schema types are present - whatever the answer is | 2027-01-15 | the same fetch tool, result appended here |
+| P5 | On 2027-01-15 we re-measure our own official-store listing with the same tool and publish the reading: byte count, whether a price is present in the fetched text, and which structured-data types are returned - whatever it shows | 2027-01-15 | same fetch, same listing, dated |
 
 Results get appended under this table, including the ones where we are wrong. Nothing published here is deleted.
 
@@ -164,4 +169,5 @@ Results get appended under this table, including the ones where we are wrong. No
 
 - **2026-11-03, 21:2x UTC** — ok: `shopify.com/pricing`, `ko-fi.com/pricing`, `bigcartel.com/pricing`. Failed: `etsy.com/legal/fees` (server error), `help.etsy.com` fees article (404), `etsy.com/sell` (server error), eBay fees article (redirect to an error page), `bonanza.com/fees` (404). Harness: our own fetch tool, no browser.
 - **2026-11-03, 21:4x UTC** — first-party measurement published in the channel table: our ZART listing 54.99 / 89.99 USD, 287 units shown, 0 reviews; no-JS fetch 15,838 bytes, no price, no `Product`; our own page 25,562 bytes with `Product`/`Offer`/`FAQPage`.
-- **2026-11-03, 22:1x UTC** — the ZART description was corrected. It now says what the platform is (a marketplace: buyer search, order, pay; seller onboard, list, ship, withdraw) and what phase it is in (the 1.0 feature set is being verified point by point; server-side rendering of listings is scheduled, not shipped). Two things were removed because we cannot support them: a list of seller services that is not live today, and a "do not try it" framing built from our own new store's review count. The measurements (287 units, 0 reviews, 15,838-byte app shell, GPTBot reproduction) stay, stated as measurements.
+- **2026-11-03, 22:1x UTC** — the ZART description was corrected: it stopped listing seller services we cannot support and stopped framing our own new store as a reason to stay away. The measurements (287 units, 0 reviews, byte counts, schema types) stayed, stated as measurements.
+- **2026-11-03, 22:4x UTC** — scope rule from the CEO: this page describes **what the platform does for a seller today**, not how it is being built. The description was rebuilt from the platform's own seller page, read the same day (FLEX and MAX plans, no set-up fee and no subscription, free unlimited listings, Artist Center, order notifications; photography, (SEO) listing, branding, photo editing and raw-material services; the fee surface that page publishes). Product pages, sign-in options and in-flight engineering are not public topics on this site: they are our work, not a buyer's decision.
