@@ -1,0 +1,145 @@
+// 第 6 道门禁：ZART 创始人原话引用的可核对性与公关边界。
+// 每条断言都写明「防什么缺陷」，并由 scripts/prove-quote-gate.mjs 用坏样本证明它会判红。
+//
+// Q1 逐字命中：登记簿里的 quote 必须能在脱密原文指定行区间内找到（含多行）
+//    防：把二手摘要的概括当原话、引用被改写、出处行号断裂（v1 全部踩过）
+// Q2 日期诚实：dateLabel 为 null 的条目，出现在页面上时页面必须写「原文未标日期」
+//    防：抄二手摘要的【MMDD】标签（实测 L1439 摘要标 0808，原文段落是 2025-11-19）
+// Q3 C 类外泄：status=C 的原话与 forbid 短语不得出现在任何 ZART 公开面
+//    防：点名贬低同行、自称唯一、对外承诺费率/退款/时效、内部困难与融资数字外泄
+// Q4 B 类未批准：status=B 的条目出现在页面上，必须先进批准白名单
+//    防：未经 CEO 点头就把商业条款当公开立场
+// Q5 公关边界词：ZART 公开面禁止竞争对手名称、排名/绝对化用语、承诺与 SLA 字样
+//    防：骂对手、自大、把设想写成承诺
+// Q6 登记簿卫生：id 唯一、状态合法、出处齐、C 类必须带 forbid 短语
+//    防：登记簿自身烂掉导致前五条形同虚设
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
+
+const ROOT = process.cwd();
+const DIST = join(ROOT, 'dist');
+const CONTENT = join(ROOT, 'src', 'content');
+const REGISTRY = join(ROOT, 'src', 'data', 'zart-quotes.json');
+const APPROVED = join(ROOT, 'src', 'data', 'zart-quotes-approved.json');
+export const CORPUS_DEFAULT = 'C:/Users/OwenJiong/Desktop/ZART开发-本地/A-ZART资料0301/CEO笔记_20261014/01_CEO笔记_脱密版';
+
+// 去 markdown 列表符号与粗体、空白等价（原文里有 U+00A0 不换行空格：实测 L1904「工具␠␠进行」、L1911「“故事”␠时」），
+// 让「整行/行内片段」两种引用都能逐字比对；文字内容仍要求逐字
+export const norm = (s) =>
+  String(s)
+    .replace(/\r\n/g, '\n')
+    .replace(/[\u00A0\u202F\u3000]/g, ' ')
+    .replace(/\*\*/g, '')
+    .replace(/^[ \t]*[-*•][ \t]+/gm, '')
+    .replace(/^[ \t]*\d+[.、][ \t]*/gm, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+
+export function walk(dir, out = []) {
+  if (!existsSync(dir)) return out;
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    const st = statSync(p);
+    if (st.isDirectory()) walk(p, out);
+    else if (/\.(html?|md|xml|txt|json)$/i.test(name)) out.push(p);
+  }
+  return out;
+}
+
+// ZART 公开面 = 路径含 /zart 的产物与内容（站点其余页面允许讨论 Etsy 等话题，不在本门禁范围）
+export const isZartFace = (p) => /(^|[\\/])zart([\\/]|$)/i.test(relative(ROOT, p).replace(/^[^\\/]+[\\/]/, ''));
+
+export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvailable = true }) {
+  const problems = [];
+  const ids = new Set();
+  const approvedSet = new Set(approved);
+  const zartPages = pages.filter((p) => p.zart);
+
+  // Q6 登记簿卫生
+  for (const q of registry) {
+    for (const key of ['id', 'file', 'lineFrom', 'lineTo', 'quote', 'theme', 'status']) {
+      if (q[key] === undefined || q[key] === null || q[key] === '') problems.push(`Q6 登记簿 ${q.id ?? '?'} 缺字段 ${key}`);
+    }
+    if (!['A', 'B', 'C'].includes(q.status)) problems.push(`Q6 ${q.id} 状态非法：${q.status}`);
+    if (ids.has(q.id)) problems.push(`Q6 登记簿 id 重复：${q.id}`);
+    ids.add(q.id);
+    if (q.status === 'C' && !(Array.isArray(q.forbid) && q.forbid.length)) problems.push(`Q6 C 类 ${q.id} 必须给 forbid 短语`);
+  }
+
+  const corpusFiles = new Map();
+  for (const q of registry) {
+    if (!corpusAvailable) break;
+    // Q1 逐字命中
+    const path = join(corpusRoot, q.file);
+    if (!existsSync(path)) {
+      problems.push(`Q1 ${q.id} 找不到脱密原文：${q.file}`);
+      continue;
+    }
+    if (!corpusFiles.has(path)) corpusFiles.set(path, readFileSync(path, 'utf8').split(/\r?\n/));
+    const lines = corpusFiles.get(path);
+    if (!(q.lineFrom >= 1) || q.lineTo > lines.length) {
+      problems.push(`Q1 ${q.id} 行号越界：${q.lineFrom}-${q.lineTo}（文件 ${lines.length} 行）`);
+      continue;
+    }
+    const window = norm(lines.slice(q.lineFrom - 1, q.lineTo).join('\n'));
+    if (!window.includes(norm(q.quote))) {
+      problems.push(`Q1 ${q.id} 引用与脱密原文 ${q.file}:L${q.lineFrom}-${q.lineTo} 不逐字一致（引用被改写或行号错）`);
+    }
+  }
+
+  // Q2 日期诚实 + Q3 C 类外泄 + Q4 B 类批准
+  for (const q of registry) {
+    const core = norm(q.quote);
+    const shown = zartPages.filter((p) => norm(p.text).includes(core));
+    if (q.status === 'C') {
+      for (const p of shown) problems.push(`Q3 C 类原话出现在公开面：${q.id} → ${p.name}`);
+      for (const phrase of q.forbid ?? []) {
+        for (const p of zartPages) if (norm(p.text).includes(norm(phrase))) problems.push(`Q3 C 类禁语出现在公开面：「${phrase}」(${q.id}) → ${p.name}`);
+      }
+    }
+    if (q.status === 'B' && shown.length && !approvedSet.has(q.id)) {
+      problems.push(`Q4 B 类未经批准不得公开：${q.id}（${q.ask ?? '需 CEO 点头'}）`);
+    }
+    if (q.status !== 'C' && !q.dateLabel && shown.length) {
+      for (const p of shown) if (!norm(p.text).includes('原文未标日期')) problems.push(`Q2 ${q.id} 原文无日期，页面必须标「原文未标日期」：${p.name}`);
+    }
+  }
+
+  // Q5 公关边界（只在 ZART 公开面生效）
+  const rivals = ['Etsy', 'Shopify', 'Amazon', 'eBay', 'Makely', 'Storenvy', 'artisans.coop', 'novica', 'Kiwico', 'Uncommon Goods', 'Cratejoy'];
+  const absolutes = ['唯一', '仅次于', '最好的', '行业第一', '第一名', '最优质'];
+  const promises = ['承诺', '保证', '全额退款', '免费退货', '1min', '每1分钟', '一定退', '必定'];
+  for (const p of zartPages) {
+    const t = norm(p.text);
+    for (const w of rivals) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现竞争对手名称「${w}」：${p.name}`);
+    for (const w of absolutes) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现排名/绝对化用语「${w}」：${p.name}`);
+    for (const w of promises) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现承诺/SLA 用语「${w}」：${p.name}`);
+    for (const w of ['GMV', '营收', '融资', '估值', 'CAC', '卖家数', '万人民币', '亿美金']) if (t.includes(w)) problems.push(`Q5 ZART 公开面出现商业数字用语「${w}」：${p.name}`);
+  }
+
+  return problems;
+}
+
+if (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('scripts/check-quotes.mjs')) {
+  const registry = JSON.parse(readFileSync(REGISTRY, 'utf8'));
+  const approved = existsSync(APPROVED) ? JSON.parse(readFileSync(APPROVED, 'utf8')) : [];
+  const corpusRoot = process.env.ZART_CORPUS || CORPUS_DEFAULT;
+  const corpusAvailable = existsSync(corpusRoot);
+  const pages = [...walk(DIST), ...walk(CONTENT)]
+    .filter((p) => !p.includes('node_modules'))
+    .map((p) => ({ name: relative(ROOT, p).split(sep).join('/'), zart: isZartFace(p), text: readFileSync(p, 'utf8') }));
+  const zartPages = pages.filter((p) => p.zart);
+  const problems = checkQuotes({ registry, approved, pages, corpusRoot, corpusAvailable });
+  const by = (s) => registry.filter((q) => q.status === s).length;
+  if (!corpusAvailable) console.log(`  提示：脱密原文语料不可达（${corpusRoot}），Q1 逐字核对跳过，其余规则照常生效`);
+  if (problems.length) {
+    console.error(`引用/公关门禁未通过（${problems.length} 项）：`);
+    for (const p of problems.slice(0, 40)) console.error('  - ' + p);
+    process.exit(1);
+  }
+  console.log(
+    `引用/公关门禁通过（登记 ${registry.length} 条：A ${by('A')} / B ${by('B')} / C ${by('C')}；` +
+      `已批准 ${approved.length} 条 B 类；ZART 公开面 ${zartPages.length} 个；逐字核对 ${corpusAvailable ? '已跑' : '跳过'}）`,
+  );
+}
