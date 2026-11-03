@@ -26,8 +26,8 @@ const stripLangSuffix = (id: string, lang: Lang) => {
 export const keyOf = (p: Post) =>
   (p.data as { key?: string }).key ?? stripLangSuffix(p.id, langOf(p));
 
-/** 全部可公开条目（草稿与未来日期不进构建），中文与英文都包含。新→旧。 */
-async function allPublic(): Promise<Post[]> {
+/** 全部可公开条目（草稿与未来日期不进构建），中文与英文都包含，新→旧。导出口给 /chain.json 用。 */
+export async function allPublic(): Promise<Post[]> {
   const [journal, essays, guides, notes, projects] = await Promise.all([
     getCollection('journal'),
     getCollection('essays'),
