@@ -106,14 +106,21 @@ const docHeader = (title: string, root: URL, lang: Lang, extra: (string | undefi
     '',
   ] as string[];
 
+/** 逐语言镜像地址：中文保持 `/m/<zone>/<key>.md`（老链接一律不破），英文用 `<key>en.md`。
+ *  此前中英共用一个文件（内容是中文），导致英文页对机器声明的镜像是中文正文——
+ *  对以英文提问的 AI 引擎等于没有镜像。实测 2026-11-03。 */
+export function entryMirrorPath(zone: string, key: string, lang: 'zh' | 'en'): string {
+  return `/m/${zone}/${key}${lang === 'en' ? 'en' : ''}.md`;
+}
+
 /** 页面路径 → 该页的 Markdown 镜像地址（没有镜像则 null，用于 <link rel="alternate" type="text/markdown">）。
- *  规则：文章页有逐篇镜像；已知静态页映射到 /m/pages/<name>.md；其余（分区索引、标签页、工具页）不给。
- *  中英两版共用同一个镜像文件（里面带 language/translation 字段），所以镜像地址不带 /zh。 */
+ *  规则：文章页有逐篇镜像（按语言）；已知静态页映射到 /m/pages/<name>.md；其余（分区索引、标签页、工具页）不给。 */
 export function mdMirrorFor(path: string): string | null {
   const p = path.replace(/\/+$/, '') || '/';
-  const clean = p.startsWith('/zh') ? p.slice(3) || '/' : p;
+  const isZh = p.startsWith('/zh');
+  const clean = isZh ? p.slice(3) || '/' : p;
   const m = /^\/(journal|essays|guides|notes|projects)\/([\w.-]+)$/.exec(clean);
-  if (m) return `/m/${m[1]}/${m[2]}.md`;
+  if (m) return entryMirrorPath(m[1], m[2], isZh ? 'zh' : 'en');
   const prod = /^\/products\/([\w.-]+)$/.exec(clean);
   if (prod) return `/m/products/${prod[1]}.md`;
   const tool = /^\/tools\/([\w.-]+)$/.exec(clean);
@@ -181,14 +188,14 @@ export async function indexDoc(root: URL): Promise<string> {
     '',
     ...en.map(
       (p) =>
-        `- [${p.data.title}](${pageUrl(root, 'en', '/' + p.collection + '/' + keyOf(p))}) · \`${p.collection}\` · ${utcDay(p.data.date)} · md: ${abs(root, '/m/' + p.collection + '/' + keyOf(p) + '.md')}\n  ${p.data.summary ?? ''}`,
+        `- [${p.data.title}](${pageUrl(root, 'en', '/' + p.collection + '/' + keyOf(p))}) · \`${p.collection}\` · ${utcDay(p.data.date)} · md: ${abs(root, entryMirrorPath(p.collection, keyOf(p), 'en'))}\n  ${p.data.summary ?? ''}`,
     ),
     '',
     '## 条目（中文，/zh/ 前缀）',
     '',
     ...zh.map(
       (p) =>
-        `- [${p.data.title}](${pageUrl(root, 'zh', '/' + p.collection + '/' + keyOf(p))}) · \`${p.collection}\` · ${utcDay(p.data.date)} · md: ${abs(root, '/m/' + p.collection + '/' + keyOf(p) + '.md')}\n  ${p.data.summary ?? ''}`,
+        `- [${p.data.title}](${pageUrl(root, 'zh', '/' + p.collection + '/' + keyOf(p))}) · \`${p.collection}\` · ${utcDay(p.data.date)} · md: ${abs(root, entryMirrorPath(p.collection, keyOf(p), 'zh'))}\n  ${p.data.summary ?? ''}`,
     ),
     '',
     '## Contact and citation',
@@ -578,7 +585,7 @@ export async function pageDoc(name: PageName, root: URL): Promise<string> {
         '',
         ...all.map(
           (p) =>
-            `- ${utcDay(p.data.date)} · \`${langOf(p)}\` · ${p.collection} · [${p.data.title}](${pageUrl(root, langOf(p), '/' + p.collection + '/' + keyOf(p))}) · md: ${abs(root, '/m/' + p.collection + '/' + keyOf(p) + '.md')}`,
+            `- ${utcDay(p.data.date)} · \`${langOf(p)}\` · ${p.collection} · [${p.data.title}](${pageUrl(root, langOf(p), '/' + p.collection + '/' + keyOf(p))}) · md: ${abs(root, entryMirrorPath(p.collection, keyOf(p), langOf(p)))}`,
         ),
       ].join('\n') + '\n';
     }

@@ -65,7 +65,8 @@ for (const f of pageFiles) {
 const corpus = (all.match(/kind: markdown-mirror/g) ?? []).length;
 need(corpus === chainJson.count, `/m/all.md 收录 ${corpus} 篇，应为 ${chainJson.count} 篇`);
 
-// 6) 每个文章页 HTML 都要带 <link rel="alternate" type="text/markdown">
+// 6) 每个文章页 HTML 都要带 <link rel="alternate" type="text/markdown">，
+//    而且镜像必须存在、语言要与页面一致（实测：英文页曾把中文镜像当自己的机器可读面声明出去）
 const htmlPages = [];
 const walk = (dir) => {
   for (const n of readdirSync(dir)) {
@@ -78,8 +79,23 @@ walk(DIST);
 const articleHtml = htmlPages.filter((p) => /\\(journal|essays|guides|notes|projects)\\/.test(p));
 let linked = 0;
 for (const p of articleHtml) {
-  if (read(p).includes('type="text/markdown"')) linked += 1;
-  else problems.push(`${p.replace(DIST, '')} 缺 Markdown 镜像 link`);
+  const t = read(p);
+  const m = t.match(/rel="alternate"[^>]*type="text\/markdown"[^>]*href="([^"]+)"/) || t.match(/type="text\/markdown"[^>]*href="([^"]+)"/);
+  if (!m) {
+    problems.push(`${p.replace(DIST, '')} 缺 Markdown 镜像 link`);
+    continue;
+  }
+  linked += 1;
+  // 只对「逐篇镜像」做文件与语言断言；分区/标签索引页指向 /m/index.md（双语站点索引）是合法的
+  if (!/\/m\/(journal|essays|guides|notes|projects)\/[\w.-]+\.md$/.test(m[1])) continue;
+  const rel = m[1].replace(/^https?:\/\/[^/]+/, '').replace(/^\/+/, '').split(/[?#]/)[0];
+  const file = join(DIST, ...rel.split('/'));
+  if (!existsSync(file)) {
+    problems.push(`镜像文件不存在：${m[1]}（来自 ${p.replace(DIST, '')}）`);
+    continue;
+  }
+  const want = /(^|[\\/])zh([\\/]|$)/.test(p.replace(DIST, '')) ? 'language: zh-CN' : 'language: en';
+  if (!read(file).includes(want)) problems.push(`镜像语言与页面不符：${m[1]} 应含「${want}」（来自 ${p.replace(DIST, '')}）`);
 }
 need(linked === articleHtml.length, `文章页 ${linked}/${articleHtml.length} 带镜像 link`);
 

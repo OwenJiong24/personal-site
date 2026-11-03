@@ -3,7 +3,7 @@ import { brand, site, sections } from '../lib/site';
 import { publishedPosts, chain, keyOf, utcDay } from '../lib/trust';
 import { ui } from '../lib/i18n';
 import { ALGORITHM, BODY_RULE, MACHINE_URLS, REPO_URL, VERIFY_STEPS } from '../lib/chain-spec';
-import { PAGE_NAMES } from '../lib/mirror';
+import { PAGE_NAMES, entryMirrorPath } from '../lib/mirror';
 
 // llms.txt：给 AI 检索用的站点索引（AIEO 常用做法）。品牌事实 + 板块 + 双语条目清单 + 机器可读入口。
 // 2026-11-03：加 Markdown 镜像指针（/m/index.md、/m/all.md、/m/<分区>/<key>.md），
@@ -75,14 +75,14 @@ export const GET: APIRoute = async ({ site: base }) => {
     '',
     ...en.map(
       (p) =>
-        `- [${p.data.title}](${abs('/' + p.collection + '/' + keyOf(p))}): ${utcDay(p.data.date)} — ${p.data.summary} | md: ${abs('/m/' + p.collection + '/' + keyOf(p) + '.md')}`,
+        `- [${p.data.title}](${abs('/' + p.collection + '/' + keyOf(p))}): ${utcDay(p.data.date)} — ${p.data.summary} | md: ${abs(entryMirrorPath(p.collection, keyOf(p), 'en'))}`,
     ),
     '',
     '## Entries (zh-Hans)',
     '',
     ...zh.map(
       (p) =>
-        `- [${p.data.title}](${abs('/zh/' + p.collection + '/' + keyOf(p))}): ${utcDay(p.data.date)} — ${p.data.summary} | md: ${abs('/m/' + p.collection + '/' + keyOf(p) + '.md')}`,
+        `- [${p.data.title}](${abs('/zh/' + p.collection + '/' + keyOf(p))}): ${utcDay(p.data.date)} — ${p.data.summary} | md: ${abs(entryMirrorPath(p.collection, keyOf(p), 'zh'))}`,
     ),
     '',
   ];
