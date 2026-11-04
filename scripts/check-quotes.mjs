@@ -124,11 +124,17 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
   }
 
   // Q5 公关边界（只在 ZART 公开面与引用了登记簿原话的单页生效）
-  const rivals = ['Etsy', 'Shopify', 'Amazon', 'eBay', 'Makely', 'Storenvy', 'artisans.coop', 'novica', 'Kiwico', 'Uncommon Goods', 'Cratejoy'];
+  // CEO 现场手打原文区：他本人的逐字发言（含自述里的履历数字）由他授权发布，不作站点营销断言扫描。
+// 区界＝标题含「现场手打」/ "typed on the spot" 起，到下一个 ## 为止。
+const OWNER_MARK = '(?:现场手打|typed on the spot)';
+const stripOwnerTyped = (s) => s
+  .replace(new RegExp(`^#{2,3} [^\\n]*${OWNER_MARK}[^\\n]*[\\s\\S]*?(?=^#{2,3} |$(?![\\s\\S]))`, 'gim'), '\\n  （本节为 CEO 现场手打原文，扫描豁免）\\n\\n')
+  .replace(new RegExp(`<h[23][^>]*>(?:(?!</h[23]>)[\\s\\S])*?${OWNER_MARK}(?:(?!</h[23]>)[\\s\\S])*?</h[23]>[\\s\\S]*?(?=<h[23][^>]*>|$(?![\\s\\S]))`, 'gim'), '\\n  （本节为 CEO 现场手打原文，扫描豁免）\\n\\n');
+const rivals = ['Etsy', 'Shopify', 'Amazon', 'eBay', 'Makely', 'Storenvy', 'artisans.coop', 'novica', 'Kiwico', 'Uncommon Goods', 'Cratejoy'];
   const absolutes = ['唯一', '仅次于', '最好的', '行业第一', '第一名', '最优质'];
   const promises = ['承诺', '保证', '全额退款', '免费退货', '1min', '每1分钟', '一定退', '必定'];
   for (const p of faces) {
-    const t = norm(p.text);
+    const t = norm(stripOwnerTyped(p.text));
     // Q2b：不得把语料年份当事实写出来（实测：脱密笔记里 0 个年份锚点，索引的年份全是推断）
     const yearPair = /(原文|笔记|脱密|脱密原文|source)[^<\n]{0,60}(20\d{2})|(20\d{2})[^<\n]{0,40}(原文|笔记|脱密)/g;
     for (const m of t.matchAll(yearPair)) problems.push(`Q2b 语料年份不可证，公开页不得出现：「${m[0].slice(0, 70)}」→ ${p.name}`);
