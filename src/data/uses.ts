@@ -57,7 +57,7 @@ export const uses: UseItem[] = [
     name: '30 天 AIEO 引用实验',
     nameEn: '30-day AIEO citation experiment',
     why: '每周拿本站写过的结论去问主流 AI，记录是否被引用、引用哪段。',
-    whyEn: 'Weekly, the site's own conclusions get asked of mainstream AI: was anything cited, and which passage.',
+    whyEn: 'Weekly, the conclusions this site published get asked of mainstream AI: was anything cited, and which passage.',
     status: 'trial',
   },
   {
