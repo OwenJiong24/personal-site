@@ -152,6 +152,9 @@ if (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('scripts/che
     .filter((p) => !p.includes('node_modules'))
     .map((p) => ({ name: relative(ROOT, p).split(sep).join('/'), zart: isZartFace(p), text: readFileSync(p, 'utf8') }));
   const zartPages = pages.filter((p) => p.zart);
+  // 与 checkQuotes 内部同一口径：引用了登记簿原话的单页也算公开面（日志要说真数，别说只数路径的那个数）
+  const cores = registry.map((q) => norm(q.quote));
+  const widened = pages.filter((p) => /index\.html$/i.test(p.name) && !p.zart && cores.some((c) => c.length > 12 && norm(p.text).includes(c)));
   const problems = checkQuotes({ registry, approved, pages, corpusRoot, corpusAvailable });
   const by = (s) => registry.filter((q) => q.status === s).length;
   if (!corpusAvailable) console.log(`  提示：脱密原文语料不可达（${corpusRoot}），Q1 逐字核对跳过，其余规则照常生效`);
@@ -162,6 +165,6 @@ if (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('scripts/che
   }
   console.log(
     `引用/公关门禁通过（登记 ${registry.length} 条：A ${by('A')} / B ${by('B')} / C ${by('C')}；` +
-      `已批准 ${approved.length} 条 B 类；ZART 公开面 ${zartPages.length} 个；逐字核对 ${corpusAvailable ? '已跑' : '跳过'}）`,
+      `已批准 ${approved.length} 条 B 类；ZART 公开面 ${zartPages.length + widened.length} 个（路径含 zart ${zartPages.length} + 因引用原话并入 ${widened.length}）；逐字核对 ${corpusAvailable ? '已跑' : '跳过'}）`,
   );
 }
