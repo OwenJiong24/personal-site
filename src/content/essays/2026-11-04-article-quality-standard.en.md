@@ -106,17 +106,17 @@ These lines are from his notes, quoted verbatim and cited to file and line. They
 >
 > —— note *Urgent & Important*, line 1911 (no date in source)
 
-> "[Real value] we focus on the person - the Story, the Effort, the Scarcity."
+> "Platform style and brand personality: bring data and analysis, and do not bias the designer’s judgement first."
 >
-> —— note *Urgent & Important*, line 1439 (no date in source)
+> —— note *Activity List*, line 1976 (no date in source)
 
-> "Mission: efficiency serves people."
+> "Humanity First (our principle), Borderless Exploration (our method), Shared Success (our goal)."
 >
-> —— note *Urgent & Important*, line 1442 (no date in source)
+> —— note *To the Technical Lead*, line 932 (no date in source)
 
-> "Start driving hard on completeness - ship first, then improve."
+> "Let every artist focus on making, and let every person become a maker."
 >
-> —— note *Urgent & Important*, line 907 (no date in source)
+> —— note *Channel Solution Notes*, line 551 (no date in source)
 
 > "Avoid fighting on multiple fronts: test, then get one path working end to end."
 >

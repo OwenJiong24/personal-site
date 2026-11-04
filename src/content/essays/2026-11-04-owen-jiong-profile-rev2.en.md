@@ -69,21 +69,21 @@ The lines below are quoted word for word from his notes, cited to file and line;
 >
 > —— note *Urgent & Important*, line 1440 (no date in source)
 
-> "AI only generates and imitates; it cannot supply epiphany or story. Creators can."
+> "What I want to stress: under the principle of putting people first, we expand every method that helps connect parties and help them succeed - we keep exploring even when it is hard, focused on our goal: share success, build success together."
 >
-> —— note *Urgent & Important*, line 1735 (no date in source)
+> —— note *To the Technical Lead*, line 886 (no date in source)
+
+> "Let every artist focus on making, and let every person become a maker."
+>
+> —— note *Channel Solution Notes*, line 551 (no date in source)
+
+> "Platform style and brand personality: bring data and analysis, and do not bias the designer’s judgement first."
+>
+> —— note *Activity List*, line 1976 (no date in source)
 
 > "Owning a power drill does not make the carpenter’s cabinet worthless."
 >
 > —— note *Urgent & Important*, line 1787 (no date in source)
-
-> "Platform governance: reward effort, keep the positive feedback going; and hold a floor, so a newcomer gets a chance to stand out."
->
-> —— note *Urgent & Important*, line 1781 (no date in source)
-
-> "Mission: efficiency serves people."
->
-> —— note *Urgent & Important*, line 1442 (no date in source)
 
 ## 4. Verifiable anchors
 
