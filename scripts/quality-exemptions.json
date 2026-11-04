@@ -1,0 +1,23 @@
+{
+  "_note": "质量豁免清单：低于 QUALITY_MIN 的已发文章在此登记，并带修订日期；过期未修则构建失败。清单公开在文章 essays/2026-11-04-article-quality-standard 里。",
+  "_asOf": "2026-11-04",
+  "exemptions": [
+    { "key": "2026-10-30-am-era-record", "score": 3, "revise_by": "2026-11-11", "action": "按标准重写换新 key，旧页保留当记录" },
+    { "key": "2026-10-30-day-001", "score": 3, "revise_by": "2026-11-08", "action": "移出文章面（它是日志，不按文章标准要求）" },
+    { "key": "ui-bugs-silent", "score": 3, "revise_by": "2026-11-11", "action": "补进构建记录里的实测数，否则转草稿" },
+    { "key": "2026-10-30-luxury-is-endowment", "score": 4, "revise_by": "2026-11-18", "action": "带日期的例子重写，论点保留" },
+    { "key": "2026-11-03-zart-founder-words", "score": 5, "revise_by": "2026-11-18", "action": "加读者动作与带核对日的立场；原话保持逐字" },
+    { "key": "2026-10-30-tag-as-interface", "score": 6, "revise_by": "2026-11-25", "action": "补日期、立场与站内动作" },
+    { "key": "2026-10-30-ai-for-makers", "score": 6, "revise_by": "2026-11-25", "action": "补日期与可反驳立场" },
+    { "key": "2026-10-30-own-domain-site-email", "score": 6, "revise_by": "2026-11-25", "action": "补日期、提高数字密度" },
+    { "key": "2026-10-30-own-your-audience", "score": 6, "revise_by": "2026-11-25", "action": "扩写到长度区间并补立场" },
+    { "key": "2026-10-30-phone-photos", "score": 6, "revise_by": "2026-11-25", "action": "加实测样例与日期" },
+    { "key": "2026-10-30-small-budget-ads", "score": 6, "revise_by": "2026-11-25", "action": "去套话、补日期与立场" },
+    { "key": "2026-10-30-aieo-checklist", "score": 7, "revise_by": "2026-11-20", "action": "补日期与站内动作" },
+    { "key": "2026-10-30-nine-questions", "score": 7, "revise_by": "2026-11-20", "action": "补立场与动作" },
+    { "key": "2026-11-02-ai-crawler-visibility", "score": 7, "revise_by": "2026-11-20", "action": "补立场与结构" },
+    { "key": "2026-10-30-pricing-handmade", "score": 7, "revise_by": "2026-11-20", "action": "补立场与结构" },
+    { "key": "2026-10-30-orangeknows-site", "score": 7, "revise_by": "2026-11-20", "action": "项目页扩到区间并补立场" },
+    { "key": "2026-11-03-long-horizon-orchestration", "score": 7, "revise_by": "2026-11-20", "action": "补立场与站内动作" }
+  ]
+}
