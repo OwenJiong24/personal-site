@@ -54,6 +54,6 @@ export const sections: SectionSlug[] = ['lab', 'journal', 'essays', 'guides', 'n
 
 // 站点遥测（首页数据条用，AB-09）：只写可核对的事实，来源=构建链与门禁日志
 export const metrics = {
-  gates: 7, // lint-content → build → check-css → check-i18n(+泄露) → check-links → check-md(+日期窗口) → check-quotes → check-quality
+  gates: 8, // 2026-11-04 起 8 道检查（astro build 本身不算门禁）：lint-content / check-css / check-i18n(+语言泄露) / check-links / check-md(+日期窗口) / check-syndication / check-quotes / check-quality
   lastRedGate: '2026-11-04', // 泄露断言上线当轮连抓 4 处真泄露（英文页中文原文 / uses 英文页中文条目 / 404 整页中文）
 } as const;
