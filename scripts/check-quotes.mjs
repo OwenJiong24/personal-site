@@ -19,8 +19,10 @@ import { join, relative, sep } from 'node:path';
 const ROOT = process.cwd();
 const DIST = join(ROOT, 'dist');
 const CONTENT = join(ROOT, 'src', 'content');
-const REGISTRY = join(ROOT, 'src', 'data', 'zart-quotes.json');
-const APPROVED = join(ROOT, 'src', 'data', 'zart-quotes-approved.json');
+// 登记簿含 C 类原话与"不得公开"标注：只准待在本机 local/（.gitignore 内）。
+// 放进公开仓库 = 直接把禁语发出去（2026-11-04 实测曾整份公开，见 AGENTS 记录）。
+const REGISTRY = join(ROOT, 'local', 'zart-quotes.json');
+const APPROVED = join(ROOT, 'local', 'zart-quotes-approved.json');
 export const CORPUS_DEFAULT = 'C:/Users/OwenJiong/Desktop/ZART开发-本地/A-ZART资料0301/CEO笔记_20261014/01_CEO笔记_脱密版';
 
 // 去 markdown 列表符号与粗体、空白等价（原文里有 U+00A0 不换行空格：实测 L1904「工具␠␠进行」、L1911「“故事”␠时」），
@@ -144,6 +146,19 @@ export function checkQuotes({ registry, approved, pages, corpusRoot, corpusAvail
 }
 
 if (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('scripts/check-quotes.mjs')) {
+  if (!existsSync(REGISTRY)) {
+    console.error(`引用门禁无法运行：登记簿不在本机 ${REGISTRY}。它按规矩只待在 .gitignore 内的 local/，构建区须同步该目录后再跑。`);
+    process.exit(1);
+  }
+  // Q8：登记簿被 git 跟踪 = C 类原话与"不得公开"标注已进公开树，直接判死
+  try {
+    const { execSync } = await import('node:child_process');
+    const tracked = execSync('git ls-files -- src/data/zart-quotes.json src/data/zart-quotes-approved.json', { cwd: ROOT, encoding: 'utf8' }).trim();
+    if (tracked) {
+      console.error('Q8 登记簿在公开仓库里被跟踪（C 类原话泄露）：\n  ' + tracked.split('\n').join('\n  ') + '\n  处理：git rm --cached 该文件，正文移入 local/，并清理历史。');
+      process.exit(1);
+    }
+  } catch { /* 构建镜像无 .git：跳过 Q8 */ }
   const registry = JSON.parse(readFileSync(REGISTRY, 'utf8'));
   const approved = existsSync(APPROVED) ? JSON.parse(readFileSync(APPROVED, 'utf8')) : [];
   const corpusRoot = process.env.ZART_CORPUS || CORPUS_DEFAULT;

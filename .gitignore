@@ -21,3 +21,7 @@ _shot_*.png
 # 内部工作守则（给本机 harness 看，不进公开树；文件保留在磁盘）
 AGENTS.md
 
+
+# 引用登记簿（含 C 类原话）与批准清单：本机私有，永不进公开树
+src/data/zart-quotes*.json
+local/zart-quotes*.json
