@@ -39,6 +39,8 @@ const RAW_TYPOS = ['enmdorse', '没一个维度'];
 for (const file of files) {
   const url = urlOf(file);
   if (url.startsWith('/zh')) continue;
+  // 故意双语的工具页（noindex，不进索引/语料）：404。其它英文页成串中文一律红。
+  if (url === '/404') continue;
   const text = readFileSync(file, 'utf8').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ');
   for (const w of RAW_TYPOS) if (text.includes(w)) problems.push(`泄露：英文页 ${url} 含中文手打原文特征串「${w}」`);
   const runs = text.match(CJK_RUN);
