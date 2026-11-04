@@ -11,6 +11,7 @@ import { product, disclosureEn, disclosureZh } from '../data/products';
 import { toolList } from '../data/tools';
 import { billing, howIWork, notFor, offers, serviceFaq, statusNote, strengths, tools } from '../data/services';
 import { tagStats } from './tags';
+import { frameworks } from '../data/frameworks';
 
 export type Lang = 'en' | 'zh';
 
@@ -126,7 +127,7 @@ export function mdMirrorFor(path: string): string | null {
   const tool = /^\/tools\/([\w.-]+)$/.exec(clean);
   if (tool) return `/m/tools/${tool[1]}.md`;
   const page = clean === '/' ? 'home' : clean.slice(1);
-  const known: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
+  const known: PageName[] = ['home', 'frameworks', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
   if (clean === '/tools') return '/m/pages/tools.md';
   return known.includes(page as PageName) ? `/m/pages/${page}.md` : null;
 }
@@ -181,7 +182,7 @@ export async function indexDoc(root: URL): Promise<string> {
     '',
     '## Pages',
     '',
-    `- [Home](${abs(root, '/m/pages/home.md')}) · [About](${abs(root, '/m/pages/about.md')}) · [Now](${abs(root, '/m/pages/now.md')}) · [Services](${abs(root, '/m/pages/services.md')}) · [Support](${abs(root, '/m/pages/support.md')}) · [Tools](${abs(root, '/m/pages/tools.md')}) · [Products](${abs(root, '/m/pages/products.md')}) · [Uses](${abs(root, '/m/pages/uses.md')}) · [Verify](${abs(root, '/m/pages/verify.md')}) · [Tags](${abs(root, '/m/pages/tags.md')}) · [Timeline](${abs(root, '/m/pages/timeline.md')})`,
+    `- [Home](${abs(root, '/m/pages/home.md')}) · [Frameworks](${abs(root, '/m/pages/frameworks.md')}) · [About](${abs(root, '/m/pages/about.md')}) · [Now](${abs(root, '/m/pages/now.md')}) · [Services](${abs(root, '/m/pages/services.md')}) · [Support](${abs(root, '/m/pages/support.md')}) · [Tools](${abs(root, '/m/pages/tools.md')}) · [Products](${abs(root, '/m/pages/products.md')}) · [Uses](${abs(root, '/m/pages/uses.md')}) · [Verify](${abs(root, '/m/pages/verify.md')}) · [Tags](${abs(root, '/m/pages/tags.md')}) · [Timeline](${abs(root, '/m/pages/timeline.md')})`,
     `- First-party product mirrors: ${abs(root, '/m/products/' + 'soy-candle-kit' + '.md')}`,
     '',
     '## Entries (English, root URLs)',
@@ -225,8 +226,8 @@ export async function allDoc(root: URL): Promise<string> {
   return [...head, `Total: ${all.length} entries (${en.length} English, ${zh.length} Chinese). Full bodies included; chain head above.`, '', ...parts].join('\n');
 }
 
-export type PageName = 'home' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'products' | 'uses' | 'verify' | 'tags' | 'timeline';
-export const PAGE_NAMES: PageName[] = ['home', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
+export type PageName = 'home' | 'frameworks' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'products' | 'uses' | 'verify' | 'tags' | 'timeline';
+export const PAGE_NAMES: PageName[] = ['home', 'frameworks', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
 
 /** 工具页的 Markdown 镜像：/m/tools/<slug>.md。公式与算例照抄，机器不跑 JS 也能核对算术。 */
 export function toolDoc(t: (typeof toolList)[number], root: URL): string {
@@ -388,6 +389,29 @@ export async function pageDoc(name: PageName, root: URL): Promise<string> {
         ...ui.en.rules.map((r, i) => `${i + 1}. ${r}`),
         '',
         L('中文说明：本站英文在根路径，中文在 /zh/ 前缀；两版同 key 互指（hreflang + x-default=英文）。', ''),
+      ].join('\n') + '\n';
+
+    case 'frameworks':
+      return [
+        ...head,
+        ui.en.frameworks.intro,
+        '',
+        ui.zh.frameworks.intro,
+        '',
+        ...sec('Terms / 术语（assistant drafted, unapproved）'),
+        ...frameworks.map(
+          (x) =>
+            `### ${x.abbr} · ${x.nameEn} / ${x.nameZh}
+- EN: ${x.defEn}
+- 中文: ${x.defZh}
+- Checkable / 可核对: ${x.checkableEn}
+- 可核对（中文）: ${x.checkableZh}
+- Status: assistant drafted, unapproved · first seen ${x.firstSeen} UTC`,
+        ),
+        '',
+        ...sec('Rules'),
+        ui.en.frameworks.tail,
+        ui.zh.frameworks.tail,
       ].join('\n') + '\n';
 
     case 'about':

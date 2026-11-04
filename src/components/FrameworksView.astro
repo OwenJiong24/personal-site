@@ -1,0 +1,73 @@
+---
+// 术语图谱（AB-04）：/frameworks 与 /zh/frameworks 共用；数据真源 src/data/frameworks.ts，
+// 页面与镜像 /m/pages/frameworks.md 同源。JSON-LD 用 DefinedTermSet + DefinedTerm（AIEO 可摘结构）。
+import Base from '../layouts/base.astro';
+import { ui, langPath, type Lang } from '../lib/i18n';
+import { site } from '../lib/site';
+import { frameworks } from '../data/frameworks';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const f = t.frameworks;
+const path = langPath(lang, '/frameworks');
+const switchHref = lang === 'zh' ? '/frameworks' : '/zh/frameworks';
+const canonical = site.site + path;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  name: lang === 'zh' ? '橙知道术语表' : 'OrangeKnows Glossary',
+  url: canonical,
+  inLanguage: lang === 'zh' ? 'zh-CN' : 'en-US',
+  hasDefinedTerm: frameworks.map((x) => ({
+    '@type': 'DefinedTerm',
+    name: lang === 'zh' ? x.nameZh : x.nameEn,
+    alternateName: [x.abbr, lang === 'zh' ? x.nameEn : x.nameZh],
+    description: lang === 'zh' ? x.defZh : x.defEn,
+    url: `${canonical}#${x.id}`,
+  })),
+};
+
+const cardStyle = '--flow-gap: 0.45rem';
+const defStyle = 'font-size: 1.0625rem; line-height: 1.72';
+const checkStyle = 'color: var(--text-2); font-size: 0.9375rem';
+---
+
+<Base title={f.name} description={f.desc} path={path} lang={lang} switchHref={switchHref}>
+  <script type="application/ld+json" is:raw set:html={JSON.stringify(jsonLd)} />
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <h1>{f.name}</h1>
+      <p style={defStyle}>{f.intro}</p>
+      <p class="meta">{f.note}</p>
+    </header>
+
+    {
+      frameworks.map((x) => (
+        <article class="card flow" id={x.id} style={cardStyle}>
+          <p class="meta">
+            {x.abbr} · {lang === 'zh' ? x.nameEn : x.nameZh} · {x.firstSeen} UTC
+          </p>
+          <h2>{lang === 'zh' ? x.nameZh : x.nameEn}</h2>
+          <p style={defStyle}>{lang === 'zh' ? x.defZh : x.defEn}</p>
+          <p style={checkStyle}>
+            <strong>{f.checkable}</strong> {lang === 'zh' ? x.checkableZh : x.checkableEn}
+          </p>
+          <p class="meta">
+            <span class="pill">{x.status === 'draft' ? f.draft : f.approved}</span>
+          </p>
+        </article>
+      ))
+    }
+
+    <p class="meta">{f.tail}</p>
+    <p>
+      <a href={langPath(lang, '/essays/witness-commerce-note/')}>{f.essayLink}</a>
+      {' · '}
+      <a href={langPath(lang, '/services/')}>{f.servicesLink}</a>
+      {' · '}
+      <a href="/m/pages/frameworks.md">{f.mdLink}</a>
+    </p>
+  </section>
+</Base>

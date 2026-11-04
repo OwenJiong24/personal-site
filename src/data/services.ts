@@ -14,6 +14,28 @@ export type Offer = {
 
 export const offers: Offer[] = [
   {
+    id: 'redteam',
+    titleEn: '0 · Architecture red-team review (not bookable)',
+    titleZh: '〇 · 架构与单位经济红队审计（暂不接受预约）',
+    descEn:
+      'A stress test of a marketplace unit-economics model, a cross-border product/engineering structure, or an internal AI rollout: assumptions listed, numbers demanded, the three weakest points named. Booking and price are not published here because the payment setup is not finished - when it is, this entry changes.',
+    descZh:
+      '对双边市场单位经济模型、跨国产研结构或企业内部 AI 落地做压力测试：列出假设、要数字、点名最弱的三处。本页不写价格与预约方式，因为收款与排期还没准备好；准备好会改这一条。',
+    metaEn: 'Not bookable today. Email first: owen@orangeknows.com',
+    metaZh: '暂不接受预约。先写信：owen@orangeknows.com',
+  },
+  {
+    id: 'rig',
+    titleEn: '0.5 · Peripherals and presets (no affiliate links yet)',
+    titleZh: '〇点五 · 外设与预设（联盟链接未开通）',
+    descEn:
+      'What I actually run, and the presets when they exist. The site publishes affiliate links only through a disclosed /go redirect layer, which is not open; until then no purchase link appears on any page.',
+    descZh:
+      '我在用的东西，以及做好之后才发布的预设文件。本站只在带披露的 /go 中间层上挂联盟链接，那层还没开通——所以现在任何页面上都不会出现购买返佣链接。',
+    metaEn: 'See uses: /uses/ · design plan: /guides/tourbox-ai-macro-plan/',
+    metaZh: '清单见 /zh/uses/ · 设计方案见 /zh/guides/tourbox-ai-macro-plan/',
+  },
+  {
     id: 'diagnosis',
     titleEn: '1 · Growth diagnosis (one week)',
     titleZh: '一 · 增长诊断（一周）',
