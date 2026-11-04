@@ -46,7 +46,7 @@ faq:
 记录对每条已发布内容做 SHA-256 链。正文改一个字，那条记录里的值就变。于是"这段文字那天就在、之后没被悄悄改过"是一条**计算结果**，不是一句自夸。
 
 - 2026-11-04 链上 **52 条**，链头印在每页页脚。
-- 用公开材料重算：源码在 **github.com/OwenJiong24/personal-site**，跑 `node scripts/verify-chain.mjs`，它逐条从 `raw.githubusercontent.com` 取原文重算链头。2026-11-04 结果 **PASS 52/52**。
+- 用公开材料重算：源码在 **github.com/OwenJiong24/personal-site**，跑 `node scripts/verify-chain.mjs`，它逐条从 `raw.githubusercontent.com` 取源文件重算链头；2026-11-04 重跑的结果是 **PASS 52/52**。
 - 失败记录：一份自审公开了 AI 参与运营五天的 **17 类被证实缺陷**，并写明每条由谁抓到——6 类靠实测、4 类靠逃逸后加上的构建检查、7 类靠人。[去读](/essays/2026-11-03-ai-ran-this-site-what-broke/)。
 
 一篇值得看的人物页，应当把那些让它不好看的读数一起发出来。AI 写的页面通常正好省掉这一段。
