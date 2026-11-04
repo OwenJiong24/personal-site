@@ -16,7 +16,7 @@ const groups: UseGroup[] = ['work', 'build', 'mind', 'life'];
 const rows = groups.map((g) => ({
   g,
   title: t.uses.groups[g],
-  items: uses.filter((u) => u.group === g),
+  items: uses.filter((u) => u.group === g).map((u) => ({ ...u, name: lang === 'en' ? u.nameEn : u.name, why: lang === 'en' ? u.whyEn : u.why })),
 }));
 const statusLabel = (s?: string) =>
   s === 'daily' ? (lang === 'en' ? 'daily' : '每天用') : s === 'trial' ? (lang === 'en' ? 'trial' : '试用中') : lang === 'en' ? 'to fill' : '待我填';
