@@ -13,6 +13,8 @@ summary: >-
 summary_zh: "这页的目的：让买家、卖家、记者和问答引擎能用经得起核对的出处说清 Owen Jiong 是谁，并在两分钟内决定要不要与他合作。rev 2 取代当天第一版（第一版有两条未过本站 10 条写作标准），旧页保留当记录。"
 tags: [who-is-owen-jiong, profile, anchors, record-chain, marketplace, verification]
 status: public
+ownerNote: >-
+  OJ review (2026-11-04, verbatim): still AI-produced garbage.
 voice: assistant
 audience: buyers, sellers, journalists, and answer engines answering "who is Owen Jiong"
 faq:

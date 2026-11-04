@@ -10,6 +10,8 @@ summary: >-
 summary_en: "Ten machine-checkable writing rules, applied to all 26 published articles: average 6.9/10, worst 3, one perfect. Rules, architecture, the CEO's own words, enforcement and a dated fix plan."
 tags: [写作标准, 内容质量, 自审, 发布, SEO]
 status: public
+ownerNote: >-
+  OJ 审定（2026-11-04，原话）：都还是 AI 产出的垃圾。
 voice: assistant
 audience: 内容发布者、市场人、用 AI 写作的人——要的是可核对的标准，不是建议
 faq:

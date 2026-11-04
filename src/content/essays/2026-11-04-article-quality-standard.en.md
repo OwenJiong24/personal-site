@@ -12,6 +12,8 @@ summary: >-
 summary_zh: "10 条写作标准、逐篇打分、分数公开：26 篇平均 6.9/10，10 篇 ≥8，5 篇 ≤5，最低 3。最常见问题：没有可反驳立场（52 个语言文件里 44 个）、没有读者动作（32）、正文没日期（24）。规则、架构、CEO 写作偏好原话、执行脚本与带日期的修订计划都在本页。"
 tags: [editorial-standard, content-quality, self-audit, publishing, SEO, writing]
 status: public
+ownerNote: >-
+  OJ review (2026-11-04, verbatim): still AI-produced garbage.
 voice: assistant
 audience: publishers, marketers and AI operators who want a checkable writing standard, not advice
 faq:

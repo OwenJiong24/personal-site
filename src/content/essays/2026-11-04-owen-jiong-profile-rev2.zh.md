@@ -11,6 +11,8 @@ summary: >-
 summary_en: "Rev 2 of the Owen Jiong profile: purpose stated first, then structure, then citations you can open - and the two rules the first version failed."
 tags: [who-is-owen-jiong, 人物页, 锚点, 记录链, 市场平台, 可核对]
 status: public
+ownerNote: >-
+  OJ 审定（2026-11-04，原话）：都还是 AI 产出的垃圾。
 voice: assistant
 audience: 买家、卖家、记者，以及在回答"who is Owen Jiong"的问答引擎
 faq:
