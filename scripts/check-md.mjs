@@ -175,6 +175,26 @@ need((llms.match(/\| md: /g) ?? []).length >= chainJson.count / 2, 'llms.txt 条
 const headers = read(join(DIST, '_headers'));
 need(/text\/markdown/.test(headers), '_headers 未给 /m/* 声明 Content-Type: text/markdown');
 
+// 10) 日期窗口（2026-11-04 加，当天连踩两次）：date 晚于构建时刻的 public 文章会被内容聚合静默丢掉，
+// 症状是"七道门禁全绿、发布码 0，但链计数与页数少 2"。写作时 date 一律取已经过去的整点。
+{
+  const CONTENT = join(process.cwd(), 'src', 'content');
+  const limit = Date.now() - 90_000;
+  for (const z of ['lab', 'journal', 'essays', 'guides', 'notes', 'projects']) {
+    const d = join(CONTENT, z);
+    if (!existsSync(d)) continue;
+    for (const f of readdirSync(d)) {
+      if (!f.endsWith('.md')) continue;
+      const raw = readFileSync(join(d, f), 'utf8');
+      if (!/^status:\s*public/m.test(raw)) continue;
+      const m = raw.match(/^date:\s*(.+)$/m);
+      if (m && Date.parse(m[1].trim()) > limit) {
+        problems.push(`日期窗口：${z}/${f} 的 date=${m[1].trim()} 晚于（构建时刻 - 90 秒），聚合会静默丢掉它；把 date 改到已经过去的整点`);
+      }
+    }
+  }
+}
+
 if (problems.length) {
   console.error(`Markdown 镜像自检未通过（${problems.length} 项）：`);
   for (const p of problems.slice(0, 40)) console.error('  - ' + p);
