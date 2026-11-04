@@ -100,7 +100,7 @@ Paragraph rule: one claim, one number. Before publishing, three questions: **who
 
 ## 5. The CEO's writing preferences, in his own words
 
-These lines are from his notes, quoted verbatim and cited to file and line. They are the reason the standard looks like this. The notes carry no year markers, so none appear.
+These lines are from his notes, quoted verbatim and cited to file and line. They are the reason the standard looks like this. The notes carry no year markers, so none appear. The five lines come from **five different files** - three of which this site had never quoted before. Concentrating citations in one note is reading a person through one side of the room.
 
 > "Authenticity Fatigue: when every product tells a personal “story”, the value of story itself gets diluted. Over-marketing “humanity” and “authenticity” can lead to consumer cynicism and fatigue."
 >

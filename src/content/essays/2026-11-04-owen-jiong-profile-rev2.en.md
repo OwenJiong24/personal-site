@@ -63,7 +63,7 @@ A profile worth reading is one that publishes the readings that make it look imp
 
 ## 3. How he works, in his own words
 
-The lines below are quoted word for word from his notes, cited to file and line; the notes carry no year markers, so no year appears. The Chinese is the record; English is a translation.
+The lines below are quoted word for word from his notes, cited to file and line; the notes carry no year markers, so no year appears. The Chinese is the record; English is a translation. The five lines come from four different notes: a long letter to the technical lead, marketplace planning notes, an activity list, and the everyday memo file - read only one of them and the person does not assemble.
 
 > "Vision: however efficiency develops, the most precious thing is human effort."
 >
