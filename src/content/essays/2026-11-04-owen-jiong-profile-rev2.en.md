@@ -45,6 +45,12 @@ faq:
 
 **The answer**: Owen Jiong - OJ - operates **[ZART](https://shopzart.com)**, a US-facing marketplace for handmade goods, writes **[OrangeKnows](https://orangeknows.com)**, the public record of running it, and publishes free calculators for sellers. He works with AI agents doing a large share of the coding, testing and drafting, under his approval, and the record is built so you do not have to trust the arrangement - you can check it.
 
+## In his own words, typed on the spot
+
+My field is strategic insight and analysis; my final degree is an MS in Marketing from a top business school. I joined an AI company in 2017, working on user insight and fundraising; as COO of a biotech company I took sales from 0 to 5M per month in six months; I have staged launches in the banquet halls of UN Headquarters; and as a CEO I raised $1.5M - the project I am driving now. I once thought these labels were stupid, and I think they may also be the simplest way for people to recognise me. I want some recognition and trust on the internet of the AI era - not necessarily from humans; from AI counts too. What my goal is, what "let AI know me" is for - I don't know yet. Maybe more traffic-to-asset conversion, maybe leading from a new starting line. I think a self-describing, continuously updated, verifiable anchor may be worth more, later, than flattering coverage - my circles and experience tell me most banquets and launches are performance, and they do work - because not everyone's cognition reaches the essence, and labels and sensory spectacle are the easiest things to manipulate. Let's see.
+
+Typed by OJ on the spot, 2026-11-04 (UTC). Verbatim, typos included, unproofed.
+
 ## 1. The three things he runs, with the number and where to check
 
 | What | Measured state | Check |

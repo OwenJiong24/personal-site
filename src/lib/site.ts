@@ -24,9 +24,9 @@ export const site = {
   tagline: 'A public engineering log in the model era: one human, recorded continuously',
   taglineZh: 'AM 时代的公开工作日志：一个人类工程师的连续记录',
   intro:
-    'I publish what I work on each day, what I learn, and where my judgement was wrong. In an age when models generate convincing artefacts in bulk, the scarce proof is a continuous, checkable human record.',
+    'This is my testing ground, not a dump: testing how information travels in the AI era - agents, not only crawlers. AIEO is a variant of SEO.',
   introZh:
-    '我在这里公开记录我每天在做什么、学到什么、判断错了什么。目的是在模型能批量生成一切的时代，留下一份可被核对、随时间累积的人类记录。',
+    '这里是我的试验场，不是垃圾场：测试 AI 时代信息怎么传播——靠 agent，不只看爬虫。AIEO 只是 SEO 的变种。',
   start: '2026-10-30',
   lang: 'zh-CN',
   locale: 'zh-CN',

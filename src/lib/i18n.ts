@@ -29,7 +29,8 @@ export const ui = {
     slogan: '洞察，可核对。',
     signature: '先给结论，再给依据。',
     intro:
-      '我在这里公开记录我每天在做什么、学到什么、判断错了什么。目的是在模型能批量生成一切的时代，留下一份可被核对、随时间累积的人类记录。',
+      '这里是我的试验场，不是垃圾场。',
+    manifesto: { title: '试验场', body: '这里是我的试验场，不是垃圾场。我在实验一个AI时代的信息传播的逻辑，速度，变化规律，能否在弱搜索引擎effort的状态下，真的把我的内容通过agent/或者其他新的信息分发模式，把我的内容投递到你的面前，整个过程里面的变量和不变量是什么--时间？ 真实性？ 价值？ 其实没一个维度都很难判断，而每一个维度都是Agent帮你判断，过去是搜索引擎的爬虫。因此，一种新的信息获取时代的范式是我想要测试的，AIEO只是SEO的变种，因此，作为一个营销人，一个洞察者，我期待和你一起讨论，交流，碰撞，制作更多的人与人之间的真实交互和enmdorse。', note: 'OJ 现场手打，2026-11-04（UTC）。原文照录，含笔误，未做校对。' },
     sections: {
       journal: { name: '日志', desc: '每天在做什么：写下的代码、踩到的坑、做出的决定。按日期累积，不可事后修饰。' },
       essays: { name: '洞察', desc: '结论先行的长文：对 AM 时代、产品、工程与协作的判断。会过时，所以每篇带日期。' },
@@ -102,7 +103,8 @@ export const ui = {
     slogan: 'Ideas you can check.',
     signature: 'OK — dated, checkable.',
     intro:
-      'I publish what I work on each day, what I learn, and where my judgement was wrong. In an age when models generate convincing artefacts in bulk, the scarce proof is a continuous, checkable human record.',
+      'This is my testing ground, not a dump.',
+    manifesto: { title: 'The testing ground', body: 'This is my testing ground, not a dump. I am testing the logic, the speed and the rules of change in how information travels in the AI era: can my content reach you through agents, or other new modes of distribution, while search-engine effort stays weak? What are the variables and the invariants in that whole process - time? authenticity? value? Every one of those dimensions is hard to judge, and every one of them is now judged for you by an agent; used to be the search engine's crawler. A new paradigm of how information gets acquired is what I want to test. AIEO is only a variant of SEO. So as a marketer and an observer: I want to discuss, exchange, collide with you, and produce more real interaction and endorsement between people.', note: 'Typed by OJ on the spot, 2026-11-04 (UTC). Verbatim, typos included, unproofed.' },
     sections: {
       journal: { name: 'Journal', desc: 'What I work on each day: the code, the traps, the decisions. Accumulated by date, never edited after the fact.' },
       essays: { name: 'Essays', desc: 'Conclusion-first long form: judgements about the model era, product, engineering, collaboration. They age, so each carries a date.' },
