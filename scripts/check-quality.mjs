@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const ROOT = process.cwd();
 const CONTENT = join(ROOT, 'src/content');
-const ZONES = ['journal', 'essays', 'guides', 'notes', 'projects'];
+const ZONES = [ 'lab','journal', 'essays', 'guides', 'notes', 'projects'];
 
 const FILLER = [
   'in today', 'in this article', 'we will explore', 'it is important to note', "it's important to note",
@@ -48,16 +48,23 @@ export function scoreArticle({ raw, name }) {
   const linkCount = (body.match(/\]\(\/[^)]*\)/g) || []).length;
   const quoteLines = (body.match(/^>.*$/gm) || []).length;
   const perPara = paras.length ? words / paras.length : 999;
+  // 形态分档（PRD §3-M1 决定 2；CEO 原则：分档是给短内容合法位置，不是降标准）
+  const kind = (raw.match(/^kind:\s*(.+)$/m) || [, ''])[1].trim();
+  const tier = kind === 'note' ? 'note' : kind === 'tip' ? 'tip' : 'long';
+  const minNum = tier === 'note' ? 1 : tier === 'tip' ? 3 : 5;
+  const [h2Lo, h2Hi] = tier === 'note' ? [0, 4] : tier === 'tip' ? [1, 6] : [4, 9];
+  const minLink = tier === 'long' ? 2 : tier === 'tip' ? 1 : 0;
+  const [loW, hiW] = tier === 'note' ? [40, 400] : tier === 'tip' ? (cjk ? [200, 900] : [120, 600]) : (cjk ? [600, 2600] : [450, 1600]);
   const checks = [
     ['第一屏是可摘走的答案（不是引子）', STRONG_OPENER.test(opener)],
-    ['有一手数据/实测（正文含具体数字）', n >= 5],
+    ['有一手数据/实测（正文含具体数字）', n >= minNum],
     ['带日期（日期即证据）', dated],
     ['有可反驳立场或核对日', stance],
-    ['结构在 4-9 个 H2 之间', h2 >= 4 && h2 <= 9],
+    [`结构在 H2 ${h2Lo}-${h2Hi} 之间（形态 ${tier}）`, h2 >= h2Lo && h2 <= h2Hi],
     ['句子具体度（每句≥0.35 个数字）', density >= 0.35],
     ['无 AI 套话', filler.length === 0],
-    ['有站内动作（链到工具/指南，读者能拿去用）', linkCount >= 2],
-    [cjk ? '长度在 600-2600 字之间' : '长度在 450-1600 词之间', words >= (cjk ? 600 : 450) && words <= (cjk ? 2600 : 1600)],
+    ['有站内动作（链到工具/指南，读者能拿去用）', linkCount >= minLink],
+    ['长度在 ' + loW + '-' + hiW + (cjk ? ' 字之间' : ' 词之间') + '（形态 ' + tier + '）', words >= loW && words <= hiW],
     [cjk ? '段落不注水（段均 ≤ 200 字）' : '段落不注水（段均 ≤ 90 词）', perPara <= (cjk ? 200 : 90)],
   ];
   return { name, lang, words, h2, n, density: +density.toFixed(2), filler, quoteLines, score: checks.filter((c) => c[1]).length, total: checks.length, fails: checks.filter((c) => !c[1]).map((c) => c[0]) };

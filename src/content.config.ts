@@ -49,4 +49,9 @@ export const collections = {
     kind: z.enum(['观察', '线索', '结论', '提问', 'observation', 'lead', 'conclusion', 'question']).default('观察'),
   }),
   projects: col('projects', { stage: z.string().default('进行中') }),
+  // lab（AI 试验场）：一集合五形态，索引页按 kind 过滤（PRD §3-M1）
+  lab: col('lab', {
+    kind: z.enum(['case', 'insight', 'tip', 'note', 'topic']).default('note'),
+    level: z.enum(['L0', 'L1', 'L2', 'L3', 'L4']).optional(),
+  }),
 };

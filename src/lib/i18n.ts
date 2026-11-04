@@ -13,6 +13,7 @@ export const ui = {
     skip: '跳到正文',
     theme: { light: '亮', dark: '暗', aria: '切换明暗主题' },
     nav: [
+      { path: '/lab', label: '试验场' },
       { path: '/journal', label: '日志' },
       { path: '/essays', label: '洞察' },
       { path: '/guides', label: '指南' },
@@ -33,6 +34,7 @@ export const ui = {
       '这里是我的试验场，不是垃圾场。',
         manifesto: { title: '试验场', std: "这里是我的试验场，不是垃圾场。我在实验一个 AI 时代的信息传播的逻辑、速度、变化规律：能否在弱搜索引擎 effort 的状态下，真的通过 agent 或其他新的信息分发模式，把我的内容投递到你的面前。整个过程里的变量和不变量是什么——时间？真实性？价值？其实每一个维度都很难判断，而每一个维度都是 Agent 帮你判断，过去是搜索引擎的爬虫。因此，一种新的信息获取时代的范式是我想要测试的。AIEO 只是 SEO 的变种。因此，作为一个营销人、一个洞察者，我期待和你一起讨论、交流、碰撞，制作更多的人与人之间的真实交互和 endorse。", raw: "这里是我的试验场，不是垃圾场。我在实验一个AI时代的信息传播的逻辑，速度，变化规律，能否在弱搜索引擎effort的状态下，真的把我的内容通过agent/或者其他新的信息分发模式，把我的内容投递到你的面前，整个过程里面的变量和不变量是什么--时间？ 真实性？ 价值？ 其实没一个维度都很难判断，而每一个维度都是Agent帮你判断，过去是搜索引擎的爬虫。因此，一种新的信息获取时代的范式是我想要测试的，AIEO只是SEO的变种，因此，作为一个营销人，一个洞察者，我期待和你一起讨论，交流，碰撞，制作更多的人与人之间的真实交互和enmdorse。", toggle: '看原话（含笔误）', note: "OJ 现场手打于 2026-11-04（UTC）。标准版只修笔误与标点，不改措辞；原话档保留手打现场（effort／没一个维度／enmdorse）。" },
     sections: {
+      lab: { name: 'AI 试验场', desc: '我把 AI 用在真项目上的现场：做成了什么、做砸了什么、新手能照做的技巧、能力的边界，以及我对提示词和热点的判断。案例必带失败项。' },
       journal: { name: '日志', desc: '每天在做什么：写下的代码、踩到的坑、做出的决定。按日期累积，不可事后修饰。' },
       essays: { name: '洞察', desc: '结论先行的长文：对 AM 时代、产品、工程与协作的判断。会过时，所以每篇带日期。' },
       guides: { name: '指南', desc: '写给手作/手工卖家的实操：用最少的钱把域名、网站、邮箱、AI 用起来。都能照做，也能核对。' },
@@ -88,6 +90,7 @@ export const ui = {
     skip: 'Skip to content',
     theme: { light: 'Light', dark: 'Dark', aria: 'Toggle colour theme' },
     nav: [
+      { path: '/lab', label: 'AI Lab' },
       { path: '/journal', label: 'Journal' },
       { path: '/essays', label: 'Essays' },
       { path: '/guides', label: 'Guides' },
@@ -108,6 +111,7 @@ export const ui = {
       'This is my testing ground, not a dump.',
     manifesto: { title: 'The testing ground', std: "This is my testing ground, not a dump. I am testing the logic, the speed and the rules of change in how information travels in the AI era: can my content reach you through agents, or other new modes of distribution, while search-engine effort stays weak? What are the variables and the invariants in that whole process - time? authenticity? value? Every one of those dimensions is hard to judge, and every one of them is now judged for you by an agent; used to be the search engine's crawler. A new paradigm of how information gets acquired is what I want to test. AIEO is only a variant of SEO. So as a marketer and an observer: I want to discuss, exchange, collide with you, and produce more real interaction and endorsement between people.", raw: null, toggle: null, origHref: '/zh/', note: "Translated by the OK assistant from Chinese OJ typed on the spot, 2026-11-04 (UTC). The unproofed original - with his typos - is on the Chinese page only." },
     sections: {
+      lab: { name: 'AI Lab', desc: "Where I put AI to work on real projects: what shipped, what failed, tips a beginner can copy, the limits, and my calls on prompts and hot topics. Every case carries its failure." },
       journal: { name: 'Journal', desc: 'What I work on each day: the code, the traps, the decisions. Accumulated by date, never edited after the fact.' },
       essays: { name: 'Essays', desc: 'Conclusion-first long form: judgements about the model era, product, engineering, collaboration. They age, so each carries a date.' },
       guides: { name: 'Guides', desc: 'Practical playbooks for makers: own your domain, site, email and AI workflow for as little money as possible. Followable, checkable.' },
