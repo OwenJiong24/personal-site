@@ -114,6 +114,19 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
   </section>
 
   <section class="wrap flow">
+    <h2>{t.self.title}</h2>
+    <div class="voice-card">
+      <input type="checkbox" id="voice-raw-home-self" class="voice-check" />
+      <p class="voice-std">{t.self.std}</p>
+      <p class="voice-raw" lang="zh">{t.self.raw}</p>
+      <p class="voice-foot">
+        <label for="voice-raw-home-self" class="voice-toggle">{t.self.toggle}</label>
+        <span>{t.self.note}</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap flow">
     <h2>{t.home.zones}</h2>
     <div class="grid grid-3">
       {
