@@ -67,9 +67,10 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
 <Base title={brand.name} path={path} lang={lang} switchHref={switchHref}>
   <SiteJsonLd lang={lang} />
 
-  <section class="wrap flow" style={heroSectionStyle}>
+  <section class="wrap flow hero-band" style={heroSectionStyle}>
     <header class="flow measure" style={headerSectionStyle}>
       <p style={pillsStyle}>
+        <span class="seal" lang="en">[OK]</span>
         <span class="stamp" lang="en">{brand.abbr}</span>
         <span class="pill" lang="en">{roleLabel}</span>
         <span class="pill">{startPill}</span>
@@ -104,12 +105,13 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
     <h2 lang="en">{t.manifesto.title}</h2>
     <div class="voice-card">
       <input type="checkbox" id="voice-raw" class="voice-check" />
+      <div class="voice-head">
+        <span class="voice-who">OJ · 2026-11-04 · 现场手打</span>
+        <span class="voice-seg"><label class="seg-lab seg-std" for="voice-raw">标准版</label><label class="seg-lab seg-raw" for="voice-raw">原话（含笔误）</label></span>
+      </div>
       <p class="voice-std">{t.manifesto.std}</p>
-      <p class="voice-raw" lang="zh">{t.manifesto.raw}</p>
-      <p class="voice-foot">
-        <label for="voice-raw" class="voice-toggle">{t.manifesto.toggle}</label>
-        <span>{t.manifesto.note}</span>
-      </p>
+      <p class="voice-raw">{t.manifesto.raw}</p>
+      <p class="voice-note">{t.manifesto.note}</p>
     </div>
   </section>
 
@@ -117,12 +119,13 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
     <h2>{t.self.title}</h2>
     <div class="voice-card">
       <input type="checkbox" id="voice-raw-home-self" class="voice-check" />
+      <div class="voice-head">
+        <span class="voice-who">OJ · 2026-11-04 · 现场手打</span>
+        <span class="voice-seg"><label class="seg-lab seg-std" for="voice-raw-home-self">标准版</label><label class="seg-lab seg-raw" for="voice-raw-home-self">原话（含笔误）</label></span>
+      </div>
       <p class="voice-std">{t.self.std}</p>
-      <p class="voice-raw" lang="zh">{t.self.raw}</p>
-      <p class="voice-foot">
-        <label for="voice-raw-home-self" class="voice-toggle">{t.self.toggle}</label>
-        <span>{t.self.note}</span>
-      </p>
+      <p class="voice-raw">{t.self.raw}</p>
+      <p class="voice-note">{t.self.note}</p>
     </div>
   </section>
 
