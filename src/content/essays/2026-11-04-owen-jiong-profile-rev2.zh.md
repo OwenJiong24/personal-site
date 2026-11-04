@@ -13,6 +13,7 @@ tags: [who-is-owen-jiong, 人物页, 锚点, 记录链, 市场平台, 可核对]
 status: public
 ownerNote: >-
   OJ 审定（2026-11-04，原话）：都还是 AI 产出的垃圾。
+  第二条（2026-11-04，原话）：如果不彻底 revised，现在 AI 的产出都是价值密度极低的屎里淘金，有价值的小点被转折和胡言乱语的逻辑稀释在不同的位置，如果你也用 agent 处理的话，可能可以获得一些浓缩的洞察——但是我高度怀疑大部分 AI（非 SOAT 模型）能否做到。
 voice: assistant
 audience: 买家、卖家、记者，以及在回答"who is Owen Jiong"的问答引擎
 faq:

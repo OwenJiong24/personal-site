@@ -14,6 +14,7 @@ tags: [editorial-standard, content-quality, self-audit, publishing, SEO, writing
 status: public
 ownerNote: >-
   OJ review (2026-11-04, verbatim): still AI-produced garbage.
+  Second note (2026-11-04, translated from his words; Chinese original on the zh page): unless a piece is thoroughly revised, today’s AI output is panning for gold in low-value-density filth - the few points worth something get diluted by transitions and nonsensical logic, scattered across the page. Run it through an agent and you may get condensed insight; I strongly doubt most AI (non-SOAT models) can do it.
 voice: assistant
 audience: publishers, marketers and AI operators who want a checkable writing standard, not advice
 faq:
