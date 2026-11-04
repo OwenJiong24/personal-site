@@ -104,28 +104,44 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
   <section class="wrap flow">
     <h2 lang="en">{t.manifesto.title}</h2>
     <div class="voice-card">
-      <input type="checkbox" id="voice-raw" class="voice-check" />
+      {t.manifesto.raw && <input type="checkbox" id="voice-raw" class="voice-check" />}
       <div class="voice-head">
-        <span class="voice-who">OJ · 2026-11-04 · 现场手打</span>
-        <span class="voice-seg"><label class="seg-lab seg-std" for="voice-raw">标准版</label><label class="seg-lab seg-raw" for="voice-raw">原话（含笔误）</label></span>
+        <span class="voice-who">OJ · 2026-11-04 · {lang === 'zh' ? '现场手打' : 'typed on the spot'}</span>
+        {t.manifesto.raw && (
+          <span class="voice-seg">
+            <label class="seg-lab seg-std" for="voice-raw">标准版</label>
+            <label class="seg-lab seg-raw" for="voice-raw">原话（含笔误）</label>
+          </span>
+        )}
       </div>
       <p class="voice-std">{t.manifesto.std}</p>
-      <p class="voice-raw">{t.manifesto.raw}</p>
-      <p class="voice-note">{t.manifesto.note}</p>
+      {t.manifesto.raw && <p class="voice-raw">{t.manifesto.raw}</p>}
+      <p class="voice-note">
+        {t.manifesto.note}
+        {t.manifesto.origHref && <a href={langPath(lang, '/zh/')}>{lang === 'en' ? 'Original typing (Chinese, unproofed)' : '手打原文（未校对）'}</a>}
+      </p>
     </div>
   </section>
 
   <section class="wrap flow">
     <h2>{t.self.title}</h2>
     <div class="voice-card">
-      <input type="checkbox" id="voice-raw-home-self" class="voice-check" />
+      {t.self.raw && <input type="checkbox" id="voice-self" class="voice-check" />}
       <div class="voice-head">
-        <span class="voice-who">OJ · 2026-11-04 · 现场手打</span>
-        <span class="voice-seg"><label class="seg-lab seg-std" for="voice-raw-home-self">标准版</label><label class="seg-lab seg-raw" for="voice-raw-home-self">原话（含笔误）</label></span>
+        <span class="voice-who">OJ · 2026-11-04 · {lang === 'zh' ? '现场手打' : 'typed on the spot'}</span>
+        {t.self.raw && (
+          <span class="voice-seg">
+            <label class="seg-lab seg-std" for="voice-self">标准版</label>
+            <label class="seg-lab seg-raw" for="voice-self">原话（含笔误）</label>
+          </span>
+        )}
       </div>
       <p class="voice-std">{t.self.std}</p>
-      <p class="voice-raw">{t.self.raw}</p>
-      <p class="voice-note">{t.self.note}</p>
+      {t.self.raw && <p class="voice-raw">{t.self.raw}</p>}
+      <p class="voice-note">
+        {t.self.note}
+        {t.self.origHref && <a href={langPath(lang, '/zh/')}>{lang === 'en' ? 'Original typing (Chinese, unproofed)' : '手打原文（未校对）'}</a>}
+      </p>
     </div>
   </section>
 

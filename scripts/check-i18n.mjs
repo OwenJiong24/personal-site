@@ -33,6 +33,17 @@ const existsPage = (pathName) => {
 };
 
 const problems = [];
+// 泄露面：英文页只准放译文。CEO 的手打原文（含笔误、履历数字）只出现在中文站。
+const CJK_RUN = /[\u4e00-\u9fff][\u4e00-\u9fff\u3000\uff0c\u3002\uff1f\uff01\uff1a\uff1b\u201c\u201d\u2018\u2019\uff08\uff09、\s]{19,}[\u4e00-\u9fff]/g;
+const RAW_TYPOS = ['enmdorse', '没一个维度'];
+for (const file of files) {
+  const url = urlOf(file);
+  if (url.startsWith('/zh')) continue;
+  const text = readFileSync(file, 'utf8').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ');
+  for (const w of RAW_TYPOS) if (text.includes(w)) problems.push(`泄露：英文页 ${url} 含中文手打原文特征串「${w}」`);
+  const runs = text.match(CJK_RUN);
+  if (runs) problems.push(`泄露：英文页 ${url} 出现成串中文（${runs[0].length} 字）：${runs[0].slice(0, 28)}…——原文只发中文站`);
+}
 for (const file of files) {
   const html = readFileSync(file, 'utf8');
   const self = urlOf(file);
@@ -56,4 +67,4 @@ if (problems.length) {
   console.error(`canonical/hreflang 自检未通过（${problems.length} 项）：\n - ` + problems.slice(0, 40).join('\n - '));
   process.exit(1);
 }
-console.log(`canonical/hreflang 自检通过（${files.length} 个页面，规范地址与译文互指都对）`);
+console.log(`canonical/hreflang 与语言泄露自检通过（${files.length} 个页面，规范地址与译文互指都对）`);
