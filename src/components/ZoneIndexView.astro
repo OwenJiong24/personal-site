@@ -1,5 +1,7 @@
 ---
-// 抽屉索引（中英共用）：journal/essays/projects 用列表流；notes 用卡片流（短条目）
+// 抽屉索引（中英共用）：journal/essays/projects 用列表流；notes 用卡片流（短条目）；
+// lab（AI 试验场）按形态分组显示，形态展示名来自 i18n.labKinds（Spark/Specimen/Playbook/Thesis/Topic，AB-02），
+// 枚举键不动（note/case/tip/insight/topic），避免动数据与门禁。受众维度 audience（AB-03）显示在元数据行。
 import Base from '../layouts/base.astro';
 import { ui, langPath, type Lang } from '../lib/i18n';
 import { publishedIn, utcDay, keyOf, type Zone } from '../lib/trust';
@@ -16,14 +18,25 @@ const path = langPath(lang, '/' + zone);
 const switchHref = (lang === 'zh' ? '' : '/zh') + '/' + zone;
 const info = t.sections[zone as SectionSlug];
 const isNotes = zone === 'notes';
+const isLab = zone === 'lab';
+const KIND_ORDER = ['case', 'insight', 'tip', 'topic', 'note'];
 const rows = posts.map((p) => ({
   href: path + '/' + keyOf(p),
   day: utcDay(p.data.date),
   title: p.data.title,
   summary: p.data.summary,
-  kind: (p.data as { kind?: string }).kind ?? '',
+  kind: (p.data as { kind?: string }).kind ?? 'note',
+  audience: (p.data as { audience?: string }).audience ?? '',
   tags: p.data.tags,
 }));
+const groups = isLab
+  ? KIND_ORDER.map((k) => ({
+      k,
+      label: (t as { labKinds?: Record<string, string> }).labKinds?.[k] ?? k,
+      items: rows.filter((r) => r.kind === k),
+    })).filter((g) => g.items.length > 0)
+  : [];
+const audLabel = (v: string) => (t as { labAudience?: Record<string, string> }).labAudience?.[v] ?? v;
 const metaLine = t.zone.meta(posts.length);
 const descStyle = 'color: var(--text-2)';
 const tagsStyle = 'display: flex; gap: 0.35rem; flex-wrap: wrap';
@@ -41,6 +54,30 @@ const cardStyle = '--flow-gap: 0.4rem; text-decoration: none; color: inherit';
     {
       rows.length === 0 ? (
         <p class="meta">{t.zone.empty}</p>
+      ) : isLab ? (
+        <div class="flow">
+          {groups.map((g) => (
+            <section class="flow">
+              <h2 class="kind-title">
+                {g.label} <span class="kind-count">{g.items.length}</span>
+              </h2>
+              <ul class="post-list">
+                {g.items.map((r) => (
+                  <li>
+                    <a href={r.href}>
+                      <span class="meta">
+                        {r.day} {t.post.utc}
+                        {r.audience ? ' · ' + audLabel(r.audience) : ''}
+                      </span>
+                      <p class="post-title">{r.title}</p>
+                      {r.summary && <p class="post-excerpt">{r.summary}</p>}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
       ) : isNotes ? (
         <div class="grid grid-3">
           {rows.map((r) => (
@@ -65,7 +102,10 @@ const cardStyle = '--flow-gap: 0.4rem; text-decoration: none; color: inherit';
           {rows.map((r) => (
             <li>
               <a href={r.href}>
-                <span class="meta">{r.day} {t.post.utc}</span>
+                <span class="meta">
+                  {r.day} {t.post.utc}
+                  {r.audience ? ' · ' + audLabel(r.audience) : ''}
+                </span>
                 <p class="post-title">{r.title}</p>
                 {r.summary && <p class="post-excerpt">{r.summary}</p>}
               </a>

@@ -4,7 +4,7 @@
 import Base from '../layouts/base.astro';
 import Brand from '../components/Brand.astro';
 import SiteJsonLd from '../components/SiteJsonLd.astro';
-import { brand, site, sections, type SectionSlug } from '../lib/site';
+import { brand, site, sections, metrics, type SectionSlug } from '../lib/site';
 import { ui, langPath, type Lang } from '../lib/i18n';
 import { publishedPosts, stats, chain, utcDay, keyOf } from '../lib/trust';
 
@@ -81,7 +81,7 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
       <p style={introStyle}>{t.intro}</p>
     </header>
 
-    <div class="card">
+    <div class="card telemetry">
       <div class="stat-row">
         <span class="stat"><b>{s.elapsedDays}</b><small>{t.stats.days}</small></span>
         <span class="stat"><b>{s.entries}</b><small>{t.stats.entries}</small></span>
@@ -91,6 +91,8 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
           <b><a href={verifyHref} class="mono" style={chainLinkStyle}>{head8}</a></b>
           <small>{t.stats.chain}</small>
         </span>
+        <span class="stat"><b>{metrics.gates}</b><small>{t.stats.gates}</small></span>
+        <span class="stat"><b>{metrics.lastRedGate}</b><small>{t.stats.lastRed}</small></span>
       </div>
     </div>
 

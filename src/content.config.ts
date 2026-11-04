@@ -28,6 +28,15 @@ const article = z.object({
   //（实测：essays 声明的 faq 进不了 data，两篇文章一直没有 FAQPage）。
   audience: z.string().default(''),
   faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+  // 外发隔离网关（AB-01，CEO 2026-11-04 批准）：本条内容能不能被本机脚本改写成社媒草稿。
+  // 铁律：时事短评类区块必须显式 enabled: false，门禁 scripts/check-syndication.mjs 拦；
+  // 脚本只出草稿到 ..\strategy\外发草稿\，不发布、不调平台接口，发布由 OJ 手工执行。
+  syndication: z
+    .object({
+      enabled: z.boolean().default(true),
+      channels: z.array(z.enum(['x_thread', 'xiaohongshu_cards', 'linkedin_insight', 'wechat_draft'])).default(['x_thread']),
+    })
+    .default({ enabled: true, channels: ['x_thread'] }),
 });
 
 const col = (dir: string, extra?: z.ZodRawShape) =>

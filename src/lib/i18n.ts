@@ -46,7 +46,9 @@ export const ui = {
       desc: '我在用的工具与设备：为什么选它、用在哪。不是推荐位，是实况。',
       groups: { work: '工作环境', build: '开发栈', mind: '信息源与习惯', life: '生活' },
     },
-    stats: { days: '公开天数', entries: '条记录', streak: '连续天数', latest: '最近更新（UTC）', chain: '记录链头' },
+    stats: { days: '公开天数', entries: '条记录', streak: '连续天数', latest: '最近更新（UTC）', chain: '记录链头', gates: '构建门禁', lastRed: '最近判红' },
+    labKinds: { case: 'Specimen', insight: 'Thesis', tip: 'Playbook', note: 'Spark', topic: 'Topic' },
+    labAudience: { BEGINNER: '新手向', PRO_PM: 'AI PM 向', ALL: '全部读者' },
     buttons: { latest: '读最新一条', about: '这是什么站', journal: '最新日志', verify: '怎么核对' },
     home: { data: '数据条', recent: '最新记录', zones: '五个抽屉', rules: '这份记录的规则', lab: '实验室在做什么' },
     rules: [
@@ -123,7 +125,9 @@ export const ui = {
       desc: 'Tools and gear I actually run: why I chose it, where it is used. Not a recommendation slot — a status report.',
       groups: { work: 'Work environment', build: 'Build stack', mind: 'Inputs and habits', life: 'Life' },
     },
-    stats: { days: 'Days public', entries: 'Entries', streak: 'Day streak', latest: 'Last update (UTC)', chain: 'Chain head' },
+    stats: { days: 'Days public', entries: 'Entries', streak: 'Day streak', latest: 'Last update (UTC)', chain: 'Chain head', gates: 'Build gates', lastRed: 'Last gate red' },
+    labKinds: { case: 'Specimen', insight: 'Thesis', tip: 'Playbook', note: 'Spark', topic: 'Topic' },
+    labAudience: { BEGINNER: 'beginner', PRO_PM: 'AI PM', ALL: 'all readers' },
     buttons: { latest: 'Read the latest', about: 'What this site is', journal: 'Latest journal', verify: 'How to verify' },
     home: { data: 'Record stats', recent: 'Latest entries', zones: 'Five drawers', rules: 'Rules of this record', lab: 'What the lab is doing' },
     rules: [

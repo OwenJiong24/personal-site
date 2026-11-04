@@ -138,7 +138,7 @@ const mdMirror = mdMirrorFor(path);
             t.nav.map((item) => {
               const href = langPath(lang, item.path);
               return (
-                <a href={href} aria-current={path === href ? 'page' : undefined}>
+                <a class="nav-i" href={href} aria-current={path === href ? 'page' : undefined}>
                   {item.label}
                 </a>
               );
