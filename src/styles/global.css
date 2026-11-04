@@ -235,6 +235,24 @@ main { flex: 1; }
 
 /* ── 可访问性 ── */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+/* CEO 手打原文卡：默认标准版，勾选切到原话（纯 CSS，无脚本；只用 tokens.css 变量） */
+.voice-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  box-shadow: var(--shadow);
+}
+.voice-card .voice-check { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.voice-card .voice-std, .voice-card .voice-raw { color: var(--text); max-width: var(--measure); margin: 0; }
+.voice-card .voice-raw { display: none; color: var(--text-2); }
+.voice-card .voice-check:checked ~ .voice-std { display: none; }
+.voice-card .voice-check:checked ~ .voice-raw { display: block; }
+.voice-foot { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: baseline; margin: 0.8rem 0 0; color: var(--muted); font-size: 0.8125rem; }
+.voice-toggle { cursor: pointer; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-strong); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.2rem 0.55rem; background: var(--surface-2); }
+.voice-card .voice-check:checked ~ .voice-foot .voice-toggle { background: var(--accent-soft); border-color: var(--accent); }
+.voice-card .voice-check:focus-visible ~ .voice-foot .voice-toggle { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* 工具页表单：字段 + 单位后缀 + 结果栅格。
    2026-11-03 重做：旧版把 input 直接放在 label 里且没控宽，长标签在 3 列栅格里互相重叠。
    现在字段自成一格，输入 100% 宽，单位做成贴边的后缀块，小屏单列，绝不重叠。 */

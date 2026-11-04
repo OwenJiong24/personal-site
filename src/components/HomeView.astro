@@ -102,8 +102,15 @@ const signature = lang === 'en' ? brand.signatureEn : brand.signatureZh;
 
   <section class="wrap flow">
     <h2 lang="en">{t.manifesto.title}</h2>
-    <p style={introStyle}>{t.manifesto.body}</p>
-    <p style={countStyle}>{t.manifesto.note}</p>
+    <div class="voice-card">
+      <input type="checkbox" id="voice-raw" class="voice-check" />
+      <p class="voice-std">{t.manifesto.std}</p>
+      <p class="voice-raw" lang="zh">{t.manifesto.raw}</p>
+      <p class="voice-foot">
+        <label for="voice-raw" class="voice-toggle">{t.manifesto.toggle}</label>
+        <span>{t.manifesto.note}</span>
+      </p>
+    </div>
   </section>
 
   <section class="wrap flow">
