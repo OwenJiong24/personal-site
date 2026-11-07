@@ -6,7 +6,8 @@ import type { Lang } from './i18n';
 export type Zone = SectionSlug;
 
 export type Post =
-  | Awaited<ReturnType<typeof getCollection<'journal'>>>[number]
+  | Awaited<ReturnType<typeof getCollection<'lab'>>>[number]
+    | Awaited<ReturnType<typeof getCollection<'journal'>>>[number]
   | Awaited<ReturnType<typeof getCollection<'essays'>>>[number]
   | Awaited<ReturnType<typeof getCollection<'guides'>>>[number]
   | Awaited<ReturnType<typeof getCollection<'notes'>>>[number]
@@ -28,14 +29,15 @@ export const keyOf = (p: Post) =>
 
 /** 全部可公开条目（草稿与未来日期不进构建），中文与英文都包含，新→旧。导出口给 /chain.json 用。 */
 export async function allPublic(): Promise<Post[]> {
-  const [journal, essays, guides, notes, projects] = await Promise.all([
+  const [lab, journal, essays, guides, notes, projects] = await Promise.all([
+    getCollection('lab'),
     getCollection('journal'),
     getCollection('essays'),
     getCollection('guides'),
     getCollection('notes'),
     getCollection('projects'),
   ]);
-  return [...journal, ...essays, ...guides, ...notes, ...projects]
+  return [...lab, ...journal, ...essays, ...guides, ...notes, ...projects]
     .filter((p) => (p.data as { status: string }).status === 'public')
     .filter((p) => t(p) <= Date.now())
     .sort((a, b) => t(b) - t(a)) as Post[];
