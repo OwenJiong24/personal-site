@@ -1,5 +1,8 @@
 ---
 // 第三方度量清单：谁在数我们、数到什么、怎么关。公开可核对，不放行话。
+import { clarity } from '../lib/analytics';
+const clarityId = clarity.projectId;
+const clarityTag = clarity.tagBase;
 const { lang } = Astro.props as { lang: 'zh' | 'en' };
 const en = lang === 'en';
 
@@ -99,14 +102,14 @@ const key = 'ok-site-consent';
   <p class="meta">{s.check}</p>
 </section>
 
-<script is:inline define:vars={{ key }}>
+<script is:inline define:vars={{ key, onLabel: s.onLabel, offLabel: s.offLabel, unsetLabel: s.unset, pid: clarityId, tagBase: clarityTag }}>
   (function () {
     var out = document.querySelector('[data-consent-state]');
     function refresh() {
       if (!out) return;
       var v = null;
       try { v = localStorage.getItem(key); } catch (e) {}
-      out.textContent = v === 'on' ? '{s.onLabel}' : v === 'off' ? '{s.offLabel}' : '{s.unset}';
+      out.textContent = v === 'on' ? onLabel : v === 'off' ? offLabel : unsetLabel;
     }
     refresh();
     var btns = document.querySelectorAll('[data-consent-set]');
@@ -117,7 +120,7 @@ const key = 'ok-site-consent';
         if (v === 'on' && !window.clarity) {
           (function (c, l, a, r, i2, t, y) {
             c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
-            t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/zb6h8hdlh2';
+            t = l.createElement(r); t.async = 1; t.src = tagBase + pid;
             y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
           })(window, document, 'clarity', 'script');
         }
