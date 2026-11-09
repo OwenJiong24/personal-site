@@ -10,7 +10,8 @@ import '@fontsource-variable/jetbrains-mono';
 import '../styles/tokens.css';
 import '../styles/global.css';
 import Brand from '../components/Brand.astro';
-import ConsentBar from '../components/ConsentBar.astro';
+import AnalyticsLoader from '../components/AnalyticsLoader.astro';
+import { disclosure } from '../lib/analytics';
 import { brand, site } from '../lib/site';
 import { publishedPosts, stats, chain } from '../lib/trust';
 import { ui, langPath, type Lang } from '../lib/i18n';
@@ -206,7 +207,8 @@ const mdMirror = mdMirrorFor(path);
               Markdown
             </a>
             {' · '}
-            {t.footer.noTracker}
+            {t.footer.noTracker} ·
+  <a href={disclosure.href}>{disclosure.label}</a>
           </span>
         </p>
       </div>
@@ -233,6 +235,6 @@ const mdMirror = mdMirrorFor(path);
         });
       })();
     </script>
-  <ConsentBar lang={lang} />
+  <AnalyticsLoader lang={lang} />
 </body>
 </html>

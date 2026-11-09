@@ -1,0 +1,30 @@
+---
+import { clarity } from '../lib/analytics';
+
+// 默认加载第三方度量（无同意条）。只有访客在说明页按过「关闭 Clarity」才不加载。
+// 规矩出处：AGENTS.md 2026-11-09 第九轮补记——OJ 第二次裁定，恢复「不加 Cookie 弹窗」。
+const { lang } = Astro.props as { lang: 'zh' | 'en' };
+void lang;
+---
+
+{clarity.enabled && (
+  <script is:inline define:vars={{ pid: clarity.projectId, tagBase: clarity.tagBase, key: clarity.storageKey }}>
+    (function () {
+      var stored = null;
+      try { stored = localStorage.getItem(key); } catch (e) { stored = null; }
+      if (stored === 'off') return;
+      (function (c, l, a, r, i, t, y) {
+        c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+        t = l.createElement(r); t.async = 1; t.src = tagBase + i;
+        y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', pid);
+      window.addEventListener('pageshow', function (ev) {
+        if (!ev.persisted) return;
+        var v = null;
+        try { v = localStorage.getItem(key); } catch (e) { v = null; }
+        if (v === 'off' && window.clarity) { window.clarity('stop'); }
+        if (v !== 'off' && !window.clarity) { window.location.reload(); }
+      });
+    })();
+  </script>
+)}
