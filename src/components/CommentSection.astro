@@ -1,0 +1,142 @@
+---
+import { curatedComments } from '../data/comments';
+
+// 文章页底部的评论区：精选留言服务端渲染（进 git、可核对），待审留言走站内端点 /api/request。
+const { path, lang } = Astro.props as { path: string; lang: 'zh' | 'en' };
+const en = lang === 'en';
+
+const s = en
+  ? {
+      h: 'Comments',
+      lead: 'Read and leave a comment, or ask us something. Submissions go to a review queue and appear here once approved - we keep the right to delete without rewriting your words.',
+      nothing: 'No approved comments yet. This page is the record of the first one.',
+      name: 'Name or handle',
+      email: 'Email (optional, never shown)',
+      body: 'Your comment or question',
+      send: 'Send',
+      ai: 'This site publishes comments written by AI with the model name spelled out. Comments approved for display are copied into the repository, so they can be diffed and dated.',
+      sending: 'Sending…',
+      sent: 'Received. It shows up here after review.',
+      failed: 'Not sent. Email us at',
+      live: 'Approved comments on this page',
+    }
+  : {
+      h: '留言与提问',
+      lead: '可以留言、可以打脸、也可以直接问。提交进审核队列，通过后显示在这里；我们保留删除权，但不改你的用词。',
+      nothing: '还没有已发布留言。第一条会从这里开始留记录。',
+      name: '署名或 handle',
+      email: '邮箱（可选，不公开显示）',
+      body: '你的留言、纠错或问题',
+      send: '提交',
+      ai: '本站公开留言里由 AI 写的会标出具体模型名。通过审核的留言会同步进仓库，可 diff、可核时间。',
+      sending: '提交中…',
+      sent: '已收到，审核通过后显示在这里。',
+      failed: '没发出去，可直接写信到',
+      live: '本页已发布留言',
+    };
+
+const mine = curatedComments.filter((c) => c.path === path).sort((a, b) => (a.at < b.at ? 1 : -1));
+const input = 'width: 100%; padding: 0.625rem 0.75rem; font: inherit; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm)';
+---
+
+<section class="flow stack-sm" id="comments" aria-label={s.h}>
+  <h2>{s.h}</h2>
+  <p>{s.lead}</p>
+
+  {mine.length > 0 && (
+    <div class="flow stack-sm">
+      <p class="mono">{s.live} · {mine.length}</p>
+      {mine.map((c) => (
+        <article class="card-flat flow">
+          <p class="meta mono">
+            {c.name}{c.kind === 'ai' && c.model ? ' · AI ' + c.model : ''} · {c.at.slice(0, 10)}
+          </p>
+          <p>{c.body}</p>
+        </article>
+      ))}
+    </div>
+  )}
+  {mine.length === 0 && <p class="meta">{s.nothing}</p>}
+
+  <form class="flow stack-sm" method="post" action="/api/request" data-comment-form>
+    <input type="hidden" name="kind" value="comment" />
+    <input type="hidden" name="path" value={path} />
+    <input type="hidden" name="lang" value={lang} />
+    <label class="flow stack-xs">
+      <span class="mono">{s.name}</span>
+      <input name="name" required maxlength="60" style={input} autocomplete="nickname" />
+    </label>
+    <label class="flow stack-xs">
+      <span class="mono">{s.email}</span>
+      <input name="email" type="email" maxlength="120" style={input} autocomplete="email" />
+    </label>
+    <label class="flow stack-xs">
+      <span class="mono">{s.body}</span>
+      <textarea name="body" required rows="4" maxlength="1200" style={input}></textarea>
+    </label>
+    <label class="hp" aria-hidden="true">
+      <span>leave blank</span>
+      <input name="hp" tabindex="-1" autocomplete="off" />
+    </label>
+    <p class="flow stack-xs">
+      <button type="submit" class="btn">{s.send}</button>
+      <span class="meta" data-comment-status></span>
+    </p>
+    <p class="meta">{s.ai}</p>
+  </form>
+</section>
+
+<style is:global>
+  .hp {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var forms = document.querySelectorAll('[data-comment-form]');
+    for (var i = 0; i < forms.length; i++) {
+      var form = forms[i];
+      var status = form.querySelector('[data-comment-status]');
+      if (!status) continue;
+      var strings = form.getAttribute('data-strings') || '';
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var fd = new FormData(form);
+        if ((fd.get('hp') || '') !== '') return;
+        var en = (fd.get('lang') === 'en');
+        status.textContent = en ? 'Sending…' : '提交中…';
+        fetch('/api/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            kind: String(fd.get('kind')),
+            path: String(fd.get('path')),
+            lang: String(fd.get('lang')),
+            name: String(fd.get('name')),
+            email: String(fd.get('email')),
+            body: String(fd.get('body')),
+            hp: '',
+          }),
+        })
+          .then(function (r) { return r.json().then(function (j) { return { code: r.status, j: j }; }); })
+          .then(function (res) {
+            if (res.j && res.j.ok) {
+              status.textContent = en ? 'Received. It shows up here after review.' : '已收到，审核通过后显示在这里。';
+              form.reset();
+            } else {
+              status.textContent = (res.j && res.j.error) ? 'Error: ' + res.j.error : (en ? 'Not sent.' : '没发出去。');
+            }
+          })
+          .catch(function () {
+            status.textContent = en ? 'Not sent. Email us at owen@orangeknows.com' : '没发出去，可直接写信到 owen@orangeknows.com';
+          });
+      });
+      void strings;
+    }
+  })();
+</script>

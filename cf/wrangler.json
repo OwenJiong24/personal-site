@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.cloudflare.com/workers/wrangler.schema.json",
+  "name": "jiong",
+  "pages_build_output_dir": "dist",
+  "compatibility_date": "2026-11-01",
+  "d1_databases": [
+    {
+      "binding": "COMMENTS_DB",
+      "database_name": "ok-comments",
+      "database_id": "b96e2dd7-76f8-42da-aeb6-9ee5914e4616"
+    }
+  ]
+}

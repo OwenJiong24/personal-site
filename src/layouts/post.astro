@@ -3,6 +3,7 @@
 // 注意：Astro 模板解析器对属性表达式里嵌套模板字符串敏感，所有链接先在 frontmatter 算好。
 import Base from '../layouts/base.astro';
 import ArticleJsonLd from '../components/ArticleJsonLd.astro';
+import CommentSection from '../components/CommentSection.astro';
 import { chain, utcDay, twinOf, keyOf, type Post, type Zone } from '../lib/trust';
 import { ui, langPath, type Lang } from '../lib/i18n';
 
@@ -122,6 +123,8 @@ const articleStyle = '--flow-gap: 1.25rem';
         </section>
       )
     }
+
+    <CommentSection path={path} lang={lang} />
 
     <nav class="card-flat" aria-label={navAria} style={navStyle}>
       {older && <a href={olderHref} style="margin-inline-end: auto">← {older.data.title}</a>}
