@@ -23,19 +23,19 @@ export type ConsentUi = {
 
 export const consentUi: Record<'zh' | 'en', ConsentUi> = {
   zh: {
-    question: '要不要让我们看到页面外的小地图？',
-    why: '本站用 Microsoft Clarity 看会话回放、点击热力图和滚动深度，用来判断哪些段落真的有人读。它只在你会同意后加载，会设两个 Microsoft Cookie（_clck 与 _clsk）；Cloudflare 的无 Cookie 计数不受这里影响。文本默认打码，机器人流量会被过滤。',
-    accept: '同意',
-    decline: '不用',
-    detail: '细节与改主意',
+    question: '让我们知道哪一段真的有人读——可以吗？',
+    why: '只用一个匿名统计工具（Microsoft Clarity）看阅读方式，不认人、不投广告。',
+    accept: '可以',
+    decline: '先不用',
+    detail: '它到底记了什么',
     detailHref: '/zh/support#third-party',
   },
   en: {
-    question: 'May we see how the page is actually used?',
-    why: 'We run Microsoft Clarity for session replay, click heatmaps and scroll depth, to tell which passages people really read. It loads only after you accept, and Microsoft then sets two cookies (_clck and _clsk). The cookieless Cloudflare counter is unaffected. Text is masked by default and bot traffic is filtered.',
-    accept: 'Accept',
-    decline: 'No thanks',
-    detail: 'Details and changing your mind',
+    question: 'May we check which paragraphs people actually read?',
+    why: 'One anonymous usage tool (Microsoft Clarity). It measures reading behaviour, not who you are, and there is no ad targeting here.',
+    accept: 'Sure',
+    decline: 'Not now',
+    detail: 'What it records, in one table',
     detailHref: '/support#third-party',
   },
 };
