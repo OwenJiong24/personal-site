@@ -35,7 +35,9 @@ const s = en
       live: '本页已发布留言',
     };
 
-const mine = curatedComments.filter((c) => c.path === path).sort((a, b) => (a.at < b.at ? 1 : -1));
+// 站内路径统一带尾斜杠：canonical 由 post.astro 给出时不带（/guides/x），库里存的是 /guides/x/。
+const tpath = path.endsWith('/') ? path : path + '/';
+const mine = curatedComments.filter((c) => c.path === tpath).sort((a, b) => (a.at < b.at ? 1 : -1));
 const input = 'width: 100%; padding: 0.625rem 0.75rem; font: inherit; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm)';
 ---
 
@@ -60,17 +62,17 @@ const input = 'width: 100%; padding: 0.625rem 0.75rem; font: inherit; background
 
   <form class="flow stack-sm" method="post" action="/api/request" data-comment-form>
     <input type="hidden" name="kind" value="comment" />
-    <input type="hidden" name="path" value={path} />
+    <input type="hidden" name="path" value={tpath} />
     <input type="hidden" name="lang" value={lang} />
-    <label class="flow stack-xs">
+    <label class="flow">
       <span class="mono">{s.name}</span>
       <input name="name" required maxlength="60" style={input} autocomplete="nickname" />
     </label>
-    <label class="flow stack-xs">
+    <label class="flow">
       <span class="mono">{s.email}</span>
       <input name="email" type="email" maxlength="120" style={input} autocomplete="email" />
     </label>
-    <label class="flow stack-xs">
+    <label class="flow">
       <span class="mono">{s.body}</span>
       <textarea name="body" required rows="4" maxlength="1200" style={input}></textarea>
     </label>
@@ -78,7 +80,7 @@ const input = 'width: 100%; padding: 0.625rem 0.75rem; font: inherit; background
       <span>leave blank</span>
       <input name="hp" tabindex="-1" autocomplete="off" />
     </label>
-    <p class="flow stack-xs">
+    <p class="flow">
       <button type="submit" class="btn">{s.send}</button>
       <span class="meta" data-comment-status></span>
     </p>
