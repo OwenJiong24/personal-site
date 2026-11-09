@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/base.astro';
 import { brand, site } from '../lib/site';
+import ThirdPartyNote from '../components/ThirdPartyNote.astro';
 
 const open = Object.entries(site.support).filter(([, v]) => v);
 ---
@@ -45,7 +46,9 @@ const open = Object.entries(site.support).filter(([, v]) => v);
         <li>Email {site.anchors.email}, subject "work · your company · what you want".</li>
       </ul>
 
-      <p class="meta">{brand.name} · {site.author} · {brand.slogan}</p>
+      <ThirdPartyNote lang="en" />
+
+<p class="meta">{brand.name} · {site.author} · {brand.slogan}</p>
     </div>
   </section>
 </Base>

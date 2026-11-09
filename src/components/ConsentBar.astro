@@ -1,0 +1,92 @@
+---
+import { clarity, consentUi } from '../lib/analytics';
+
+// 同意条：只在未决定时出现；同意前不向 clarity.ms 发任何请求（脚本不注入＝不发请求）。
+const { lang } = Astro.props as { lang: 'zh' | 'en' };
+const s = consentUi[lang];
+---
+
+<div class="consent-bar" id="consent-bar" role="region" aria-label={s.question} hidden>
+  <div class="consent-inner">
+    <p class="consent-q">{s.question}</p>
+    <p class="consent-why">{s.why}</p>
+    <p class="consent-acts">
+      <button type="button" class="btn" id="consent-ok">{s.accept}</button>
+      <button type="button" class="btn btn-alt" id="consent-no">{s.decline}</button>
+      <a href={s.detailHref}>{s.detail}</a>
+    </p>
+  </div>
+</div>
+
+{clarity.enabled && (
+  <script is:inline define:vars={{ pid: clarity.projectId, tagBase: clarity.tagBase, key: clarity.storageKey }}>
+    (function () {
+      function loadClarity() {
+        if (window.clarity) return;
+        (function (c, l, a, r, i, t, y) {
+          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+          t = l.createElement(r); t.async = 1; t.src = tagBase + i;
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, 'clarity', 'script', pid);
+      }
+      var stored = null;
+      try { stored = localStorage.getItem(key); } catch (e) { stored = null; }
+      if (stored === 'on') loadClarity();
+      var bar = document.getElementById('consent-bar');
+      if (!bar) return;
+      if (stored === null) bar.hidden = false;
+      var ok = document.getElementById('consent-ok');
+      var no = document.getElementById('consent-no');
+      if (ok) ok.addEventListener('click', function () {
+        try { localStorage.setItem(key, 'on'); } catch (e) {}
+        loadClarity();
+        bar.hidden = true;
+      });
+      if (no) no.addEventListener('click', function () {
+        try { localStorage.setItem(key, 'off'); } catch (e) {}
+        bar.hidden = true;
+      });
+    })();
+  </script>
+)}
+
+<style is:global>
+  .consent-bar {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 40;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 0.75rem var(--pad);
+  }
+  .consent-inner {
+    max-width: var(--measure);
+    margin-inline: auto;
+  }
+  .consent-q {
+    margin: 0 0 0.25rem;
+    font-weight: var(--fw-bold);
+  }
+  .consent-why {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .consent-acts {
+    margin: 0;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+    .consent-acts .btn-alt {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+  }
+  .consent-acts a {
+    margin-inline-start: auto;
+    font-size: 0.8125rem;
+  }
+</style>

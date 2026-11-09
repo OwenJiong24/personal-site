@@ -1,0 +1,128 @@
+---
+// 第三方度量清单：谁在数我们、数到什么、怎么关。公开可核对，不放行话。
+const { lang } = Astro.props as { lang: 'zh' | 'en' };
+const en = lang === 'en';
+
+const s = en
+  ? {
+      h: 'Third-party measurement, in plain terms',
+      lead: 'This site has no first-party cookies and no account system. Two third parties see traffic; here is exactly what each one does, and how to opt out.',
+      who: 'What it is',
+      what: 'What it records',
+      cookie: 'Cookies',
+      off: 'How to turn it off',
+      rows: [
+        {
+          who: 'Cloudflare Web Analytics',
+          what: 'Aggregate page views. No cookie, IP address stored truncated/anonymised, no cross-site profile, no ad targeting.',
+          cookie: 'None',
+          off: 'Nothing to accept - it is a cookieless counter. It can be switched off in the hosting dashboard by the site owner.',
+        },
+        {
+          who: 'Microsoft Clarity (project zb6h8hdlh2)',
+          what: 'Session replay, click heatmaps, scroll depth, rage and dead clicks, JavaScript errors. Text on screen is masked by default, so the words in our articles and the text visitors type are not sent as readable strings. Bot traffic is filtered on, and Clarity states it does not store IP addresses. We load it only after you accept; before that no request goes to clarity.ms.',
+          cookie: 'Two Microsoft cookies after you accept: _clck (about 12 months) and _clsk (per session)',
+          off: 'Click No thanks in the bar at the bottom of any page; the choice is stored in your browser (localStorage key ok-site-consent) and you can change it by clearing that key or using the buttons at the bottom of this section.',
+        },
+      ],
+      choice: 'Change your mind right now',
+      on: 'Turn Clarity on',
+      offBtn: 'Turn Clarity off',
+      stored: 'Current stored choice:',
+      unset: 'no choice yet',
+      onLabel: 'accepted',
+      offLabel: 'declined',
+      note: 'We do not run ad pixels, A/B testing scripts, or chat widgets, and this site has no login. If we add a third party, this table changes first.',
+      check: 'Verifiable claim: open your network log with the choice unset - there is no clarity.ms request until you press Turn Clarity on.',
+    }
+  : {
+      h: '第三方度量，说人话',
+      lead: '本站自己没有 Cookie，也没有账号系统。有两个第三方能看到流量，各自看到什么、怎么关，全列在这里。',
+      who: '是谁',
+      what: '记录什么',
+      cookie: 'Cookie',
+      off: '怎么关',
+      rows: [
+        {
+          who: 'Cloudflare Web Analytics',
+          what: '聚合访问量。无 Cookie，IP 匿名化后存储，不建跨站画像，不做广告定向。',
+          cookie: '不设',
+          off: '无需同意——它是无 Cookie 计数；站长可在托管面板关闭。',
+        },
+        {
+          who: 'Microsoft Clarity（项目 zb6h8hdlh2）',
+          what: '会话回放、点击热力图、滚动深度、愤怒点击与死点击、JS 报错。屏幕上的文字默认打码，所以我们文章里的字与访客输入的内容都不会以可读字符串送出；机器人过滤已开启，Clarity 官方说明不保存 IP 地址。只在你点"同意"后加载——在那之前对 clarity.ms 一个请求都不发。',
+          cookie: '同意后由微软设两个：_clck（约 12 个月）与 _clsk（本次会话）',
+          off: '点页面底部条上的"不用"即可；选择存在你浏览器里（localStorage 键 ok-site-consent），也可以在本节底部的按钮直接改。',
+        },
+      ],
+      choice: '现在就能改主意',
+      on: '开启 Clarity',
+      offBtn: '关闭 Clarity',
+      stored: '当前存的选择：',
+      unset: '还没选过',
+      onLabel: '已同意',
+      offLabel: '已拒绝',
+      note: '我们不跑广告像素、不做 A/B 脚本、没有聊天挂件，本站也没有登录。要加新的第三方，先改这张表。',
+      check: '可核对的说法：在未选择的状态下打开网络日志——按下"开启 Clarity"之前，没有 clarity.ms 的请求。',
+    };
+
+const key = 'ok-site-consent';
+---
+
+<section class="flow stack-sm" id="third-party" aria-label={s.h}>
+  <h2>{s.h}</h2>
+  <p>{s.lead}</p>
+  <table>
+    <thead>
+      <tr><th>{s.who}</th><th>{s.what}</th><th>{s.cookie}</th><th>{s.off}</th></tr>
+    </thead>
+    <tbody>
+      {s.rows.map((r) => (
+        <tr>
+          <td>{r.who}</td>
+          <td>{r.what}</td>
+          <td>{r.cookie}</td>
+          <td>{r.off}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <div class="card-flat flow">
+    <p class="mono">{s.choice} · <span data-consent-state>{s.unset}</span></p>
+    <p style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+      <button type="button" class="btn" data-consent-set="on">{s.on}</button>
+      <button type="button" class="btn" data-consent-set="off">{s.offBtn}</button>
+    </p>
+  </div>
+  <p class="meta">{s.note}</p>
+  <p class="meta">{s.check}</p>
+</section>
+
+<script is:inline define:vars={{ key }}>
+  (function () {
+    var out = document.querySelector('[data-consent-state]');
+    function refresh() {
+      if (!out) return;
+      var v = null;
+      try { v = localStorage.getItem(key); } catch (e) {}
+      out.textContent = v === 'on' ? '{s.onLabel}' : v === 'off' ? '{s.offLabel}' : '{s.unset}';
+    }
+    refresh();
+    var btns = document.querySelectorAll('[data-consent-set]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function (ev) {
+        var v = ev.currentTarget.getAttribute('data-consent-set');
+        try { localStorage.setItem(key, v); } catch (e) {}
+        if (v === 'on' && !window.clarity) {
+          (function (c, l, a, r, i2, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+            t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/zb6h8hdlh2';
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+          })(window, document, 'clarity', 'script');
+        }
+        refresh();
+      });
+    }
+  })();
+</script>

@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/base.astro';
 import { site } from '../../lib/site';
+import ThirdPartyNote from '../../components/ThirdPartyNote.astro';
 
 const open = Object.entries(site.support).filter(([, v]) => v);
 ---
@@ -17,7 +18,9 @@ const open = Object.entries(site.support).filter(([, v]) => v);
       {
         open.length === 0 ? (
           <div class="card-flat">
-            <p class="meta">
+            <ThirdPartyNote lang="zh" />
+
+<p class="meta">
               支持入口（Co-fi / Buy Me a Coffee 这类）暂未开通。开通后会出现在这里；现在请直接
               <a href={`mailto:${site.anchors.email}`}>邮件联系</a>。
             </p>
