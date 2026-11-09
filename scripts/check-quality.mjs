@@ -5,7 +5,9 @@ import { join } from 'node:path';
 
 const ROOT = process.cwd();
 const CONTENT = join(ROOT, 'src/content');
-const ZONES = [ 'lab','journal', 'essays', 'guides', 'notes', 'projects'];
+// 文章面：lab/essays/guides/notes/projects。journal 不在此列（2026-11-09 处置登记到期条目时定）：
+// 日志的规矩是 UTC 日期、红线扫描、进链、进 RSS，不按文章十条打分——分类错误已记入 journal 与 PRD 变更日志。
+const ZONES = ['lab', 'essays', 'guides', 'notes', 'projects'];
 
 const FILLER = [
   'in today', 'in this article', 'we will explore', 'it is important to note', "it's important to note",
