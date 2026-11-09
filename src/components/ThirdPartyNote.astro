@@ -35,7 +35,7 @@ const s = en
       unset: 'no choice yet',
       onLabel: 'accepted',
       offLabel: 'declined',
-      note: 'We do not run ad pixels, A/B testing scripts, or chat widgets, and this site has no login. If we add a third party, this table changes first.',
+      note: 'We do not run ad pixels, A/B testing scripts, or chat widgets, and this site has no login. Our content-security policy deliberately does not allow c.bing.com, so the Microsoft cross-product ID-sync pixel is blocked by the browser - measured in the console after accepting. If we add a third party, this table changes first.',
       check: 'Verifiable claim: open your network log with the choice unset - there is no clarity.ms request until you press Turn Clarity on.',
     }
   : {
@@ -66,7 +66,7 @@ const s = en
       unset: '还没选过',
       onLabel: '已同意',
       offLabel: '已拒绝',
-      note: '我们不跑广告像素、不做 A/B 脚本、没有聊天挂件，本站也没有登录。要加新的第三方，先改这张表。',
+      note: '我们不跑广告像素、不做 A/B 脚本、没有聊天挂件，本站也没有登录。我们的 CSP 故意不放行 c.bing.com，所以微软跨产品 ID 同步的那个像素会被浏览器拦掉——同意后在控制台能看到这条拒绝，是我们主动关掉的共享。要加新的第三方，先改这张表。',
       check: '可核对的说法：在未选择的状态下打开网络日志——按下"开启 Clarity"之前，没有 clarity.ms 的请求。',
     };
 
