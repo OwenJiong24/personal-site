@@ -3,6 +3,7 @@ import Base from '../layouts/base.astro';
 import { site } from '../lib/site';
 import { langPath, type Lang } from '../lib/i18n';
 import markets from '../data/markets-index.json';
+import MarketsMap from './MarketsMap.astro';
 
 // 交互检索页（双语同组件）：静态数据 + 浏览器内检索。
 // 首屏只加载 7KB 索引，点选州才拉该州分片（最大 146KB），避免首屏 1.7MB。
@@ -277,6 +278,7 @@ const ui = {
           : 'Type to search the state you picked. Results load from that state’s own JSON file, so the first search in a big state takes a moment. Everything is public data:'}
         <a href="/data/markets/index.json">index.json</a> · <code>/data/markets/</code>
       </p>
+      <MarketsMap lang={lang} />
       <p class="mk-status mono" id="mk-status" aria-live="polite">{zh ? '选一个州，或直接输入关键词开始。' : 'Pick a state or type a search to begin.'}</p>
       <ol class="mk-list" id="mk-list"></ol>
       <p class="meta" id="mk-more-wrap" hidden>
@@ -511,5 +513,47 @@ const ui = {
     }); });
     moreBtn.addEventListener('click', function () { shown += PAGE; render(); });
     void moreWrap;
+  })();
+</script>
+
+<script is:inline>
+  (function () {
+    var map = document.querySelector('[data-map]');
+    if (!map) return;
+    var sel = document.getElementById('mk-state');
+    var svg = map.querySelector('.mk-svg');
+    var cells = map.querySelectorAll('.mk-cell');
+
+    function selectState(slug) {
+      if (!sel || !slug) return;
+      sel.value = slug;
+      sel.dispatchEvent(new Event('change'));
+      cells.forEach(function (c) {
+        if (c.getAttribute('data-state') === slug) c.setAttribute('aria-current', 'true');
+        else c.removeAttribute('aria-current');
+      });
+      var target = document.getElementById('mk-app');
+      if (target) target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+
+    cells.forEach(function (c) {
+      c.addEventListener('click', function () { selectState(c.getAttribute('data-state')); });
+      c.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectState(c.getAttribute('data-state')); }
+      });
+    });
+
+    var modes = map.querySelectorAll('.mk-mode');
+    modes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var mode = b.getAttribute('data-mode');
+        map.setAttribute('data-shade', mode === 'total' ? 'total' : 'crafts');
+        modes.forEach(function (x) {
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        });
+      });
+    });
+
+    void svg;
   })();
 </script>

@@ -192,13 +192,13 @@ main { flex: 1; }
   border-radius: var(--radius);
   border: 1px solid transparent;
   background: var(--accent);
-  color: var(--text);
+  color: var(--on-accent);
   font-family: var(--font-display);
   font-size: 0.9375rem;
   font-weight: var(--fw-bold);
   text-decoration: none;
 }
-.btn:hover { background: var(--accent-strong); color: var(--surface); }
+.btn:hover { background: var(--accent-strong); color: var(--on-accent); }
 .btn-ghost { background: transparent; border-color: var(--border-strong); color: var(--text); }
 .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
 

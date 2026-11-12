@@ -1,0 +1,246 @@
+---
+import { tiles, abbr } from '../data/markets-layout';
+import markets from '../data/markets-index.json';
+import type { Lang } from '../lib/i18n';
+
+// 州级瓦片地图（tile-grid cartogram）：每个州一个方块，位置按地理邻接近似排布。
+// 这不是边界地图——位置近似、形状不是地理轮廓，所以页面与 SVG 的 title 里都写明。
+// 颜色只用 token + opacity（禁裸 hex），暗色自动跟随 --accent。
+// 无 JS 也能读：SVG 里每个方块带 <title>，下方还有州级表。
+
+interface Props {
+  lang: Lang;
+  selected?: string;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+
+const { states } = markets as {
+  states: Array<{ name: string; slug: string; total: number; crafts: number; soap: number; craftsPct: number }>;
+};
+const byName = new Map(states.map((s) => [s.name, s]));
+const maxTotal = Math.max(...states.map((s) => s.total));
+const maxCrafts = Math.max(...states.map((s) => s.crafts));
+
+const CELL = 40;
+const GAP = 4;
+const PAD = 6;
+const COLS = 11;
+const ROWS = 9;
+const W = PAD * 2 + COLS * CELL + (COLS - 1) * GAP;
+const H = PAD * 2 + ROWS * CELL + (ROWS - 1) * GAP;
+
+// 强度：0.10 起（有数据的州看得见），最高 0.92。用 crafts 或 total 都能算。
+const level = (v: number, max: number) => Math.round((0.1 + 0.82 * (v / max)) * 100) / 100;
+
+const cells = tiles.map((t) => {
+  const s = byName.get(t.name);
+  const total = s?.total ?? 0;
+  const crafts = s?.crafts ?? 0;
+  const soap = s?.soap ?? 0;
+  return {
+    name: t.name,
+    ab: abbr[t.name] ?? t.name.slice(0, 2).toUpperCase(),
+    slug: s?.slug ?? '',
+    total,
+    crafts,
+    soap,
+    craftsPct: s?.craftsPct ?? 0,
+    x: PAD + t.col * (CELL + GAP),
+    y: PAD + t.row * (CELL + GAP),
+    oTotal: level(total, maxTotal),
+    oCrafts: level(crafts, maxCrafts),
+  };
+});
+
+const label = (c: (typeof cells)[number]) =>
+  zh
+    ? `${c.name}：${c.total} 家市集，${c.crafts} 家列手作（${c.craftsPct}%），${c.soap} 家列手工皂`
+    : `${c.name}: ${c.total} markets, ${c.crafts} listing crafts (${c.craftsPct}%), ${c.soap} listing soap`;
+---
+
+<figure class="mk-map" data-map>
+  <figcaption class="meta">
+    <span class="mono">{zh ? '州级瓦片地图' : 'Tile-grid map'}</span> ·
+    {zh
+      ? '每个方块是一个州，位置按地理邻接近似排布——这是瓦片图，不是边界地图。颜色深浅＝数量多少。'
+      : 'One square per state, positioned by rough geographic adjacency — a cartogram, not a boundary map. Darker means more.'}
+  </figcaption>
+
+  <div class="mk-map-modes" role="group" aria-label={zh ? '地图着色口径' : 'Map shading'}>
+    <button type="button" class="btn mk-mode" data-mode="crafts" aria-pressed="true">
+      {zh ? '列手作的市集数' : 'Markets listing crafts'}
+    </button>
+    <button type="button" class="btn mk-mode" data-mode="total" aria-pressed="false">
+      {zh ? '市集总数' : 'Total markets'}
+    </button>
+  </div>
+
+  <svg
+    class="mk-svg"
+    viewBox={`0 0 ${W} ${H}`}
+    role="img"
+    aria-labelledby="mk-map-title mk-map-desc"
+    data-crafts-max={maxCrafts}
+    data-total-max={maxTotal}
+  >
+    <title id="mk-map-title">
+      {zh ? '美国各州农贸市集数量（瓦片图）' : 'US farmers markets by state (tile-grid cartogram)'}
+    </title>
+    <desc id="mk-map-desc">
+      {zh
+        ? `53 个条目（50 州 + DC + PR + VI），共 ${states.reduce((n, s) => n + s.total, 0)} 家市集，其中 ${states.reduce((n, s) => n + s.crafts, 0)} 家列手作摊位。位置按地理邻接近似排布，不是边界地图；精确数字在下方表格里。`
+        : `53 entries (50 states plus DC, PR and VI), ${states.reduce((n, s) => n + s.total, 0)} markets in total, ${states.reduce((n, s) => n + s.crafts, 0)} of them listing crafts vendors. Positions are approximate adjacency, not boundaries; exact numbers are in the table below.`}
+    </desc>
+
+    {
+      cells.map((c) => (
+        <g
+          class="mk-cell"
+          data-state={c.slug}
+          data-name={c.name}
+          data-total={c.total}
+          data-crafts={c.crafts}
+          tabindex="0"
+          role="button"
+          aria-label={label(c)}
+        >
+          <title>{label(c)}</title>
+          <rect
+            x={c.x}
+            y={c.y}
+            width={CELL}
+            height={CELL}
+            rx="3"
+            class="mk-rect"
+            style={`--o-crafts:${c.oCrafts};--o-total:${c.oTotal}`}
+          />
+          <text x={c.x + CELL / 2} y={c.y + CELL / 2 + 4} class="mk-abbr" text-anchor="middle">
+            {c.ab}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+
+  <div class="mk-legend meta">
+    <span class="mk-legend-scale">
+      {zh ? '少' : 'fewer'}
+      <svg viewBox="0 0 84 12" width="84" height="12" aria-hidden="true" class="mk-scale">
+        <rect x="0" y="0" width="12" height="12" rx="2" style="opacity:0.1" />
+        <rect x="18" y="0" width="12" height="12" rx="2" style="opacity:0.31" />
+        <rect x="36" y="0" width="12" height="12" rx="2" style="opacity:0.51" />
+        <rect x="54" y="0" width="12" height="12" rx="2" style="opacity:0.72" />
+        <rect x="72" y="0" width="12" height="12" rx="2" style="opacity:0.92" />
+      </svg>
+      {zh ? '多' : 'more'}
+    </span>
+    <span class="mk-legend-note">
+      {zh ? `最深＝ ${maxCrafts} 家（手作口径）或 ${maxTotal} 家（总口径）` : `darkest = ${maxCrafts} markets (crafts) or ${maxTotal} (total)`}
+    </span>
+  </div>
+</figure>
+
+<style is:global>
+  .mk-map {
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+    /* 子元素默认 min-width:auto，nowrap 文本会把 figure 撑宽，SVG 因此被裁（2026-11-12 实测 390px 右侧缺一列） */
+    min-width: 0;
+  }
+  .mk-map-modes {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .mk-mode {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+    /* 未选中态：描边按钮，不抢注意力；选中态才用橙底 + 墨字（品牌规矩：橙底必须配墨字） */
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+  }
+  .mk-mode:hover {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .mk-mode[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent-strong);
+    color: var(--on-accent);
+  }
+  .mk-mode[aria-pressed='true']:hover {
+    background: var(--accent-strong);
+    color: var(--on-accent);
+  }
+  .mk-svg {
+    min-width: 0;
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    display: block;
+    touch-action: manipulation;
+  }
+  .mk-cell {
+    cursor: pointer;
+    outline: none;
+  }
+  .mk-rect {
+    fill: var(--accent);
+    opacity: var(--o-crafts);
+    stroke: var(--border);
+    stroke-width: 1;
+    transition: opacity 140ms ease-out;
+  }
+  .mk-map[data-shade='total'] .mk-rect {
+    opacity: var(--o-total);
+  }
+  .mk-cell:hover .mk-rect,
+  .mk-cell:focus-visible .mk-rect {
+    stroke: var(--accent-strong);
+    stroke-width: 2;
+  }
+  .mk-cell[aria-current='true'] .mk-rect {
+    stroke: var(--accent-strong);
+    stroke-width: 2.5;
+  }
+  .mk-abbr {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text);
+    pointer-events: none;
+    opacity: 0.78;
+  }
+  .mk-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem 0.75rem;
+    flex-wrap: wrap;
+    line-height: 1.5;
+  }
+  .mk-legend-scale {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+  }
+  .mk-legend-note {
+    white-space: normal;
+  }
+  .mk-scale rect {
+    fill: var(--accent);
+  }
+  @media (max-width: 520px) {
+    .mk-abbr {
+      font-size: 11px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mk-rect {
+      transition: none;
+    }
+  }
+</style>
