@@ -1,0 +1,515 @@
+---
+import Base from '../layouts/base.astro';
+import { site } from '../lib/site';
+import { langPath, type Lang } from '../lib/i18n';
+import markets from '../data/markets-index.json';
+
+// 交互检索页（双语同组件）：静态数据 + 浏览器内检索。
+// 首屏只加载 7KB 索引，点选州才拉该州分片（最大 146KB），避免首屏 1.7MB。
+// 数据诚实：这是 USDA 目录的一份历史快照（季节窗口 2010–2020），不是今天的开市清单——页面上写明。
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+
+const { meta, states } = markets as {
+  meta: {
+    sourceName: string; sourceUrl: string; snapshotFilesDated: string; records: number;
+    states: number; crafts: number; soap: number; withWebsite: number;
+    skippedNoCoordinates: number; seasonYearMin: number; seasonYearMax: number; builtAt: string; vintageNote: string;
+  };
+  states: Array<{ name: string; slug: string; total: number; crafts: number; soap: number; craftsPct: number }>;
+};
+
+const topStates = [...states].sort((a, b) => b.crafts - a.crafts).slice(0, 8);
+const num = (n: number) => n.toLocaleString(zh ? 'zh-CN' : 'en-US');
+const pct = (n: number) => ((n / meta.records) * 100).toFixed(1);
+const path = langPath(lang, '/tools/markets');
+const switchHref = zh ? '/tools/markets' : '/zh/tools/markets';
+
+const t = zh
+  ? {
+      crumb: '工具',
+      crumbTail: '市场检索',
+      h1: '找收手作摊主的农贸市集',
+      lead1: '来自 USDA 目录快照的 **{records} 家美国农贸市集**，可按州、城市或名字检索；也能只筛出**列了手作（crafts）摊位的 {crafts} 家**（{craftsPct}%）或**列了手工皂的 {soap} 家**。不注册、不追踪，所有筛选都在你浏览器里跑。',
+      vintageTitle: '先看数据年代，再拿去用。',
+      vintageBody: '这份快照里的季节窗口是 **{ymin}–{ymax}**。下面某家市集可能已经搬迁、停办，或者改了招摊规则。在围绕它安排一个季节之前，去市集自己的网站核一遍。',
+      source: '数据源：{name}，文件日期 {dated}。',
+      qLab: '搜名称或城市',
+      qPh: '例如 Parma、Los Angeles、Holiday',
+      stateLab: '州',
+      allStates: '全部州（{n}）',
+      onlyCraftsPre: '只看列了',
+      onlyCraftsMid: '手作',
+      onlyCraftsPost: '摊位的',
+      onlySoapPre: '只看列了',
+      onlySoapMid: '手工皂／手工制品',
+      onlySoapPost: '的',
+      onlySite: '只看留有网站的',
+      help: '选中州之后输入即可检索。结果从该州自己的 JSON 文件加载，所以大州第一次搜会等一下。全部是公开数据：',
+      helpEnd: '与各州分片文件都在 /data/markets/ 下。',
+      idle: '选一个州，或直接输入关键词开始。',
+      loading: '加载中…',
+      loadingAll: '正在加载全部州…',
+      loadFail: '这个州没加载成功，刷新后再试。',
+      loadAllFail: '全部州没加载成功，请改成单州检索。',
+      needState: '先选一个州，或者把州留在「全部」再检索。',
+      match: '{n} 家市集符合',
+      matchAll: '{n} 家市集符合（全部州）',
+      noMatch: '没有匹配的市集。少勾几个筛选，或换个州。',
+      more: '显示更多',
+      shown: '已显示 {shown} / {total}',
+      noSite: '目录里没有网站',
+      noSeason: '目录未记录季节窗口',
+      craftsTag: '手作',
+      soapTag: '手工皂',
+      h2a: '这份数据能告诉你什么，不能告诉你什么',
+      p2a: '它能告诉你市集在哪、多少家列了手作或手工皂、以及各州的覆盖集中度。它不能告诉你某家今天是否在招摊、摊位费多少、你的品类是否已经饱和。那些问题要问市集本身，凡是留有网站的条目都直接链过去。',
+      h2b: '覆盖集中在哪里，用数字说',
+      liState: '**{name}** —— {total} 家市集，{crafts} 家列手作（{craftsPct}%），{soap} 家列手工皂',
+      p3: '全国口径：{craftsPct}% 的条目列了手作，{soapPct}% 列了手工皂。{withSite} / {records} 条带可核对的网站；其余在目录里没有线上入口——这件事本身也值得在跑一趟之前知道。',
+      h2c: '怎么用它排一个季节',
+      step1pre: '把州筛到自己那儿，勾上',
+      step1mid: '手作',
+      step1post: '，这就是你的候选集。',
+      step2: '逐家去市集自己的网站核当前的申请窗口和摊位费——这份数据两样都没有。',
+      step3pre: '在承诺任何摊位费之前，先用',
+      step3link: '定价计算器',
+      step3post: '把这一季算清楚。',
+      step4pre: '把市集路线和平台路线放在一起比：',
+      step4link: '自建还是靠平台',
+      step4post: '。',
+      footTools: '全部工具',
+      footGuides: '指南',
+      footData: '数据：',
+      footNote: '本页读自己的 JSON，所以你可以不读这一页就引用数据。',
+      metaDesc: '按州、城市或名字检索 {records} 家美国农贸市集（USDA 目录快照），筛出 {crafts} 家列手作摊位、{soap} 家列手工皂的。季节窗口 {ymin}–{ymax}：这是历史目录，不是今日开市清单。浏览器本地运行，数据是纯 JSON。',
+    }
+  : null;
+
+function fill(s: string, vars: Record<string, string | number>): string {
+  return s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+}
+function md(s: string): string {
+  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+const V = {
+  records: num(meta.records),
+  crafts: num(meta.crafts),
+  craftsPct: pct(meta.crafts),
+  soap: num(meta.soap),
+  soapPct: pct(meta.soap),
+  ymin: meta.seasonYearMin,
+  ymax: meta.seasonYearMax,
+  name: meta.sourceName,
+  dated: meta.snapshotFilesDated,
+  withSite: num(meta.withWebsite),
+};
+
+const title = zh
+  ? `美国农贸市集检索：{c} 家列手作、{s} 家列手工皂（数据年代 {a}–{b}）`.replace('{c}', V.crafts).replace('{s}', V.soap).replace('{a}', String(V.ymin)).replace('{b}', String(V.ymax))
+  : `US farmers market search for handmade sellers — ${V.crafts} list crafts, ${V.soap} list soap, data ${V.ymin}-${V.ymax}`;
+const description = zh
+  ? fill(t!.metaDesc, { ...V, ...{} })
+  : `Search ${V.records} US farmers markets from a USDA directory snapshot by state, city or name, and filter for the ${V.crafts} that list crafts vendors and ${V.soap} that list soap. Season windows span ${V.ymin}-${V.ymax}: a historical directory, not a live list. Runs in your browser, data is plain JSON.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Dataset',
+      name: zh ? '列有手作与手工皂摊位的美国农贸市集（USDA 目录快照）' : 'US farmers markets where handmade and soap vendors are listed (USDA directory snapshot)',
+      description:
+        (zh
+          ? `USDA 农贸市集目录快照中 ${V.records} 家美国农贸市集的可检索索引，季节窗口 ${V.ymin}-${V.ymax}；其中 ${V.crafts} 条列手作、${V.soap} 条列手工皂。`
+          : `Searchable index of ${V.records} US farmers markets from a USDA Farmers Market Directory snapshot whose season windows span ${V.ymin}-${V.ymax}. ${V.crafts} records list crafts vendors and ${V.soap} list soap. `) + meta.vintageNote,
+      url: 'https://orangeknows.com' + path + '/',
+      isAccessibleForFree: true,
+      license: meta.sourceUrl,
+      creator: { '@type': 'Organization', name: 'USDA Agricultural Marketing Service', url: meta.sourceUrl },
+      publisher: { '@type': 'Organization', name: 'OrangeKnows', url: 'https://orangeknows.com/' },
+      temporalCoverage: `${V.ymin}/${V.ymax}`,
+      dateModified: meta.builtAt,
+      inLanguage: zh ? 'zh-CN' : 'en-US',
+      variableMeasured: zh
+        ? ['市集名称', '城市', '州', '坐标', '网站', '手作摊位', '手工皂', '季节窗口']
+        : ['market name', 'city', 'state', 'coordinates', 'website', 'crafts vendors', 'soap vendors', 'season window'],
+      distribution: [
+        { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: 'https://orangeknows.com/data/markets/index.json' },
+        { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: 'https://orangeknows.com/data/markets/california.json' },
+      ],
+    },
+    {
+      '@type': 'WebApplication',
+      name: zh ? '农贸市集检索（给手作卖家）' : 'US farmers market search for handmade sellers',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Any browser',
+      url: 'https://orangeknows.com' + path + '/',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      description: zh
+        ? '按州筛选美国农贸市集，只看列有手作或手工皂摊位的，并复制清单。全部在浏览器本地运行；数据是可直接抓取的纯 JSON。'
+        : 'Filter US farmers markets by state, filter for markets that list crafts or soap vendors, and copy the list. Runs entirely in the browser; the data files are plain JSON you can fetch yourself.',
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: zh ? '工具' : 'Tools', item: 'https://orangeknows.com' + langPath(lang, '/tools') + '/' },
+        { '@type': 'ListItem', position: 2, name: zh ? '市场检索' : 'Market search', item: 'https://orangeknows.com' + path + '/' },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: zh ? '这是实时的农贸市集清单吗？' : 'Is this a live list of farmers markets?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: zh
+              ? `不是。这是 USDA 农贸市集目录的一份快照，每条都带 ${V.ymin} 到 ${V.ymax} 之间的季节窗口，所以列在这里的市集可能已经搬迁、停办或改了招摊规则。在围绕它安排一个季节之前，去市集自己的网站核一遍。`
+              : `No. It is one snapshot of the USDA Farmers Market Directory. Every record carries a season window between ${V.ymin} and ${V.ymax}, so a market listed here may have moved, closed, or changed its vendor rules. Check the market's own site before you plan a season around it.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: zh ? '「手作」「手工皂」这两个标记是什么意思？' : 'What do the crafts and soap flags mean?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: zh
+              ? `它们来自目录自己的品类列：${V.records} 条里 ${V.crafts} 条列了手作摊位、${V.soap} 条列了手工皂。这个标记只表示目录为这家市集记了这一类，不表示它今天在招摊。`
+              : `They come from the directory's own vendor columns: ${V.crafts} of ${V.records} records list crafts vendors and ${V.soap} list soap. The flag means the directory lists that category for the market, not that the market is accepting applications today.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: zh ? `为什么只有 ${V.records} 条？` : `Why are only ${V.records} records here?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: zh
+              ? `快照共 ${V.records} + ${meta.skippedNoCoordinates} 条，其中 ${meta.skippedNoCoordinates} 条没有可用坐标，被丢弃而不是猜个位置放到地图上。没有新增记录，也没有为了让数据看起来更新而改过任何一条。`
+              : `The snapshot holds ${V.records} + ${meta.skippedNoCoordinates} records and ${meta.skippedNoCoordinates} had no usable coordinates, so they were dropped rather than guessed onto a map. Nothing was added, and no record was edited to look current.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: zh ? '我能下载或引用这份数据吗？' : 'Can I download or cite this data?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: zh
+              ? `可以。索引在 /data/markets/index.json，每个州一个文件，例如 /data/markets/california.json。底层目录由美国农业部农业营销局发布；引用时请写明数据源与此处的快照日期。`
+              : `Yes. The index is at /data/markets/index.json and each state has its own file, for example /data/markets/california.json. The underlying directory is published by the USDA Agricultural Marketing Service; cite it as the source and cite the snapshot date for anything you take from here.`,
+          },
+        },
+      ],
+    },
+  ],
+};
+
+// 把文案字典交给浏览器脚本（避免在 <script is:inline> 里写 {表达式}——Astro 不插值）
+const ui = {
+  zh,
+  idle: t ? t.idle : 'Pick a state or type a search to begin.',
+  loading: t ? t.loading : 'Loading…',
+  loadingAll: t ? t.loadingAll : 'Loading all states…',
+  loadFail: t ? t.loadFail : 'Could not load that state. Reload and try again.',
+  loadAllFail: t ? t.loadAllFail : 'Could not load all states. Pick one state instead.',
+  needState: t ? t.needState : 'Pick a state first, or leave the state on "All" to search everything.',
+  match: t ? t.match : '{n} markets match',
+  matchAll: t ? t.matchAll : '{n} markets match (all states)',
+  noMatch: t ? t.noMatch : 'No market matches. Try fewer filters, or another state.',
+  more: t ? t.more : 'Show more',
+  shown: t ? t.shown : '{shown} of {total} shown',
+  noSite: t ? t.noSite : 'no website in the directory',
+  noSeason: t ? t.noSeason : 'season window not recorded',
+  craftsTag: t ? t.craftsTag : 'crafts',
+  soapTag: t ? t.soapTag : 'soap',
+  allStatesLabel: 'ALL',
+};
+---
+
+<Base title={title} description={description} path={path} lang={lang} switchHref={switchHref}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <section class="wrap measure flow">
+    <header class="flow stack-sm">
+      <p class="meta mono">
+        <a href={langPath(lang, '/tools')}>{zh ? '工具' : 'Tools'}</a> · {zh ? '市场检索' : 'market search'}
+      </p>
+      <h1>{zh ? '找收手作摊主的农贸市集' : 'Find farmers markets that take handmade vendors'}</h1>
+      <Fragment set:html={`<p>${md(fill(t ? t.lead1 : '**{records} US farmers markets** from a USDA directory snapshot, searchable by state, city or name — and you can filter down to the **{crafts}** that list crafts vendors ({craftsPct}%) or the **{soap}** that list soap. No account, no tracking, nothing leaves your browser.', V))}</p>`} />
+      <Fragment set:html={`<p class="meta"><strong>${zh ? '先看数据年代，再拿去用。' : 'Read the vintage before you use it.'}</strong> ${md(fill(zh ? t!.vintageBody : 'Season windows in this snapshot run **{ymin}–{ymax}**. A market below may have moved, closed or changed its vendor rules since. Check the market’s own site before you plan a season around it.', V))} ${fill(zh ? t!.source : 'Source: {name}, files dated {dated}.', V).replace('{name}', `<a href="${meta.sourceUrl}" rel="noopener">${meta.sourceName}</a>`)}</p>`} />
+    </header>
+
+    <div class="card-flat flow stack-sm" id="mk-app">
+      <div class="mk-controls">
+        <label class="mk-field">
+          <span class="mono">{zh ? '搜名称或城市' : 'Search name or city'}</span>
+          <input id="mk-q" type="search" placeholder={zh ? '例如 Parma、Los Angeles、Holiday' : 'e.g. Parma, Los Angeles, Holiday'} autocomplete="off" aria-describedby="mk-help" />
+        </label>
+        <label class="mk-field">
+          <span class="mono">{zh ? '州' : 'State'}</span>
+          <select id="mk-state" aria-describedby="mk-help">
+            <option value="">{zh ? `全部州（${V.records}）` : `All states (${V.records})`}</option>
+            {states.map((s) => (
+              <option value={s.slug}>{s.name} ({num(s.total)})</option>
+            ))}
+          </select>
+        </label>
+        <label class="mk-check">
+          <input id="mk-crafts" type="checkbox" />
+          <span>{zh ? '只看列了手作摊位的' : 'Only markets listing crafts vendors'}</span>
+        </label>
+        <label class="mk-check">
+          <input id="mk-soap" type="checkbox" />
+          <span>{zh ? '只看列了手工皂的' : 'Only markets listing soap / handmade'}</span>
+        </label>
+        <label class="mk-check">
+          <input id="mk-site" type="checkbox" />
+          <span>{zh ? '只看留有网站的' : 'Only markets with a website'}</span>
+        </label>
+      </div>
+      <p class="meta" id="mk-help">
+        {zh
+          ? '选中州之后输入即可检索。结果从该州自己的 JSON 文件加载，所以大州第一次搜会等一下。全部是公开数据：'
+          : 'Type to search the state you picked. Results load from that state’s own JSON file, so the first search in a big state takes a moment. Everything is public data:'}
+        <a href="/data/markets/index.json">index.json</a> · <code>/data/markets/</code>
+      </p>
+      <p class="mk-status mono" id="mk-status" aria-live="polite">{zh ? '选一个州，或直接输入关键词开始。' : 'Pick a state or type a search to begin.'}</p>
+      <ol class="mk-list" id="mk-list"></ol>
+      <p class="meta" id="mk-more-wrap" hidden>
+        <button type="button" class="btn" id="mk-more">{zh ? '显示更多' : 'Show more'}</button>
+        <span class="meta" id="mk-more-info"></span>
+      </p>
+    </div>
+
+    <div class="prose">
+      <h2>{zh ? '这份数据能告诉你什么，不能告诉你什么' : 'What this data can and cannot tell you'}</h2>
+      <p>
+        {zh
+          ? '它能告诉你市集在哪、多少家列了手作或手工皂、以及各州的覆盖集中度。它不能告诉你某家今天是否在招摊、摊位费多少、你的品类是否已经饱和。那些问题要问市集本身，凡是留有网站的条目都直接链过去。'
+          : 'It can tell you where markets are, how many list crafts or soap vendors, and how concentrated that coverage is by state. It cannot tell you whether a market is taking applications today, what a booth costs, or whether your category is already full. Those are questions for the market, and every listing with a website links straight to it.'}
+      </p>
+      <h2>{zh ? '覆盖集中在哪里，用数字说' : 'Where the coverage is, in numbers'}</h2>
+      <ul>
+        {topStates.map((s) => (
+          <li>
+            <strong>{s.name}</strong> — {num(s.total)} {zh ? '家市集，' : 'markets, '}
+            {num(s.crafts)} {zh ? '家列手作' : 'listing crafts'} ({s.craftsPct}%), {num(s.soap)} {zh ? '家列手工皂' : 'listing soap'}
+          </li>
+        ))}
+      </ul>
+      <p class="meta">
+        {zh
+          ? `全国口径：${V.craftsPct}% 的条目列了手作，${V.soapPct}% 列了手工皂。${V.withSite} / ${V.records} 条带可核对的网站；其余在目录里没有线上入口——这件事本身也值得在跑一趟之前知道。`
+          : `Nationally ${V.craftsPct}% of records list crafts and ${V.soapPct}% list soap. ${V.withSite} of ${V.records} carry a website you can check; the rest have no online presence in the directory, which is itself worth knowing before you drive to one.`}
+      </p>
+      <h2>{zh ? '怎么用它排一个季节' : 'How to use it for a season plan'}</h2>
+      <ol>
+        <li>{zh ? '把州筛到自己那儿，勾上「手作」，这就是你的候选集。' : 'Filter to your state and tick crafts; that is your candidate set.'}</li>
+        <li>{zh ? '逐家去市集自己的网站核当前的申请窗口和摊位费——这份数据两样都没有。' : 'Check each candidate’s own site for the current application window and booth fee — this data has neither.'}</li>
+        <li>
+          {zh ? '在承诺任何摊位费之前，先用' : 'Price the season with the'}{' '}
+          <a href={langPath(lang, '/tools/pricing-calculator')}>{zh ? '定价计算器' : 'pricing calculator'}</a>
+          {zh ? '把这一季算清楚。' : ' before you commit to any booth fee.'}
+        </li>
+        <li>
+          {zh ? '把市集路线和平台路线放在一起比：' : 'Compare the market route against the platform route with'}{' '}
+          <a href={langPath(lang, '/guides/own-site-or-marketplace')}>{zh ? '自建还是靠平台' : 'own site or marketplace'}</a>.
+        </li>
+      </ol>
+    </div>
+
+    <p class="meta">
+      {site.name} · <a href={langPath(lang, '/tools')}>{zh ? '全部工具' : 'all tools'}</a> ·
+      <a href={langPath(lang, '/guides')}>{zh ? '指南' : 'guides'}</a> ·
+      {zh ? '数据：' : 'data:'} <a href={meta.sourceUrl} rel="noopener">{meta.sourceName}</a> ({meta.snapshotFilesDated}) ·
+      <a href='/m/pages/markets.md'>{zh ? '本页的 Markdown 镜像' : 'this page as Markdown'}</a> · {zh ? '数据是纯 JSON，索引在 /data/markets/index.json' : 'the data is plain JSON, index at /data/markets/index.json'}
+    </p>
+  </section>
+</Base>
+
+<style is:global>
+  .mk-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    align-items: end;
+  }
+  .mk-field {
+    display: grid;
+    gap: 0.25rem;
+  }
+  .mk-field input,
+  .mk-field select {
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    font: inherit;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .mk-check {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  .mk-status {
+    color: var(--muted);
+    margin: 0;
+  }
+  .mk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .mk-list li {
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+  .mk-list .mk-name {
+    font-weight: var(--fw-medium);
+  }
+  .mk-list .mk-where {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .mk-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0 0.35rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    margin-inline-start: 0.35rem;
+  }
+</style>
+
+<script is:inline define:vars={{ UI: ui }}>
+  (function () {
+    var cache = {};
+    var states = [];
+    var rows = [];
+    var shown = 0;
+    var PAGE = 40;
+
+    var q = document.getElementById('mk-q');
+    var sel = document.getElementById('mk-state');
+    var cCrafts = document.getElementById('mk-crafts');
+    var cSoap = document.getElementById('mk-soap');
+    var cSite = document.getElementById('mk-site');
+    var list = document.getElementById('mk-list');
+    var status = document.getElementById('mk-status');
+    var moreWrap = document.getElementById('mk-more-wrap');
+    var moreBtn = document.getElementById('mk-more');
+    var moreInfo = document.getElementById('mk-more-info');
+    if (!list) return;
+
+    function fill(s, vars) {
+      return String(s).replace(/\{(\w+)\}/g, function (m, k) { return k in vars ? String(vars[k]) : m; });
+    }
+    function nf(n) { return n.toLocaleString(UI.zh ? 'zh-CN' : 'en-US'); }
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function render() {
+      var out = rows.slice(0, shown).map(function (m) {
+        var tags = '';
+        if (m.k) tags += '<span class="mk-tag">' + esc(UI.craftsTag) + '</span>';
+        if (m.p) tags += '<span class="mk-tag">' + esc(UI.soapTag) + '</span>';
+        var web = m.w
+          ? ' · <a href="https://' + esc(m.w) + '" rel="noopener nofollow">' + esc(m.w) + '</a>'
+          : ' · <span class="meta">' + esc(UI.noSite) + '</span>';
+        var when = m.a ? esc(m.a) + (m.at ? ' ' + esc(m.at) : '') : esc(UI.noSeason);
+        var where = esc(m.c) + (m.s ? ', ' + esc(m.s) : '') + (m.z ? ' ' + esc(m.z) : '');
+        return (
+          '<li>' +
+          '<div class="mk-name">' + esc(m.n) + tags + '</div>' +
+          '<div class="mk-where">' + where + web + '</div>' +
+          '<div class="mk-where">' + when + (m.yr ? ' · ' + m.yr : '') + '</div>' +
+          '</li>'
+        );
+      });
+      list.innerHTML = out.join('');
+      moreWrap.hidden = shown >= rows.length;
+      moreInfo.textContent = fill(UI.shown, { shown: nf(shown), total: nf(rows.length) });
+    }
+
+    function filter() {
+      var needle = (q.value || '').trim().toLowerCase();
+      var base = cache[sel.value] || [];
+      rows = base.filter(function (m) {
+        if (cCrafts.checked && !m.k) return false;
+        if (cSoap.checked && !m.p) return false;
+        if (cSite.checked && !m.w) return false;
+        if (!needle) return true;
+        return m.n.toLowerCase().indexOf(needle) >= 0 || m.c.toLowerCase().indexOf(needle) >= 0;
+      });
+      shown = PAGE;
+      status.textContent = rows.length
+        ? fill(sel.value ? UI.match : UI.matchAll, { n: nf(rows.length) })
+        : UI.noMatch;
+      render();
+    }
+
+    function load(slug) {
+      if (cache[slug]) { filter(); return; }
+      status.textContent = UI.loading;
+      fetch('/data/markets/' + slug + '.json', { cache: 'force-cache' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { cache[slug] = d; filter(); })
+        .catch(function () { status.textContent = UI.loadFail; });
+    }
+
+    function loadAll() {
+      status.textContent = UI.loadingAll;
+      Promise.all(
+        states.map(function (s) {
+          return cache[s.slug]
+            ? Promise.resolve()
+            : fetch('/data/markets/' + s.slug + '.json').then(function (r) { return r.json(); }).then(function (d) { cache[s.slug] = d; });
+        })
+      )
+        .then(function () {
+          var all = [];
+          states.forEach(function (s) { all = all.concat(cache[s.slug] || []); });
+          cache[''] = all;
+          filter();
+        })
+        .catch(function () { status.textContent = UI.loadAllFail; });
+    }
+
+    fetch('/data/markets/index.json')
+      .then(function (r) { return r.json(); })
+      .then(function (j) { states = j.states || []; })
+      .catch(function () {});
+
+    sel.addEventListener('change', function () {
+      if (!sel.value) { loadAll(); return; }
+      load(sel.value);
+    });
+    q.addEventListener('input', function () {
+      if (!sel.value && !cache['']) { status.textContent = UI.needState; return; }
+      filter();
+    });
+    [cCrafts, cSoap, cSite].forEach(function (c) { c.addEventListener('change', function () {
+      if (!sel.value && !cache['']) { status.textContent = UI.needState; return; }
+      filter();
+    }); });
+    moreBtn.addEventListener('click', function () { shown += PAGE; render(); });
+    void moreWrap;
+  })();
+</script>

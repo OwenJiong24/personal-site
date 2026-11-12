@@ -129,6 +129,7 @@ export function mdMirrorFor(path: string): string | null {
   const page = clean === '/' ? 'home' : clean.slice(1);
   const known: PageName[] = ['home', 'frameworks', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
   if (clean === '/tools') return '/m/pages/tools.md';
+  if (clean === '/tools/markets') return '/m/pages/markets.md';
   return known.includes(page as PageName) ? `/m/pages/${page}.md` : null;
 }
 
@@ -182,7 +183,7 @@ export async function indexDoc(root: URL): Promise<string> {
     '',
     '## Pages',
     '',
-    `- [Home](${abs(root, '/m/pages/home.md')}) · [Frameworks](${abs(root, '/m/pages/frameworks.md')}) · [About](${abs(root, '/m/pages/about.md')}) · [Now](${abs(root, '/m/pages/now.md')}) · [Services](${abs(root, '/m/pages/services.md')}) · [Support](${abs(root, '/m/pages/support.md')}) · [Tools](${abs(root, '/m/pages/tools.md')}) · [Products](${abs(root, '/m/pages/products.md')}) · [Uses](${abs(root, '/m/pages/uses.md')}) · [Verify](${abs(root, '/m/pages/verify.md')}) · [Tags](${abs(root, '/m/pages/tags.md')}) · [Timeline](${abs(root, '/m/pages/timeline.md')})`,
+    `- [Home](${abs(root, '/m/pages/home.md')}) · [Frameworks](${abs(root, '/m/pages/frameworks.md')}) · [About](${abs(root, '/m/pages/about.md')}) · [Now](${abs(root, '/m/pages/now.md')}) · [Services](${abs(root, '/m/pages/services.md')}) · [Support](${abs(root, '/m/pages/support.md')}) · [Tools](${abs(root, '/m/pages/tools.md')}) · [Market search](${abs(root, '/m/pages/markets.md')}) · [Products](${abs(root, '/m/pages/products.md')}) · [Uses](${abs(root, '/m/pages/uses.md')}) · [Verify](${abs(root, '/m/pages/verify.md')}) · [Tags](${abs(root, '/m/pages/tags.md')}) · [Timeline](${abs(root, '/m/pages/timeline.md')})`,
     `- First-party product mirrors: ${abs(root, '/m/products/' + 'soy-candle-kit' + '.md')}`,
     '',
     '## Entries (English, root URLs)',
@@ -226,8 +227,8 @@ export async function allDoc(root: URL): Promise<string> {
   return [...head, `Total: ${all.length} entries (${en.length} English, ${zh.length} Chinese). Full bodies included; chain head above.`, '', ...parts].join('\n');
 }
 
-export type PageName = 'home' | 'frameworks' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'products' | 'uses' | 'verify' | 'tags' | 'timeline';
-export const PAGE_NAMES: PageName[] = ['home', 'frameworks', 'about', 'now', 'services', 'support', 'tools', 'products', 'uses', 'verify', 'tags', 'timeline'];
+export type PageName = 'home' | 'frameworks' | 'about' | 'now' | 'services' | 'support' | 'tools' | 'markets' | 'products' | 'uses' | 'verify' | 'tags' | 'timeline';
+export const PAGE_NAMES: PageName[] = ['home', 'frameworks', 'about', 'now', 'services', 'support', 'tools', 'markets', 'products', 'uses', 'verify', 'tags', 'timeline'];
 
 /** 工具页的 Markdown 镜像：/m/tools/<slug>.md。公式与算例照抄，机器不跑 JS 也能核对算术。 */
 export function toolDoc(t: (typeof toolList)[number], root: URL): string {
@@ -504,6 +505,50 @@ export async function pageDoc(name: PageName, root: URL): Promise<string> {
         '- Affiliate links only, always disclosed on the page that carries them.',
         '- No donation buttons yet: the support links in site config are intentionally empty, so nothing renders.',
       ].join('\n') + '\n';
+
+    case 'markets': {
+      const mk = (await import('../data/markets-index.json')).default as {
+        meta: {
+          sourceName: string; sourceUrl: string; snapshotFilesDated: string; records: number; states: number;
+          crafts: number; soap: number; withWebsite: number; skippedNoCoordinates: number;
+          seasonYearMin: number; seasonYearMax: number; builtAt: string; vintageNote: string;
+        };
+        states: Array<{ name: string; slug: string; total: number; crafts: number; soap: number; craftsPct: number }>;
+      };
+      const top = [...mk.states].sort((a, b) => b.crafts - a.crafts).slice(0, 10);
+      return [
+        ...head,
+        '# US farmers market search / 美国农贸市集检索',
+        '',
+        '> ' + mk.meta.vintageNote,
+        '',
+        '## What it is / 这是什么',
+        '',
+        `A searchable index of ${mk.meta.records} US farmers markets taken from one snapshot of the ${mk.meta.sourceName}. ${mk.meta.crafts} records list crafts vendors and ${mk.meta.soap} list soap; ${mk.meta.withWebsite} carry a website.`,
+        `中文：${mk.meta.records} 家美国农贸市集的检索索引，取自 ${mk.meta.sourceName} 的一份快照；${mk.meta.crafts} 条列手作、${mk.meta.soap} 条列手工皂，${mk.meta.withWebsite} 条留有网站。`,
+        '',
+        `Season windows in this snapshot span ${mk.meta.seasonYearMin}-${mk.meta.seasonYearMax}; ${mk.meta.skippedNoCoordinates} records had no usable coordinates and were dropped rather than guessed. The crafts/soap flag means the directory lists that category, not that the market is taking applications today.`,
+        `这份快照的季节窗口是 ${mk.meta.seasonYearMin}-${mk.meta.seasonYearMax}；${mk.meta.skippedNoCoordinates} 条无可用坐标，被丢弃而不是猜位置。手作/手工皂标记只表示目录记了这一类，不表示市集今天在招摊。`,
+        '',
+        '## Coverage by state (top 10 by crafts coverage) / 各州覆盖（按手作数前 10）',
+        '',
+        '| State | Markets | Listing crafts | Crafts % | Listing soap |',
+        '|---|---|---|---|---|',
+        ...top.map((s) => `| ${s.name} | ${s.total} | ${s.crafts} | ${s.craftsPct}% | ${s.soap} |`),
+        '',
+        '## Machine-readable data / 机器可读数据',
+        '',
+        `- Index: ${abs(root, '/data/markets/index.json')}`,
+        `- Per-state files, for example: ${abs(root, '/data/markets/california.json')}`,
+        '- Fields per record: n (name), c (city), s (state), z (zip), y (latitude), x (longitude), w (website without scheme), k (1 = lists crafts), p (1 = lists soap), a/at (season 1 dates/time), b/bt (season 2), yr (season year)',
+        '',
+        '## Canonical HTML / 规范页',
+        '',
+        `- EN: ${abs(root, '/tools/markets/')}`,
+        `- ZH: ${abs(root, '/zh/tools/markets/')}`,
+        '',
+      ].join('\n') + '\n';
+    }
 
     case 'tools':
       return [

@@ -15,7 +15,19 @@ const live = toolList.map((t) => ({
 const rest = planned
   .filter((t) => t.status === 'planned')
   .map((t) => ({ name: t.nameZh, href: '', desc: t.descZh, mirror: '', status: '计划中', keywords: '' }));
-const all = [...live, ...rest];
+// 数据型工具（不套计算器镜像管线）：农贸市集检索，2026-11-12 加。
+const dataTools = [
+  {
+    name: '美国农贸市集检索',
+    href: '/zh/tools/markets',
+    desc:
+      'USDA 目录快照里的 8,776 家美国农贸市集，可按州筛，并只看列了手作摊位（3,712 家）或手工皂（4,064 家）的。季节窗口是 2010–2020，所以页面先写年代再写数字。',
+    mirror: '/data/markets/index.json',
+    status: 'live',
+    keywords: '农贸市集 · 手作摊位 · USDA 目录',
+  },
+];
+const all = [...live, ...dataTools, ...rest];
 const navAria = site.name + ' 免费工具';
 const updated = '2026-11-03';
 ---

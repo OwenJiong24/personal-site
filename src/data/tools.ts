@@ -218,4 +218,5 @@ export const shippingTool = {
   ] as ToolFaq[],
 } as const;
 
+
 export const toolList = [pricingTool, shippingTool];

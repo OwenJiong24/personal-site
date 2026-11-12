@@ -15,7 +15,19 @@ const live = toolList.map((t) => ({
 const rest = planned
   .filter((t) => t.status === 'planned')
   .map((t) => ({ name: t.nameEn, href: '', desc: t.descEn, mirror: '', status: 'planned', keywords: '' }));
-const all = [...live, ...rest];
+// 数据型工具（不套计算器镜像管线）：农贸市集检索，2026-11-12 加。
+const dataTools = [
+  {
+    name: 'US farmers market search',
+    href: '/tools/markets',
+    desc:
+      '8,776 US farmers markets from a USDA directory snapshot, filterable by state and by whether they list crafts (3,712) or soap (4,064) vendors. Season windows span 2010-2020, so the page states its vintage before it states its numbers.',
+    mirror: '/data/markets/index.json',
+    status: 'live',
+    keywords: 'farmers market · crafts vendor · USDA directory',
+  },
+];
+const all = [...live, ...dataTools, ...rest];
 const navAria = site.name + ' free tools';
 const updated = '2026-11-03';
 ---
