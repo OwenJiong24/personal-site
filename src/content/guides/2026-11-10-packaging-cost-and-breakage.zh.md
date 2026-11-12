@@ -86,4 +86,4 @@ faq:
 - **P2**：上面的包装区间（0.85–2.60 美元）是我们的工作区间，不是公布的行业数字。**2026-12-10** 用一批 20 单的真实票据替换它，或标为未验证。
 - **现在未验证**：我们自己承运商账户上的赔付上限；以及更好的包装是"砍半"还是"只减少"破损。两项都给它一个日期，不给猜测。
 
-相关：[费用对比指南](/zh/guides/2026-11-04-selling-fee-comparison/)、[运费数学](/zh/guides/2026-11-01-shipping-math/)、[每单上架成本](/zh/guides/2026-11-08-cost-per-listing/)、[定价计算器](/zh/tools/pricing-calculator/)。
+相关：[费用对比指南](/zh/guides/2026-11-04-selling-fee-comparison/)、[运费数学](/zh/guides/2026-11-01-shipping-math/)、[每单上架成本](/zh/guides/cost-per-listing/)、[定价计算器](/zh/tools/pricing-calculator/)。

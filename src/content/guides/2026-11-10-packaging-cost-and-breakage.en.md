@@ -90,4 +90,4 @@ The decision rule, in order:
 - **P2**: the packing cost range above ($0.85 - $2.60) is our own working range, not a published industry figure. On **2026-12-10** we replace it with receipt-backed numbers from a real batch of 20 orders, or mark it unverified.
 - **Unverified now**: the claim ceiling on our own carrier account, and whether better packing halves damage or only reduces it. Both get a date, not a guess.
 
-Related: [the fee comparison guide](/guides/2026-11-04-selling-fee-comparison/), [shipping math](/guides/2026-11-01-shipping-math/), [cost per listing](/guides/2026-11-08-cost-per-listing/), [the pricing calculator](/tools/pricing-calculator/).
+Related: [the fee comparison guide](/guides/2026-11-04-selling-fee-comparison/), [shipping math](/guides/2026-11-01-shipping-math/), [cost per listing](/guides/cost-per-listing/), [the pricing calculator](/tools/pricing-calculator/).
