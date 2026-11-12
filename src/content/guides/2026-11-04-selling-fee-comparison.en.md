@@ -85,3 +85,7 @@ Same $50 item, published rates from 2.9% to 13.6%, and the largest gap in what l
 > "Conclusion first, evidence right after." - OJ, site rule, 2026-10-30.
 
 Related: [pricing calculator](/tools/pricing-calculator/), [shipping math](/guides/2026-11-01-shipping-math/), [holiday stock ladder](/guides/2026-11-03-holiday-stock-ladder/), [where to sell handmade in 2027](/essays/2026-11-03-handmade-selling-channels-2027/).
+
+## Verification log (append-only)
+
+- **2026-11-12, 22:19-22:20 UTC** — P1 re-fetch, own fetcher, no browser. **Shopify moved**: `shopify.com/pricing` reads Basic **$29/mo**, Grow **$79/mo**, Advanced **$299/mo**, card rates 2.9% / 2.7% / 2.5% + 30¢ (the 2026-11-04 row said Grow 89 / Advanced 359, so P1 is scored as HIT: at least one number moved). **Our own merchant page stopped being fetcher-readable**: `shopzart.com/become-merchant` returns 200 but 15,839 bytes of JavaScript shell with **no** 2.39%, no 3.4% + $0.37, no commission rate in the HTML (one "3.4" match is a bundled filename); `/seller`, `/become-seller`, `/fees`, `/pricing` all return the same 15,839 bytes, so they are SPA catch-alls, not pages. The 2026-11-04 ZART readings therefore stay published with their own date and are marked **not re-verifiable today** - deleting them would be worse than dating them. Etsy unchanged in verdict (`legal/fees` 403, `sell` 403), help-centre article 404, Bonanza 404. eBay still readable (200, 337,657 bytes).

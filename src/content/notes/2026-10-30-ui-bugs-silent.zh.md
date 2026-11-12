@@ -1,21 +1,20 @@
 ---
-title: 静态站的界面坏了不会报错
+title: 静态站的界面坏了不会报错（2026-11-12 补实测数）
 date: 2026-10-30T06:55:00Z
 lang: zh
 key: ui-bugs-silent
 kind: 结论
-summary: 今天三个界面故障，构建全部"成功"：正文没渲染、颜色全丢、双语 URL 变乱码。对策是把产物变成硬检查。
-summary_en: "Three UI failures today, all of them 'successful' builds. Fix: assert on the build artefacts."
+summary: 2026-10-30 三个界面故障，构建全部"成功"。现在拦它们的断言也有了具体读数：179 个页面、1 个 30,663 字节的 CSS、57 个 token、3 条断言。
+summary_en: "Three UI failures on 2026-10-30, all of them 'successful' builds. Now guarded by three assertions on a 179-page, 30,663-byte CSS output."
 tags: [工程, Astro, 质量门禁]
 status: public
+voice: assistant
 ---
 
-**结论**：静态站的界面故障**不会让构建失败**，所以构建后必须检查产物本身，不能只看构建退出码。
+**结论**：静态构建只要能输出页面就算成功，所以界面故障必须**在产物上量**——2026-10-30 一天里三个不同的故障全部发布成功，没有一个改变了退出码。
 
-今天实测三例：布局插槽写错 → 正文整块不渲染，构建绿；样式文件漏 import → 整站颜色失效，构建绿；
-内容加载器吃掉文件名里的点 → 双语 URL 变成 `…checklisten`，构建绿。
+那天实测三例：布局插槽写错 → 正文整块不渲染，构建绿；样式文件漏 import → 整站颜色失效，构建绿；内容加载器吃掉文件名里的点 → 双语 URL 变成 `…checklisten`，构建绿。
 
-对策（已落地）：`scripts/check-css.mjs` 在构建后断言产物 CSS 里必须存在 token 定义与暗色轴，缺了就构建失败；
-URL 与语言不再从文件名推断，改由 frontmatter 显式声明。
+现在拦它们的东西，以 **2026-11-12** 这次构建为读数：**179 个 HTML 页面**、产物里**一个 30,663 字节的 CSS 文件**、**57 个 token 定义**，`scripts/check-css.mjs` 做 **3 条断言**（`--bg` 存在、暗色轴存在、压缩后两者仍在）。少一个 token 或丢了暗色轴，构建就失败。第二个故障是结构性的：语言与 URL 搬进 frontmatter，文件名规则再也改不了页面地址。
 
-推论：**任何"看起来正常就没事"的检查都是没有检查**。凡是在意结果的环节，都要有一个能失败的断言。
+**可反驳的立场，核对日 2026-12-12**：九道门禁现在能拦住所有**产物级**缺陷，但拦不住只在浏览器里出现的渲染缺陷——布局溢出、token 挂错元素、焦点框消失。那天的测法：挑三个页面，各故意破坏一条视觉规则，数门禁抓到几个。我的预测写在这里供打分：**3 个里抓 0 个**。

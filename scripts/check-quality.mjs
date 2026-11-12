@@ -35,14 +35,30 @@ export function scoreArticle({ raw, name }) {
   const lang = (raw.match(/^lang:\s*(.+)$/m) || [, 'en'])[1].trim();
   const cjk = lang === 'zh';
   const { body, txt, plain } = clean(raw);
-  const enWords = (txt.match(/[A-Za-z'’-]+/g) || []).length;
-  const zhChars = (txt.match(/[一-龥]/g) || []).length;
-  const words = cjk ? zhChars : enWords; // 各语言用自己的单位：英文计词，中文计字
-  const h2 = (body.match(/^## (?!#)/gm) || []).length;
-  const paras = txt.split(/\n\s*\n/).map((s) => s.trim()).filter((s) => s.length > 40);
+  // 只追加的核对日志（append-only evidence log）不参与**长度与 H2 结构**两项：
+  // 它是每周复测往里加的读数，按规矩只增不删——把它计进正文等于惩罚攒证据的行为，
+  // 而删证据过线就是 §0.5 禁止的"为过门禁改内容实质"。日期/数字/密度/站内动作照旧覆盖日志（日期即证据）。
+  // 2026-11-10 定（selling-channels 复测把 zh 顶过 2600 字触发）；红样本：正文加长一段仍判长度红。
+  // 必须在 clean() 剥标题之前切——txt 里已经没有 ## 行。
+  const cutAt = (s) => {
+    const i = s.search(/^## (?:Verification log|核对日志)/m);
+    return i < 0 ? s : s.slice(0, i);
+  };
+  const cut = clean(cutAt(raw));
+  const enWords = (cut.txt.match(/[A-Za-z'’-]+/g) || []).length;
+  const zhChars = (cut.txt.match(/[一-龥]/g) || []).length;
+  const words = cjk ? zhChars : enWords; // 各语言用自己的单位：英文计词，中文计字（只计正文面）
+  const h2 = (body.match(/^## (?!#)/gm) || []).length - (/^## (?:Verification log|核对日志)/m.test(body) ? 1 : 0);
+  const paras = cut.txt.split(/\n\s*\n/).map((s) => s.trim()).filter((s) => s.length > 40);
   const opener = body.split('\n').find((l) => l.trim() && !l.startsWith('#') && !l.startsWith('>')) || '';
   const stance = /\bP\d\b[\s\S]{0,400}?(20\d\d-\d\d-\d\d)|核对日期|check date|核对日/.test(body);
-  const filler = FILLER.filter((f) => plain.toLowerCase().includes(f.toLowerCase()));
+  // 中文条目要求词边界：「把买家递到你手上」的"递到你"不得误判成套话"带你"（2026-11-10 实测误伤）；
+  // 「带你解锁」这类开头用法照常判红。
+  const filler = FILLER.filter((f) => {
+    const lower = f.toLowerCase();
+    if (!/[一-龥]/.test(f)) return plain.toLowerCase().includes(lower);
+    return new RegExp(`(?<![一-龥])${f}(?![一-龥])`).test(plain);
+  });
   const dated = hasDate(body);
   const n = numbers(body);
   const s = Math.max(1, sentences(txt));
@@ -51,8 +67,11 @@ export function scoreArticle({ raw, name }) {
   const quoteLines = (body.match(/^>.*$/gm) || []).length;
   const perPara = paras.length ? words / paras.length : 999;
   // 形态分档（PRD §3-M1 决定 2；CEO 原则：分档是给短内容合法位置，不是降标准）
+  // 2026-11-12 修：notes 集合的 kind 是中文（观察/线索/结论/提问），只按 kind 判档会让「随记」掉进 long 档被判长度红。
+  // 所以档位先看所属分区：notes 一律 note 档；其余按 kind（tip/note）细分。
   const kind = (raw.match(/^kind:\s*(.+)$/m) || [, ''])[1].trim();
-  const tier = kind === 'note' ? 'note' : kind === 'tip' ? 'tip' : 'long';
+  const zoneOf = name.split('/')[0];
+  const tier = zoneOf === 'notes' ? 'note' : kind === 'note' ? 'note' : kind === 'tip' ? 'tip' : 'long';
   const minNum = tier === 'note' ? 1 : tier === 'tip' ? 3 : 5;
   const [h2Lo, h2Hi] = tier === 'note' ? [0, 4] : tier === 'tip' ? [1, 6] : [4, 9];
   const minLink = tier === 'long' ? 2 : tier === 'tip' ? 1 : 0;

@@ -82,3 +82,7 @@ faq:
 > 「先给结论，再给依据。」—— OJ（本站规矩，2026-10-30）
 
 相关页：[定价计算器](/tools/pricing-calculator/)（除法公式全文）、[运费数学](/guides/2026-11-01-shipping-math/)、[节假日备货阶梯](/guides/2026-11-03-holiday-stock-ladder/)、[2027 年去哪儿卖](/essays/2026-11-03-handmade-selling-channels-2027/)。
+
+## 核对日志（只追加）
+
+- **2026-11-12 22:19-22:20 UTC** —— P1 复取，自己的抓取器，不开浏览器。**Shopify 动了**：`shopify.com/pricing` 读到 Basic **$29/月**、Grow **$79/月**、Advanced **$299/月**，卡费率 2.9% / 2.7% / 2.5% + 30¢（2026-11-04 那行写的是 Grow 89 / Advanced 359，所以 P1 记为**命中**：至少一个数字动了）。**我们自己的招商页反而不可抓了**：`shopzart.com/become-merchant` 返回 200，但 15,839 字节是 JS 外壳，HTML 里**没有** 2.39%、没有 3.4% + $0.37、没有抽成率（唯一一处 "3.4" 是打包文件名）；`/seller`、`/become-seller`、`/fees`、`/pricing` 返回同样的 15,839 字节，说明是 SPA 兜底而不是页面。2026-11-04 那批 ZART 读数因此保留自己的日期，并标为**今天无法复核**——删掉比标日期更糟。Etsy 判定不变（`legal/fees` 403、`sell` 403），帮助中心文档 404，Bonanza 404。eBay 仍可读（200、337,657 字节）。
