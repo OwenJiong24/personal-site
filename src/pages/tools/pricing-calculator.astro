@@ -3,20 +3,27 @@ import Base from '../../layouts/base.astro';
 import { brand, site } from '../../lib/site';
 import { pricingTool } from '../../data/tools';
 
+// 两张表：明细（BOM，按整包数量）与简版（售价/成本/费用）。
+// 数据与口径来自 ProductPricingCalculator-compare-By ZART Online Product.xlsx（OJ 2026-11-12 指定为标准）。
+// 铁律：单件成本 = 整包总价 / 整包数量 × 单件用量 —— 与表格里的 IFERROR(SUM(G/F*H),) 完全一致。
+// 两种模式共用同一套数字：简版拿明细出来的 C 去算费用与利润，不各自编一套。
+
 const t = pricingTool;
 const root = Astro.site ?? new URL('https://orangeknows.com');
 const U = (x: string) => new URL(x, root).toString();
 const self = U(t.href);
+
 const outIds = [
-  ['floor', 'Floor price', '保本价'],
-  ['price', 'Suggested price', '建议定价'],
-  ['net', 'You take home', '到手'],
-  ['profit', 'Surplus per sale', '每件盈余'],
-  ['hourly', 'Surplus per production hour', '每生产小时盈余'],
+  ['itemCost', 'Item cost (with labour)', '单件成本（含人工）'],
+  ['itemCostNoLabour', 'Item cost (no labour)', '单件成本（不含人工）'],
+  ['suggested', 'Suggested price', '建议价'],
+  ['fees', 'Fees per sale', '每单费用'],
+  ['profit', 'Profit per sale', '每单利润'],
+  ['markup', 'Markup on cost', '对成本加价率'],
+  ['margin', 'Margin on price', '毛利率'],
   ['be', 'Break-even units / month', '每月保本件数'],
-  ['margin', 'Surplus margin at price', '定价下的盈余率'],
-  ['labour', 'Labour paid at your rate', '按你填的时薪已付工资'],
 ] as const;
+
 const appLd = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
@@ -25,7 +32,7 @@ const appLd = {
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Any (browser)',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  browserRequirements: 'Requires JavaScript for the live calculator; the formula and worked example are readable without it.',
+  browserRequirements: 'Requires JavaScript for the live calculator; the formulas and worked example are readable without it, including in the Markdown mirror.',
   inLanguage: 'en',
   creator: { '@type': 'Person', name: site.author, url: U('/') },
 };
@@ -43,7 +50,34 @@ const crumbLd = {
     { '@type': 'ListItem', position: 3, name: t.nameEn, item: self },
   ],
 };
-const updated = '2026-11-03';
+const updated = '2026-11-12';
+
+// 明细表的默认行（取自 xlsx 的 Detailed Cost Example，共 5 张表）
+const rowsMat = [
+  { d: 'Acrylic yarn (red)', qty: 3, tot: 15, use: 1 },
+  { d: 'Acrylic yarn (green)', qty: 3, tot: 12, use: 0.5 },
+];
+const rowsPack = [
+  { d: 'Large letter boxes', qty: 25, tot: 40, use: 1 },
+  { d: 'Wrap paper', qty: 50, tot: 2.5, use: 1 },
+  { d: 'Thanks cards', qty: 100, tot: 20, use: 1 },
+  { d: 'Stickers', qty: 100, tot: 1, use: 2 },
+  { d: 'Tape', qty: 6, tot: 12, use: 0.05 },
+];
+const rowsLab = [
+  { d: 'Making', hrs: 2, rate: 15, bonus: 1 },
+  { d: 'Packaging', hrs: 0.2, rate: 13, bonus: 0 },
+  { d: 'Customer service', hrs: 0.1, rate: 13, bonus: 0 },
+];
+const rowsShip = [
+  { d: 'Carrier label', qty: 1, tot: 7.99, use: 1 },
+  { d: 'Extra insurance', qty: 1, tot: 0.5, use: 1 },
+];
+const rowsMisc = [
+  { d: 'Lost-package rate 3%', qty: 1, tot: 80, use: 0.03 },
+  { d: 'Overhead (utilities, equipment)', qty: 1, tot: 25, use: 0.005 },
+  { d: 'Supplies (scissors, tape measure)', qty: 1, tot: 30, use: 0.01 },
+];
 ---
 
 <Base
@@ -56,66 +90,131 @@ const updated = '2026-11-03';
   <section class="wrap measure flow">
     <header class="flow stack-sm">
       <p class="meta">
-        <a href="/tools">Tools</a> · free · runs offline in your browser · no account, no tracking ·
+        <a href="/tools">Tools</a> · free · runs in your browser · no account · no tracking ·
         companion to the <a href="/guides/2026-10-30-pricing-handmade/">pricing guide</a> ·
         mirror <a href={`/m/tools/${t.slug}.md`}>/m/tools/{t.slug}.md</a>
       </p>
       <h1>{t.nameEn}</h1>
       <p class="post-title">
-        A floor price is not “material + time”. It is the price at which your take-home equals everything this page
-        charges you: materials <em>including the pieces that fail</em>, labour at the rate you insist on paying
-        yourself, the shipping you absorb, the cost of returns, and the platform percentage taken from the price the
-        buyer pays.
+        Two modes, one arithmetic. Build the cost from what you actually buy - a 25-pack of boxes, a 3-skein pack of
+        yarn - then charge a fee against the price the buyer pays. The worked example runs from <strong>55.19</strong>
+        of cost to a suggested <strong>82.78</strong>, and that 82.78 is exactly what the quick mode charges fees
+        against.
       </p>
-      <p class="meta">
-        Updated {updated} · the arithmetic is printed on the page, so you can check every step by hand ·
-        <a href="#trail">jump to the arithmetic</a>
-      </p>
+      <p class="meta">Updated {updated} · every formula printed on this page · <a href="#arith">jump to the arithmetic</a></p>
     </header>
 
-    <form class="card-flat flow" onsubmit="return false" autocomplete="off">
+    <div class="card-flat flow stack-sm">
+      <div class="pc-tabs" role="tablist" aria-label="Calculator mode">
+        <button class="pc-tab" role="tab" id="tab-detailed" aria-controls="panel-detailed" aria-selected="true" type="button">Detailed (bill of materials)</button>
+        <button class="pc-tab" role="tab" id="tab-quick" aria-controls="panel-quick" aria-selected="false" type="button">Quick (price and cost)</button>
+      </div>
+      <p class="meta" id="pc-mode-note">Detailed mode builds the item cost from your purchases; quick mode takes that cost and works out fees, profit, markup and margin.</p>
+    </div>
+
+    <section class="card-flat flow stack-sm" id="panel-detailed" role="tabpanel" aria-labelledby="tab-detailed">
+      <h2 class="pc-h2">Detailed: what one unit really costs</h2>
+      <p class="meta">
+        Fill a package price and how many units that package holds; the calculator divides. That division is the whole
+        point - it is where most underestimates hide.
+      </p>
+
+      {
+        [
+          { id: 'mat', title: 'Materials', rows: rowsMat, cols: 'qty/total/use' },
+          { id: 'pack', title: 'Packaging', rows: rowsPack, cols: 'qty/total/use' },
+          { id: 'ship', title: 'Shipping you pay', rows: rowsShip, cols: 'qty/total/use' },
+          { id: 'misc', title: 'Miscellaneous', rows: rowsMisc, cols: 'qty/total/use' },
+        ].map((tbl) => (
+          <div class="flow stack-sm">
+            <h3 class="pc-h3">{tbl.title}</h3>
+            <div class="pc-table" data-table={tbl.id}>
+              <div class="pc-tr pc-head">
+                <span>Description</span>
+                <span>Package qty</span>
+                <span>Package total</span>
+                <span>Needed per unit</span>
+                <span>Cost / unit</span>
+              </div>
+              {tbl.rows.map((r, i) => (
+                <div class="pc-tr">
+                  <input class="pc-in" data-t={tbl.id} data-i={i} data-f="d" value={r.d} aria-label={`${tbl.title} row ${i + 1} description`} />
+                  <input class="pc-in" data-t={tbl.id} data-i={i} data-f="qty" type="number" min="0" step="any" value={String(r.qty)} aria-label={`${tbl.title} row ${i + 1} package quantity`} />
+                  <input class="pc-in" data-t={tbl.id} data-i={i} data-f="tot" type="number" min="0" step="any" value={String(r.tot)} aria-label={`${tbl.title} row ${i + 1} package total cost`} />
+                  <input class="pc-in" data-t={tbl.id} data-i={i} data-f="use" type="number" min="0" step="any" value={String(r.use)} aria-label={`${tbl.title} row ${i + 1} needed per unit`} />
+                  <span class="pc-cell" data-out={tbl.id} data-i={i}>—</span>
+                </div>
+              ))}
+              <div class="pc-tr pc-total">
+                <span>Total {tbl.title.toLowerCase()}</span>
+                <span></span><span></span><span></span>
+                <span class="pc-cell" data-sub={tbl.id}>—</span>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+
+      <div class="flow stack-sm">
+        <h3 class="pc-h3">Labour</h3>
+        <div class="pc-table" data-table="lab">
+          <div class="pc-tr pc-head">
+            <span>Description</span>
+            <span>Hours</span>
+            <span>Hourly rate</span>
+            <span>Bonus</span>
+            <span>Cost / unit</span>
+          </div>
+          {rowsLab.map((r, i) => (
+            <div class="pc-tr">
+              <input class="pc-in" data-t="lab" data-i={i} data-f="d" value={r.d} aria-label={`Labour row ${i + 1} description`} />
+              <input class="pc-in" data-t="lab" data-i={i} data-f="hrs" type="number" min="0" step="any" value={String(r.hrs)} aria-label={`Labour row ${i + 1} hours`} />
+              <input class="pc-in" data-t="lab" data-i={i} data-f="rate" type="number" min="0" step="any" value={String(r.rate)} aria-label={`Labour row ${i + 1} hourly rate`} />
+              <input class="pc-in" data-t="lab" data-i={i} data-f="bonus" type="number" min="0" step="any" value={String(r.bonus)} aria-label={`Labour row ${i + 1} bonus`} />
+              <span class="pc-cell" data-out="lab" data-i={i}>—</span>
+            </div>
+          ))}
+          <div class="pc-tr pc-total">
+            <span>Total labour</span>
+            <span></span><span></span><span></span>
+            <span class="pc-cell" data-sub="lab">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-summary">
+        <div class="pc-kv"><span class="k">Item cost (with labour)</span><span class="v" id="dc-cost">—</span></div>
+        <div class="pc-kv"><span class="k">Item cost (no labour)</span><span class="v" id="dc-cost-nolab">—</span></div>
+        <div class="pc-kv"><span class="k">Profit target multiple</span>
+          <span class="v"><input class="pc-in pc-inline" id="dc-target" type="number" min="1" step="0.1" value="1.5" aria-label="Profit target multiple" /></span>
+        </div>
+        <div class="pc-kv pc-kv-strong"><span class="k">Suggested price</span><span class="v" id="dc-suggested">—</span></div>
+      </div>
+      <p class="meta">Suggested price = item cost × target. 1.5 is the sheet's 50%-profit target, not a market price.</p>
+      <div class="tool-actions">
+        <button class="pill pill-accent" type="button" id="dc-apply">Use these numbers in quick mode</button>
+        <button class="pill" type="button" id="dc-reset">Reset rows</button>
+        <span class="meta" id="dc-status"></span>
+      </div>
+    </section>
+
+    <section class="card-flat flow stack-sm" id="panel-quick" role="tabpanel" aria-labelledby="tab-quick" hidden>
+      <h2 class="pc-h2">Quick: fees against the price</h2>
+      <p class="meta">Enter a price and a cost, then the fee structure your platform actually applies.</p>
       <div class="tool-grid">
         {
-          t.fields.map((f) =>
-            f.id === 'pf' ? (
-              <label class="field">
-                <span class="lab">{f.labEn}: <strong id="pc-pf-label">2.0×</strong></span>
-                <input class="inp" id="pc-pf" type="range" min="1" max="4" step="0.1" value="2" aria-describedby="pc-pf-hint" />
-                <span class="hint" id="pc-pf-hint">{f.hintEn}</span>
-              </label>
-            ) : (
-              <label class="field">
-                <span class="lab">{f.labEn}</span>
-                <span class="row">
-                  <input
-                    class="inp"
-                    id={'pc-' + f.id}
-                    type="number"
-                    inputmode="decimal"
-                    min={f.min}
-                    max={f.max}
-                    step={f.step}
-                    value={f.value}
-                    aria-describedby={'pc-' + f.id + '-hint'}
-                  />
-                  {f.unitEn && <span class="unit">{f.unitEn}</span>}
-                </span>
-                <span class="hint" id={'pc-' + f.id + '-hint'}>{f.hintEn}</span>
-              </label>
-            ),
-          )
+          t.fields.map((f) => (
+            <label class="field">
+              <span class="lab">{f.labEn}</span>
+              <span class="row">
+                <input class="inp" id={'pc-' + f.id} type="number" inputmode="decimal" min={f.min} step={f.step} value={f.value} aria-describedby={'pc-' + f.id + '-hint'} />
+                {f.unitEn && <span class="unit">{f.unitEn}</span>}
+              </span>
+              <span class="hint" id={'pc-' + f.id + '-hint'}>{f.hintEn}</span>
+            </label>
+          ))
         }
       </div>
-
-      <div class="tool-actions">
-        <button class="pill pill-accent" type="button" id="pc-reset">Reset to defaults</button>
-        <button class="pill" type="button" id="pc-copy">Copy summary</button>
-        <span class="meta" id="pc-status"></span>
-      </div>
-    </form>
-
-    <div class="card-flat flow" aria-live="polite">
-      <p class="meta"><strong>Results</strong> <span id="pc-out-cur"></span></p>
       <div class="results">
         {
           outIds.map(([id, kEn]) => (
@@ -127,22 +226,28 @@ const updated = '2026-11-03';
         }
       </div>
       <p class="meta" id="pc-verdict"></p>
-    </div>
+      <div class="tool-actions">
+        <button class="pill" type="button" id="pc-copy">Copy summary</button>
+        <button class="pill" type="button" id="pc-reset">Reset</button>
+        <span class="meta" id="pc-status"></span>
+      </div>
+    </section>
 
     <div class="prose">
-      <h2 id="trail">The arithmetic, line by line</h2>
-      <pre class="trail" id="pc-trail">u = 1 / (1 - failure)</pre>
+      <h2 id="arith">The arithmetic, line by line</h2>
+      <pre class="trail" id="pc-trail">—</pre>
       <p class="meta">{t.exampleNoteEn}</p>
 
-      <h2>The formula, written out</h2>
+      <h2>The formulas</h2>
       <pre class="trail">{t.formulaLines.join('\n')}</pre>
 
       <h2>How to read it</h2>
       <ul>
-        <li><strong>Surplus per production hour</strong> is the honest number, not your hourly rate: labour is already paid in the cost base at the rate you entered, so this is what the premium adds on top of paying yourself.</li>
-        <li>A premium factor of <strong>1.5–3</strong> is common on this cost base. Above 3 the buyer needs a story they can repeat to someone else.</li>
-        <li>The tool does not know your market: it returns the floor your own numbers imply. Compare that number against listings already selling at the price.</li>
-        <li><strong>Failure rate is the maker’s hidden tax.</strong> A 30% failure rate costs 30% more materials <em>and</em> 30% more labour; most underpricing starts here.</li>
+        <li><strong>Package quantity is the point.</strong> You buy 25 boxes for 40, not 1.60 each; the calculator turns the pack price into a per-unit cost, and that is where underestimates come from.</li>
+        <li><strong>Labour is a cost line, not profit.</strong> Pay yourself in the labour table and the profit figure becomes what the business earns after you have been paid.</li>
+        <li><strong>Markup and margin have different denominators.</strong> 24.41 profit on 55.19 cost is a 44.2% markup; on 82.78 price it is a 29.5% margin. Both are printed, never averaged.</li>
+        <li><strong>Fees come out of the price, never added to cost.</strong> That is why the fee line is a division (C / (1 - fee)) and not an addition.</li>
+        <li>The suggested price is <em>cost × target</em>. It knows nothing about your market: compare it against listings already selling.</li>
       </ul>
 
       <h2>Questions makers ask</h2>
@@ -156,9 +261,9 @@ const updated = '2026-11-03';
       }
 
       <p class="meta">
-        Related: <a href="/tools/shipping-calculator/">shipping shape calculator</a> ·
-        <a href="/guides/2026-10-30-pricing-handmade/">the pricing guide</a> ·
+        Related: <a href="/guides/2026-10-30-pricing-handmade/">the pricing guide</a> ·
         <a href="/guides/2026-11-02-custom-order-math/">custom-order quoting</a> ·
+        <a href="/guides/packaging-cost-and-breakage/">packaging and breakage cost</a> ·
         <a href={`/m/tools/${t.slug}.md`}>Markdown mirror</a>
       </p>
       <p class="meta">
@@ -173,111 +278,322 @@ const updated = '2026-11-03';
   </section>
 </Base>
 
-<script is:inline define:vars={{ toolSlug: pricingTool.slug }}>
-  const KEY = 'ok-tool-' + toolSlug;
-  const el = (id) => document.getElementById(id);
-  const ids = ['cur', 'mat', 'extra', 'fail', 'hours', 'rate', 'ship', 'ret', 'retpc', 'fee', 'fixed', 'pf'];
-  const defaults = {};
-  ids.forEach((k) => { const n = el('pc-' + k); if (n) defaults[k] = n.value; });
-
-  const num = (k) => { const n = el('pc-' + k); const v = n ? parseFloat(n.value) : NaN; return Number.isFinite(v) ? v : 0; };
-  const cur = () => (el('pc-cur') && el('pc-cur').value) || '$';
-  const money = (v) => (Number.isFinite(v) ? cur() + v.toFixed(2) : '—');
-
-  function calc() {
-    const fail = Math.min(0.9, Math.max(0, num('fail') / 100));
-    const fee = Math.min(0.95, Math.max(0, num('fee') / 100));
-    const retRate = Math.min(0.9, Math.max(0, num('ret') / 100));
-    const hours = num('hours');
-    const rate = num('rate');
-    const pf = Math.max(0.1, num('pf'));
-
-    const u = 1 / (1 - fail);
-    const M = (num('mat') + num('extra')) * u;
-    const L = hours * rate * u;
-    const S = num('ship');
-    const R = retRate * num('retpc');
-    const C = M + L + S + R;
-    const floor = fee < 1 ? C / (1 - fee) : C;
-    const price = floor * pf;
-    const net = price * (1 - fee);
-    const profit = net - C;
-    const prodHours = hours * u;
-    const surplusPerHour = prodHours > 0 ? profit / prodHours : 0;
-    const fixed = num('fixed');
-    const be = profit > 0 ? Math.ceil(fixed / profit) : Infinity;
-    const marginPct = price > 0 ? profit / price : 0;
-
-    el('pc-pf-label').textContent = pf.toFixed(1) + '×';
-    el('pc-out-cur').textContent = '· in ' + cur();
-    el('pc-floor').textContent = money(floor);
-    el('pc-price').textContent = money(price);
-    el('pc-net').textContent = money(net);
-    el('pc-profit').textContent = money(profit);
-    el('pc-hourly').textContent = money(surplusPerHour) + '/h';
-    el('pc-be').textContent = Number.isFinite(be) ? String(be) : '∞';
-    el('pc-margin').textContent = (marginPct * 100).toFixed(1) + '%';
-    el('pc-labour').textContent = money(L);
-
-    el('pc-trail').textContent = [
-      'u     = 1 / (1 - ' + fail.toFixed(3) + ') = ' + u.toFixed(3),
-      'M     = (' + num('mat') + ' + ' + num('extra') + ') x ' + u.toFixed(3) + ' = ' + M.toFixed(2),
-      'L     = ' + hours + ' x ' + rate + ' x ' + u.toFixed(3) + ' = ' + L.toFixed(2),
-      'S     = ' + S.toFixed(2),
-      'R     = ' + retRate.toFixed(3) + ' x ' + num('retpc') + ' = ' + R.toFixed(2),
-      'C     = ' + M.toFixed(2) + ' + ' + L.toFixed(2) + ' + ' + S.toFixed(2) + ' + ' + R.toFixed(2) + ' = ' + C.toFixed(2),
-      'floor = ' + C.toFixed(2) + ' / (1 - ' + fee.toFixed(3) + ') = ' + floor.toFixed(2),
-      'price = ' + floor.toFixed(2) + ' x ' + pf.toFixed(1) + ' = ' + price.toFixed(2),
-      'net   = ' + price.toFixed(2) + ' x (1 - ' + fee.toFixed(3) + ') = ' + net.toFixed(2),
-      'profit= ' + net.toFixed(2) + ' - ' + C.toFixed(2) + ' = ' + profit.toFixed(2),
-      'surplus/hour = ' + profit.toFixed(2) + ' / (' + hours + ' x ' + u.toFixed(3) + ') = ' + surplusPerHour.toFixed(2),
-      'break-even units = ' + fixed + ' / ' + profit.toFixed(2) + ' = ' + (Number.isFinite(be) ? be : 'infinity'),
-    ].join('\n');
-
-    const v = [];
-    if (profit <= 0) v.push('At premium ' + pf.toFixed(1) + '× the price creates no surplus: it only pays your costs and your labour. This product cannot carry the overhead you entered.');
-    if (marginPct > 0 && marginPct < 0.3) v.push('Surplus margin ' + (marginPct * 100).toFixed(1) + '% of price is thin: at that level one bad month of shipping rates erases it. Pricing, not shipping shape, is the problem.');
-    if (fail >= 0.25) v.push('Failure ' + (fail * 100).toFixed(0) + '%: you pay materials and labour for ' + u.toFixed(2) + ' units to sell one. Reducing failure is worth more than raising price.');
-    if (!v.length) v.push('Labour is paid at ' + money(rate) + '/h inside the cost base; the premium adds ' + money(surplusPerHour) + '/h on top. ' + (Number.isFinite(be) ? 'Selling ' + be + ' pieces a month covers ' + cur() + fixed + ' of fixed overhead.' : 'Raise the premium factor to cover any fixed overhead.'));
-    el('pc-verdict').textContent = v.join(' ');
-
-    try {
-      const save = {};
-      ids.forEach((k) => { const n = el('pc-' + k); if (n) save[k] = n.value; });
-      localStorage.setItem(KEY, JSON.stringify(save));
-    } catch (e) { /* storage off: the calculator still works */ }
+<style is:global>
+  .pc-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
-
-  function restore() {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (!raw) return;
-      const save = JSON.parse(raw);
-      ids.forEach((k) => { if (el('pc-' + k) && save[k] !== undefined) el('pc-' + k).value = save[k]; });
-    } catch (e) { /* ignore corrupt storage */ }
+  .pc-tab {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
   }
+  .pc-tab[aria-selected='true'] {
+    background: var(--accent);
+    border-color: var(--accent-strong);
+    color: var(--on-accent);
+    font-weight: var(--fw-bold);
+  }
+  .pc-h2 {
+    font-size: 1.15rem;
+  }
+  .pc-h3 {
+    font-size: 0.95rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+  .pc-table {
+    display: grid;
+    gap: 0.25rem;
+    overflow-x: auto;
+  }
+  .pc-tr {
+    display: grid;
+    grid-template-columns: minmax(140px, 2fr) 84px 96px 100px 92px;
+    gap: 0.5rem;
+    align-items: center;
+    min-width: 0;
+  }
+  .pc-head span {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    line-height: 1.25;
+    color: var(--text-2);
+    /* 表头允许折行，数字列右对齐以对上数值（2026-11-12 截图实测表头粘连） */
+    overflow-wrap: anywhere;
+  }
+  .pc-head span:not(:first-child) {
+    text-align: end;
+  }
+  .pc-total span:first-child {
+    font-weight: var(--fw-medium);
+  }
+  .pc-in {
+    font: inherit;
+    font-size: 0.875rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.35rem 0.45rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .pc-inline {
+    width: 5rem;
+  }
+  .pc-cell {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-align: end;
+    color: var(--text-2);
+  }
+  .pc-summary {
+    display: grid;
+    gap: 0.35rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .pc-kv {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.9375rem;
+  }
+  .pc-kv .v {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-medium);
+  }
+  .pc-kv-strong {
+    border-top: 1px solid var(--border);
+    padding-top: 0.35rem;
+    font-weight: var(--fw-bold);
+  }
+  @media (max-width: 640px) {
+    /* 窄屏：表头隐藏，每行改成两列（说明占满一行，其余输入各占一格），
+       避免五列硬挤导致的横向滚动（实测 390px 下 108px）。 */
+    .pc-table {
+      gap: 0.5rem;
+      overflow-x: visible;
+    }
+    .pc-head {
+      display: none;
+    }
+    .pc-tr {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.3rem 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .pc-tr > :first-child {
+      grid-column: 1 / -1;
+    }
+    .pc-total {
+      grid-template-columns: 1fr auto;
+      border-bottom: none;
+      font-weight: var(--fw-medium);
+    }
+    .pc-total > :first-child {
+      grid-column: 1;
+    }
+    .pc-total > span:empty {
+      display: none;
+    }
+    .pc-in {
+      font-size: 0.875rem;
+    }
+    .pc-cell {
+      font-size: 0.875rem;
+      text-align: start;
+    }
+    .pc-cell::before {
+      content: '= ';
+      color: var(--text-2);
+    }
+  }
+</style>
 
-  ids.forEach((k) => { const n = el('pc-' + k); if (n) n.addEventListener('input', calc); });
-  el('pc-reset').addEventListener('click', () => {
-    ids.forEach((k) => { const n = el('pc-' + k); if (n) n.value = defaults[k]; });
-    try { localStorage.removeItem(KEY); } catch (e) {}
-    el('pc-status').textContent = 'Reset.';
-    calc();
-  });
-  el('pc-copy').addEventListener('click', () => {
-    const text = [
-      'Handmade pricing — ' + new Date().toISOString().slice(0, 10),
-      'inputs: ' + ids.map((k) => k + '=' + (el('pc-' + k) ? el('pc-' + k).value : '')).join(', '),
-      'floor ' + el('pc-floor').textContent + ' · price ' + el('pc-price').textContent,
-      'net ' + el('pc-net').textContent + ' · surplus/sale ' + el('pc-profit').textContent,
-      'surplus/hour ' + el('pc-hourly').textContent + ' · break-even units ' + el('pc-be').textContent,
-      'from orangeknows.com' + toolSlug,
-    ].join('\n');
-    const done = (m) => { el('pc-status').textContent = m; };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done('Summary copied.'), () => done('Copy blocked by the browser; select the arithmetic below.'));
-    else done('No clipboard in this browser; select the arithmetic below.');
-  });
+<script is:inline define:vars={{ slug: t.slug }}>
+  (function () {
+    var KEY = 'ok-calc-' + slug;
+    var ids = ['price', 'cost', 'feePct', 'feeFixed', 'listingFee', 'adsPct', 'monthlyFee', 'target'];
+    var el = function (id) { return document.getElementById(id); };
+    var num = function (v) { var n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+    var money = function (v) { if (!Number.isFinite(v)) return '—'; return '$' + (Math.round(v * 100) / 100).toFixed(2); };
+    var pct = function (v) { return (Number.isFinite(v) ? (v * 100).toFixed(1) : '—') + '%'; };
 
-  restore();
-  calc();
+    // ---- tabs ----
+    var tabs = [['tab-detailed', 'panel-detailed'], ['tab-quick', 'panel-quick']];
+    tabs.forEach(function (pair) {
+      var btn = el(pair[0]);
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        tabs.forEach(function (p) {
+          var b = el(p[0]); var pan = el(p[1]);
+          var on = p[0] === pair[0];
+          if (b) b.setAttribute('aria-selected', on ? 'true' : 'false');
+          if (pan) pan.hidden = !on;
+        });
+      });
+    });
+
+    // ---- detailed ----
+    function rowCost(t, i) {
+      var g = function (f) { var n = document.querySelector('[data-t="' + t + '"][data-i="' + i + '"][data-f="' + f + '"]'); return n ? num(n.value) : 0; };
+      if (t === 'lab') return g('hrs') * g('rate') + g('bonus');
+      var qty = g('qty');
+      return qty > 0 ? (g('tot') / qty) * g('use') : 0;
+    }
+
+    function detailed() {
+      var subs = {};
+      ['mat', 'pack', 'ship', 'misc', 'lab'].forEach(function (t) {
+        var total = 0;
+        var n = document.querySelectorAll('[data-t="' + t + '"]');
+        var rows = new Set();
+        n.forEach(function (x) { rows.add(x.getAttribute('data-i')); });
+        rows.forEach(function (i) {
+          var c = rowCost(t, i);
+          total += c;
+          var out = document.querySelector('[data-out="' + t + '"][data-i="' + i + '"]');
+          if (out) out.textContent = c ? money(c) : '—';
+        });
+        subs[t] = total;
+        var sub = document.querySelector('[data-sub="' + t + '"]');
+        if (sub) sub.textContent = money(total);
+      });
+      var C = subs.mat + subs.pack + subs.ship + subs.misc + subs.lab;
+      var noLab = C - subs.lab;
+      var target = num(el('dc-target').value) || 1.5;
+      el('dc-cost').textContent = money(C);
+      el('dc-cost-nolab').textContent = money(noLab);
+      el('dc-suggested').textContent = money(C * target);
+      return { C: C, noLab: noLab, target: target, subs: subs };
+    }
+
+    // ---- quick ----
+    function quick() {
+      var price = num(el('pc-price').value);
+      var cost = num(el('pc-cost').value);
+      var feePct = num(el('pc-feePct').value) / 100;
+      var adsPct = num(el('pc-adsPct').value) / 100;
+      var feeFix = num(el('pc-feeFixed').value);
+      var listing = num(el('pc-listingFee').value);
+      var monthly = num(el('pc-monthlyFee').value);
+
+      var fees = price * (feePct + adsPct) + feeFix + listing;
+      var profit = price - cost - fees;
+      var markup = cost > 0 ? profit / cost : NaN;
+      var margin = price > 0 ? profit / price : NaN;
+      var be = profit > 0 && monthly > 0 ? Math.ceil(monthly / profit) : 0;
+
+      // 三张来自明细模式的卡片：简版里也要有值，否则显示为破折号（2026-11-12 截图实测）
+      var d = detailed();
+      el('pc-itemCost').textContent = money(d.C);
+      el('pc-itemCostNoLabour').textContent = money(d.noLab);
+      el('pc-suggested').textContent = money(d.C * d.target);
+
+      el('pc-fees').textContent = money(fees);
+      el('pc-profit').textContent = money(profit);
+      el('pc-markup').textContent = pct(markup);
+      el('pc-margin').textContent = pct(margin);
+      el('pc-be').textContent = be ? String(be) : (monthly > 0 ? '∞' : '—');
+
+      var rate = feePct + adsPct;
+      el('pc-trail').textContent = [
+        'fees   = ' + price.toFixed(2) + ' x (' + pct(feePct) + ' + ' + pct(adsPct) + ') + ' + feeFix.toFixed(2) + ' + ' + listing.toFixed(2) + ' = ' + fees.toFixed(2),
+        'profit = ' + price.toFixed(2) + ' - ' + cost.toFixed(2) + ' - ' + fees.toFixed(2) + ' = ' + profit.toFixed(2),
+        'markup = ' + profit.toFixed(2) + ' / ' + cost.toFixed(2) + ' = ' + (Number.isFinite(markup) ? (markup * 100).toFixed(1) : '—') + '%',
+        'margin = ' + profit.toFixed(2) + ' / ' + price.toFixed(2) + ' = ' + (Number.isFinite(margin) ? (margin * 100).toFixed(1) : '—') + '%',
+        'floor  = ' + cost.toFixed(2) + ' / (1 - ' + (rate).toFixed(4) + ') = ' + (rate < 1 ? (cost / (1 - rate)).toFixed(2) : 'n/a'),
+        'break-even units = ' + monthly.toFixed(2) + ' / ' + profit.toFixed(2) + ' = ' + (be || 'n/a'),
+      ].join('\n');
+
+      var v = [];
+      if (profit < 0) v.push('At this price the sale loses money: fees and cost exceed the price by ' + money(-profit) + '.');
+      else if (margin < 0.15) v.push('A ' + pct(margin) + ' margin leaves no room for a single return or a price rise in materials.');
+      if (rate >= 0.5) v.push('A ' + pct(rate) + ' fee rate means more than half of every price goes to the platform: check that number before you set a price against it.');
+      if (monthly > 0 && be) v.push('Covering ' + money(monthly) + ' a month needs ' + be + ' sales at this profit.');
+      if (!v.length) v.push('Markup ' + pct(markup) + ' on cost, margin ' + pct(margin) + ' on price - the same profit, two denominators.');
+      el('pc-verdict').textContent = v.join(' ');
+    }
+
+    // ---- wire ----
+    document.querySelectorAll('.pc-in').forEach(function (n) {
+      n.addEventListener('input', function () { detailed(); });
+    });
+    ids.forEach(function (k) { var n = el('pc-' + k); if (n) n.addEventListener('input', function () { quick(); }); });
+
+    var apply = el('dc-apply');
+    if (apply) apply.addEventListener('click', function () {
+      var r = detailed();
+      el('pc-cost').value = r.C.toFixed(2);
+      quick();
+      el('dc-status').textContent = 'Item cost ' + money(r.C) + ' copied into quick mode.';
+      el('tab-quick').click();
+    });
+
+    var dres = el('dc-reset');
+    if (dres) dres.addEventListener('click', function () {
+      try { localStorage.removeItem(KEY + '-rows'); } catch (e) {}
+      location.reload();
+    });
+
+    var qres = el('pc-reset');
+    if (qres) qres.addEventListener('click', function () {
+      ids.forEach(function (k) {
+        var n = el('pc-' + k);
+        if (!n) return;
+        var d = n.getAttribute('data-default');
+        if (d !== null) n.value = d;
+      });
+      quick();
+      el('pc-status').textContent = 'Reset to the sheet defaults.';
+    });
+    ids.forEach(function (k) { var n = el('pc-' + k); if (n) n.setAttribute('data-default', n.value); });
+
+    var copy = el('pc-copy');
+    if (copy) copy.addEventListener('click', function () {
+      var r = detailed();
+      var text = [
+        'Product cost — ' + new Date().toISOString().slice(0, 10),
+        'item cost ' + money(r.C) + ' (no labour ' + money(r.noLab) + '), suggested ' + money(r.C * r.target),
+        'price ' + money(num(el('pc-price').value)) + ', fees ' + el('pc-fees').textContent + ', profit ' + el('pc-profit').textContent,
+        'markup ' + el('pc-markup').textContent + ', margin ' + el('pc-margin').textContent,
+        'from orangeknows.com/tools/' + slug,
+      ].join('\n');
+      var done = function (m) { el('pc-status').textContent = m; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done('Summary copied.'); }, function () { done('Copy blocked; select the arithmetic below.'); });
+      else done('No clipboard here; select the arithmetic below.');
+    });
+
+    // ---- restore ----
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var save = JSON.parse(raw);
+        Object.keys(save).forEach(function (k) { var n = el('pc-' + k); if (n) n.value = save[k]; });
+      }
+    } catch (e) {}
+    ids.forEach(function (k) {
+      var n = el('pc-' + k);
+      if (n) n.addEventListener('input', function () {
+        try {
+          var save = {};
+          ids.forEach(function (x) { var m = el('pc-' + x); if (m) save[x] = m.value; });
+          localStorage.setItem(KEY, JSON.stringify(save));
+        } catch (e) {}
+      });
+    });
+
+    detailed();
+    quick();
+  })();
 </script>
