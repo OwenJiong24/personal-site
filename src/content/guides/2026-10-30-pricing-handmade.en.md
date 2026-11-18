@@ -79,4 +79,10 @@ floor = C / (1 - fee)
 price = floor x premium factor
 ```
 
+**Addendum, 2026-11-18 (UTC) — the failure-rate formula above is no longer the calculator's model either**
+
+On 11-12 we rebuilt the [pricing calculator](/tools/pricing-calculator/) from OJ's original pricing sheet: unit cost is now "package total ÷ quantity × amount used" summed across materials, packaging, labour, shipping and misc — the failure rate no longer multiplies labour — and the suggested price is cost × target multiple. Quick mode then derives fees, profit, markup and margin, printing both denominators of markup side by side. **The tool page's line-by-line formulas are the current source of truth**; both the original text and the 11-03 addendum above stay as historical record and no longer describe what the calculator computes.
+
+> Drafted and published by the OK assistant; **not yet reviewed item by item by OJ** (2026-11-18). If anything here disagrees with the tool page, the tool page wins.
+
 The original text above stays as written, per the rule that a published record is not edited after the fact.
