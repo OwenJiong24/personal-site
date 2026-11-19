@@ -233,6 +233,34 @@ const rowsMisc = [
       </div>
     </section>
 
+    <section class="card-flat flow stack-sm" id="pc-subscribe" aria-labelledby="pc-sub-title">
+      <h2 id="pc-sub-title">Want the numbers in your inbox?</h2>
+      <p class="meta">One email a month: a worked pricing example and one correction. No tracking beyond the site's disclosed analytics. Drafted by the OK assistant; OJ review pending (2026-11-18).</p>
+      <form id="pc-sub-form" class="row" style="gap:.5rem;flex-wrap:wrap">
+        <label class="sr-only" for="pc-sub-email">Email</label>
+        <input id="pc-sub-email" name="email" type="email" required placeholder="you@example.com" aria-describedby="pc-sub-note" style="flex:1 1 16rem;padding:.55rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text)">
+        <input type="hidden" name="kind" value="lead">
+        <button class="pill" type="submit">Send me the monthly note</button>
+      </form>
+      <p class="meta" id="pc-sub-note" role="status">By subscribing you agree to receive the monthly note; unsubscribe any time. We never sell or share the list.</p>
+    </section>
+    <script is:inline>
+      (function () {
+        var f = document.getElementById('pc-sub-form');
+        if (!f) return;
+        f.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var note = document.getElementById('pc-sub-note');
+          var email = document.getElementById('pc-sub-email').value;
+          try {
+            var r = await fetch('/api/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: 'lead', email: email, message: 'pricing-calculator monthly note', path: '/tools/pricing-calculator/' }) });
+            note.textContent = r.ok ? 'Saved. Watch your inbox for a confirmation.' : 'Could not save right now — please try again later.';
+            if (r.ok) f.reset();
+          } catch (err) { note.textContent = 'Could not save right now — please try again later.'; }
+        });
+      })();
+    </script>
+
     <div class="prose">
       <h2 id="arith">The arithmetic, line by line</h2>
       <pre class="trail" id="pc-trail">—</pre>

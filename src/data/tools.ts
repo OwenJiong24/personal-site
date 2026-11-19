@@ -102,6 +102,18 @@ export const pricingTool = {
       qZh: '建议价就是该收的价吗？',
       aZh: '不是。它是成本乘以你选的倍数——一个带利润的地板，不是市场价格。1.5 倍回答的是"什么价能保住成本上五成利润"；有没有人付这个价是另一个问题，这个页面看不到你的市场。拿去和已经在卖的同类比，再决定。',
     },
+    {
+      qEn: 'When should I refuse an order even if it covers cost?',
+      aEn: 'Use the floor, then apply three vetoes. 1) Hourly: divide the profit by the hours including rework; if it is below the rate you would pay a stranger, decline or reprice. 2) Capacity: a custom slot you cannot deliver on time costs more than its margin. 3) Floor: if the price a buyer will actually pay is below the C shown here, the order buys you no margin at all. The calculator gives you the arithmetic; the vetoes are yours.',
+      qZh: '什么订单即使不亏成本也该拒？',
+      aZh: '先用地板价，再过三条否决线：① 时薪——把利润除以含返工的总工时，低于你愿意付给陌生人的时薪就拒或改价；② 产能——你交不了的定制档期，损失大于它的毛利；③ 价格地板——买家实际愿意付的价低于这里的 C，这单就不给你留任何利润。计算器给算术，否决权在你。',
+    },
+    {
+      qEn: 'Which input moves the answer most?',
+      aEn: 'Change one input at a time and watch profit. In the worked example the labour line is 34.90 of the 55.19 cost - larger than materials, packaging, shipping and misc combined. A 10% change in hours moves cost about 3.49; a 10% change in materials moves it 0.70. Pricing by staring at material cost is optimizing the small number.',
+      qZh: '哪个输入最影响结果？',
+      aZh: '一次只改一个输入，看利润怎么动。算例里人工 34.90 占 55.19 成本的大头，比材料、包装、运费、杂项加起来还大。工时变 10%，成本约动 3.49；材料变 10%，成本只动 0.70。盯着材料成本定价，是在优化那个小数。',
+    },
   ] as ToolFaq[],
 };
 
@@ -126,6 +138,8 @@ export const shippingTool = {
   keywordsZh: ['包邮门槛', '运费定价', '手作运费计算', '摊进价', '电商运费策略'],
   fields: [
     { id: 'cur', labEn: 'Currency symbol', labZh: '货币符号', unitEn: '', unitZh: '', value: '$', step: 'any', min: '0', hintEn: 'Just the glyph', hintZh: '只填符号' },
+    { id: 'packQty', labEn: 'Pack qty (for per-unit shipping)', labZh: '整包数量（算单位运费）', unitEn: '', unitZh: '', value: '50', step: '1', min: '1', hintEn: 'How many units come in one shipped pack — the same division the pricing calculator uses.', hintZh: '一整包里有多少件——和定价计算器的整包除法是同一道题。' },
+    { id: 'packCost', labEn: 'Pack total cost', labZh: '整包总价', unitEn: '', unitZh: '', value: '300', step: '0.01', min: '0', hintEn: 'What you actually paid for the whole pack. Unit cost = total / qty.', hintZh: '你为整包真实付的钱。单位成本 = 总价 ÷ 数量。' },
     { id: 'price', labEn: 'Item price now', labZh: '当前售价', unitEn: '', unitZh: '', value: '90', step: '1', min: '0', hintEn: 'The price the buyer sees today', hintZh: '买家今天看到的标价' },
     { id: 'ship', labEn: 'Real shipping median', labZh: '真实运费中位数', unitEn: '', unitZh: '', value: '6', step: '1', min: '0', hintEn: 'Median of your last 50 shipped orders', hintZh: '最近 50 单运费中位数' },
     { id: 'aov', labEn: 'Average order value', labZh: '平均客单价', unitEn: '', unitZh: '', value: '120', step: '1', min: '0', hintEn: 'From your own order data, not a guess', hintZh: '用你自己的订单数据，不靠猜' },
@@ -135,6 +149,7 @@ export const shippingTool = {
     { id: 'margin', labEn: 'Current gross margin per item', labZh: '当前单件毛利', unitEn: '', unitZh: '', value: '40', step: '1', min: '0', hintEn: 'Price minus material, labour share and packaging', hintZh: '售价减材料、工时摊销与包装' },
   ] as ToolField[],
   formulaLines: [
+    'pack unit cost = pack total cost / pack qty        // same division as the pricing calculator',
     'ratio = shipping / price',
     'R = return rate x cost per return',
     'ratio > 15%   -> bake shipping into the price',
@@ -146,6 +161,7 @@ export const shippingTool = {
     'weak margin flag = margin after < 30% of price',
   ],
   formulaZhLines: [
+    '单位运费 = 整包总价 / 整包数量      // 与定价计算器的整包除法同一道题',
     '比例 = 运费 / 售价',
     'R = 退货率 x 单次退货成本',
     '比例 > 15%  → 运费摊进价并显示包邮',
@@ -157,9 +173,9 @@ export const shippingTool = {
     '薄毛利标记 = 承担运费后毛利 < 售价的 30%',
   ],
   exampleNoteEn:
-    'Worked example on the defaults: ratio 6.7% → charge plainly. If you baked in anyway: (90 + 6 + 0.6) / 0.87 = 111.03, so the displayed price rises 23.4% to keep the same net. Reserve 0.60 per item; margin after shipping 33.40, which is 37.1% of 90 — above the 30% flag.',
+    'Worked example on the defaults: pack division 300 / 50 = 6.00 per shipped unit, matching the shipping median — the division is how you get that number from a real invoice instead of a guess. Ratio 6 / 90 = 6.7% → charge plainly. If you baked in anyway: (90 + 6 + 0.6) / 0.87 = 111.03, so the displayed price rises 23.4% to keep the same net. Reserve 0.60 per item; margin after shipping 33.40, which is 37.1% of 90 — above the 30% flag. These are our own worked numbers, not an industry average.',
   exampleNoteZh:
-    '默认值算例：比例 6.7% → 单列实收。若强行摊进价：(90 + 6 + 0.6) / 0.87 = 111.03，标价要涨 23.4% 才保住同样的到手。每件退换预留 0.60；扣运费后毛利 33.40，占售价 90 的 37.1%，高于 30% 的警戒线。',
+    '默认值算例：整包除法 300 ÷ 50 = 6.00 每件，与运费中位数一致——这道除法就是让你从真实发票算出这个数，而不是猜。比例 6 ÷ 90 = 6.7% → 单列实收。若强行摊进价：(90 + 6 + 0.6) / 0.87 = 111.03，标价要涨 23.4% 才保住同样的到手。每件退换预留 0.60；扣运费后毛利 33.40，占售价 90 的 37.1%，高于 30% 的警戒线。这些是我们自己的算例，不是行业平均。',
   faq: [
     {
       qEn: 'Why divide by (1 − fee) when baking shipping into the price?',

@@ -48,9 +48,9 @@ export const site = {
 } as const;
 
 // 板块（Q5 数字花园/实验室形态）：slug 同时是 collection 名与 URL 段
-export type SectionSlug = 'lab' | 'journal' | 'essays' | 'guides' | 'notes' | 'projects';
+export type SectionSlug = 'lab' | 'journal' | 'essays' | 'guides' | 'notes' | 'projects' | 'thoughts' | 'atlas';
 
-export const sections: SectionSlug[] = ['lab', 'journal', 'essays', 'guides', 'notes', 'projects'];
+export const sections: SectionSlug[] = ['lab', 'journal', 'essays', 'guides', 'notes', 'projects', 'thoughts', 'atlas'];
 
 // 站点遥测（首页数据条用，AB-09）：只写可核对的事实，来源=构建链与门禁日志
 export const metrics = {

@@ -118,3 +118,21 @@ A platform's feature list is always longer than what can be finished. So we get 
 The English and the Chinese sit side by side, because the Chinese one reads closer to what we can actually deliver.
 
 Quoted word for word, cited to the line. The source notes are not in the public repository, so what you can verify is that this text entered the hash chain and was never edited afterwards; you cannot recompute the originals. We state that plainly instead of writing "open to checking".
+
+**Conclusion first: the case for paying makers more is not about efficiency — it is about who made the thing and whether you can check it.** The founder's own notes below say that in his words, line by line.
+
+### Three things you can do now
+
+1. Open the chain head `eb60235a` in the footer (`/verify`) and confirm that every quoted line above kept its line number and wording after publication — what you can check is **that the quotes were fixed in place**, not the private notes themselves.
+2. Use this page as a template: when you quote someone, copy it verbatim, cite the file and line, and write "no date in source" when you cannot establish one. Three minutes of work, far more reliable than paraphrase.
+3. If you are deciding how to price or build a site for makers, read the [pricing calculator](/tools/pricing-calculator/) formulas first, then come back to "carry human worth": a value claim has to land on a bill you can recompute, or it stays a slogan.
+
+### A position with a check date (2026-11-18)
+
+My judgement: **verbatim quotes + line numbers + a chain head** are more trustworthy than "roughly what they said", even when the source is not public — because the reader can at least prove "this was fixed in place on that date".
+
+**Check date 2026-12-18**: on that date I will count how `zart`-related entries appear in this page's `/verify` record — whether every one still carries a line number and no undated paraphrase has slipped in. If any quote loses its line number or date label, this position is wrong and I will publish a dated correction.
+
+> Added 2026-11-18 (UTC): reader actions and a position with a check date. All quoted lines above remain verbatim.
+
+**Read next:** [the pricing calculator](/tools/pricing-calculator/) — the formulas a value claim has to survive.

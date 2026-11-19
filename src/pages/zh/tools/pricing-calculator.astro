@@ -233,6 +233,34 @@ const rowsMisc = [
       </div>
     </section>
 
+    <section class="card-flat flow stack-sm" id="pc-subscribe" aria-labelledby="pc-sub-title">
+      <h2 id="pc-sub-title">想每月收到一份算例？</h2>
+      <p class="meta">每月一封：一个可复算的定价算例 + 一条更正。除已披露的统计外不做追踪。本区块由 OK 助手起草，OJ 尚未逐条审定（2026-11-18）。</p>
+      <form id="pc-sub-form" class="row" style="gap:.5rem;flex-wrap:wrap">
+        <label class="sr-only" for="pc-sub-email">邮箱</label>
+        <input id="pc-sub-email" name="email" type="email" required placeholder="you@example.com" aria-describedby="pc-sub-note" style="flex:1 1 16rem;padding:.55rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text)">
+        <input type="hidden" name="kind" value="lead">
+        <button class="pill" type="submit">每月寄给我</button>
+      </form>
+      <p class="meta" id="pc-sub-note" role="status">订阅即表示同意接收每月信件；随时可退订。名单不卖、不共享。</p>
+    </section>
+    <script is:inline>
+      (function () {
+        var f = document.getElementById('pc-sub-form');
+        if (!f) return;
+        f.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var note = document.getElementById('pc-sub-note');
+          var email = document.getElementById('pc-sub-email').value;
+          try {
+            var r = await fetch('/api/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: 'lead', email: email, message: 'pricing-calculator monthly note', path: '/zh/tools/pricing-calculator/' }) });
+            note.textContent = r.ok ? '已保存。留意收件箱里的确认信。' : '现在保存失败——请稍后再试。';
+            if (r.ok) f.reset();
+          } catch (err) { note.textContent = '现在保存失败——请稍后再试。'; }
+        });
+      })();
+    </script>
+
     <div class="prose">
       <h2 id="arith">算术过程，逐行摊开</h2>
       <pre class="trail" id="pc-trail">—</pre>

@@ -41,6 +41,8 @@ export const ui = {
       guides: { name: '指南', desc: '写给手作/手工卖家的实操：用最少的钱把域名、网站、邮箱、AI 用起来。都能照做，也能核对。' },
       notes: { name: '随记', desc: '碎片层：看到的现象、一句话结论、值得追的线索。短，但不删。' },
       projects: { name: '项目', desc: '我在建什么、进展到哪一步。只写可以公开的部分。' },
+      thoughts: { name: '思想卡', desc: '2,500 张结构化思想卡：先给结论，再给出处与自查法。未逐条核验的都标「未验证」。' },
+      atlas: { name: '人类图谱', desc: '理解你所不了解的人：专业卡、职业路径与认知校准。已验证卡为 0，方法先行。' },
     } as Record<SectionSlug, { name: string; desc: string }>,
     uses: {
       name: '清单',
@@ -134,6 +136,8 @@ export const ui = {
       guides: { name: 'Guides', desc: 'Practical playbooks for makers: own your domain, site, email and AI workflow for as little money as possible. Followable, checkable.' },
       notes: { name: 'Notes', desc: 'The fragment layer: things I noticed, one-line conclusions, leads worth chasing. Short, and never deleted.' },
       projects: { name: 'Projects', desc: 'What I am building and how far along it is. Only the part that can be public.' },
+      thoughts: { name: 'Thought Atlas', desc: '2,500 structured idea cards: conclusion first, then source and a self-check. Anything not individually verified says so.' },
+      atlas: { name: 'Human Atlas', desc: 'Understand people you do not know: profession cards, career paths and calibration. Zero verified cards so far — method first.' },
     } as Record<SectionSlug, { name: string; desc: string }>,
     uses: {
       name: 'Uses',

@@ -63,4 +63,13 @@ export const collections = {
     kind: z.enum(['case', 'insight', 'tip', 'note', 'topic']).default('note'),
     level: z.enum(['L0', 'L1', 'L2', 'L3', 'L4']).optional(),
   }),
+  // thoughts（思想卡宇宙）：从 projects/thought-atlas 产品化而来。缺内容可不上，先上骨架。
+  thoughts: col('thoughts', {
+    cardId: z.string().default(''),
+    level: z.enum(['L1', 'L2', 'L3']).default('L1'),
+  }),
+  // atlas（人类认知与行为图谱）：已验证卡为 0 时按方法论页诚实呈现。
+  atlas: col('atlas', {
+    verified: z.boolean().default(false),
+  }),
 };

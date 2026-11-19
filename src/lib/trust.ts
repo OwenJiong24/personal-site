@@ -11,7 +11,9 @@ export type Post =
   | Awaited<ReturnType<typeof getCollection<'essays'>>>[number]
   | Awaited<ReturnType<typeof getCollection<'guides'>>>[number]
   | Awaited<ReturnType<typeof getCollection<'notes'>>>[number]
-  | Awaited<ReturnType<typeof getCollection<'projects'>>>[number];
+  | Awaited<ReturnType<typeof getCollection<'projects'>>>[number]
+  | Awaited<ReturnType<typeof getCollection<'thoughts'>>>[number]
+  | Awaited<ReturnType<typeof getCollection<'atlas'>>>[number];
 
 const t = (p: Post) => p.data.date.getTime();
 
@@ -29,15 +31,17 @@ export const keyOf = (p: Post) =>
 
 /** 全部可公开条目（草稿与未来日期不进构建），中文与英文都包含，新→旧。导出口给 /chain.json 用。 */
 export async function allPublic(): Promise<Post[]> {
-  const [lab, journal, essays, guides, notes, projects] = await Promise.all([
+  const [lab, journal, essays, guides, notes, projects, thoughts, atlas] = await Promise.all([
     getCollection('lab'),
     getCollection('journal'),
     getCollection('essays'),
     getCollection('guides'),
     getCollection('notes'),
     getCollection('projects'),
+    getCollection('thoughts'),
+    getCollection('atlas'),
   ]);
-  return [...lab, ...journal, ...essays, ...guides, ...notes, ...projects]
+  return [...lab, ...journal, ...essays, ...guides, ...notes, ...projects, ...thoughts, ...atlas]
     .filter((p) => (p.data as { status: string }).status === 'public')
     .filter((p) => t(p) <= Date.now())
     .sort((a, b) => t(b) - t(a)) as Post[];
