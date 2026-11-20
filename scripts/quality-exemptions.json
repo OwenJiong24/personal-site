@@ -1,6 +1,6 @@
 {
-  "_note": "质量豁免清单：低于 QUALITY_MIN 的已发文章在此登记，带修订日期；过期未修则构建失败。2026-11-09：day-001 按登记处置（journal 移出文章评分面），并删除已不存在的 key am-era-record。2026-11-12：ui-bugs-silent 到期，按登记补进构建实测数（179 页 / 30,663 字节 CSS / 57 token / 3 条断言）后移出，两版均 10/10。同日修出两条门禁 bug：① 只追加的核对日志被计入长度与 H2（惩罚攒证据，违 §0.5）② notes 区块的 kind 是中文，按 kind 判档会让随记掉进长文档被判长度红。剩余到期日 2026-11-18 / 11-20 / 11-25。",
-  "_asOf": "2026-11-12",
+  "_note": "质量豁免清单：低于 QUALITY_MIN 的已发文章在此登记，带修订日期；过期未修则构建失败。2026-11-20：当日到期的 6 条按登记 action 处置——aieo-checklist/nine-questions/ai-crawler-visibility 补 P1 核对日与第二条站内链（10/10），pricing-handmade 与 long-horizon-orchestration 本已 ≥8，orangeknows-site 补 P1 后 8/10；全部移出。剩余 6 条最早到期 2026-11-25。",
+  "_asOf": "2026-11-20",
   "exemptions": [
     {
       "key": "2026-10-30-tag-as-interface",
@@ -37,42 +37,6 @@
       "score": 6,
       "revise_by": "2026-11-25",
       "action": "去套话、补日期与立场"
-    },
-    {
-      "key": "2026-10-30-aieo-checklist",
-      "score": 7,
-      "revise_by": "2026-11-20",
-      "action": "补日期与站内动作"
-    },
-    {
-      "key": "2026-10-30-nine-questions",
-      "score": 7,
-      "revise_by": "2026-11-20",
-      "action": "补立场与动作"
-    },
-    {
-      "key": "2026-11-02-ai-crawler-visibility",
-      "score": 7,
-      "revise_by": "2026-11-20",
-      "action": "补立场与结构"
-    },
-    {
-      "key": "2026-10-30-pricing-handmade",
-      "score": 7,
-      "revise_by": "2026-11-20",
-      "action": "补立场与结构"
-    },
-    {
-      "key": "2026-10-30-orangeknows-site",
-      "score": 7,
-      "revise_by": "2026-11-20",
-      "action": "项目页扩到区间并补立场"
-    },
-    {
-      "key": "2026-11-03-long-horizon-orchestration",
-      "score": 7,
-      "revise_by": "2026-11-20",
-      "action": "补立场与站内动作"
     }
   ]
 }

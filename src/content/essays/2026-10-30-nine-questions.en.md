@@ -45,3 +45,7 @@ The rest hold: the size of the need ("being able to check whether someone has be
 Do not use it as a scoring sheet (nine items that "roughly pass" means none of them passed). **Use it as a veto**: any question you cannot answer, stop and go collect evidence.
 
 Assistant's observation: this is a rule OJ actually applies, not one written for display. On 2026-10-30 he used it to block two drafts he judged as lacking evidence.
+
+## P1 — a stance added 2026-11-20
+
+**P1 (check date 2026-12-20):** we will answer these nine questions against our own published figures and mark each answer as confirmed or wrong on that date. The arithmetic we use is the one printed on [the pricing calculator](/tools/pricing-calculator/), so the answers can be checked by hand rather than trusted; the [batch-size curve](/guides/batch-size-math/) is the other place the same cost base is worked out.

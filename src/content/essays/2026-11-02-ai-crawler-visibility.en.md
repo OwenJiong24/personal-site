@@ -72,3 +72,7 @@ Every endpoint a crawler needs is reachable and cheap to read. The full-text bun
 > The chain on this site exists because the claim I care about — "this was written then, and not edited later" — is checkable without any analytics account. Prefer claims that survive a missing dashboard.
 
 **Addendum (2026-11-03)**: the sentence above about this site's "no tracking scripts" promise was false the day it was written. Cloudflare Pages' site analytics integration injects `static.cloudflareinsights.com/beacon.min.js` - a cookieless, IP-anonymised page counter, but a third-party script all the same. Our 2026-11-03 self-audit caught it; the footer and about page now say what runs, and the build gate rejects the wording. Lesson: whatever the host injects for us is part of what we publicly claim.
+
+## P1 — a stance added 2026-11-20
+
+**P1 (check date 2026-12-02):** our published prediction stands - the citation count for this site stays at zero. We will publish the panel result that day, zero included, and will not call a page cited without a visible URL. The method and its limits are written down in [the citation panel baseline](/lab/citation-panel-baseline/) and [the pricing calculator](/tools/pricing-calculator/).

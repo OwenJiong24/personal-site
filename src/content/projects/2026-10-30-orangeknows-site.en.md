@@ -30,3 +30,7 @@ findable, it must be checkable, and it must still build in ten years.
 
 **What is not done**: no third-party timestamp anchor for the chain head, no reader data, search
 performance unmeasured.
+
+## P1 — a stance added 2026-11-20
+
+**P1 (check date 2026-12-20):** this project page will be rebuilt with a dated record count and a published verdict on whether the record chain is independently reproducible. The criterion is binary: run [verify-chain](/m/index.md) from a clean checkout and report PASS or FAIL, not an impression.

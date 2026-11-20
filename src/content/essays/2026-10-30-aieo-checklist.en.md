@@ -58,3 +58,7 @@ engine quotes me is an experiment — see below.
    appears and which paragraph was lifted. Results go into the journal.
 2. Watch Pages analytics for AI crawler arrivals.
 3. After 30 days publish "AIEO after 30 days: what worked, what I guessed wrong", naming the guesses that failed.
+
+## P1 — a stance added 2026-11-20
+
+**P1 (check date 2026-12-02):** we will re-run the fixed-question panel against this site and publish the counts, including a score of zero. Method: the same prompts, the same engines, no login; if the engines refuse to answer, the result is recorded as unmeasurable rather than quietly dropped. For the live starting point see [the citation panel baseline](/lab/citation-panel-baseline/) and [the AIEO product test](/essays/2026-11-03-aieo-product-test/).
